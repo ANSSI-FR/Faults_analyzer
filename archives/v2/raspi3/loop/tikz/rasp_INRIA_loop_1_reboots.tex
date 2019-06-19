@@ -1,0 +1,40 @@
+% This file was created by matplotlib2tikz v0.6.18.
+\begin{tikzpicture}
+
+\begin{axis}[
+colorbar,
+colorbar style={ytick={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14},yticklabels={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14},ylabel={}},
+colormap={mymap}{[1pt]
+  rgb(0pt)=(0,0,0.5);
+  rgb(22pt)=(0,0,1);
+  rgb(25pt)=(0,0,1);
+  rgb(68pt)=(0,0.86,1);
+  rgb(70pt)=(0,0.9,0.967741935483871);
+  rgb(75pt)=(0.0806451612903226,1,0.887096774193548);
+  rgb(128pt)=(0.935483870967742,1,0.0322580645161291);
+  rgb(130pt)=(0.967741935483871,0.962962962962963,0);
+  rgb(132pt)=(1,0.925925925925926,0);
+  rgb(178pt)=(1,0.0740740740740741,0);
+  rgb(182pt)=(0.909090909090909,0,0);
+  rgb(200pt)=(0.5,0,0)
+},
+point meta max=14.5,
+point meta min=-0.5,
+tick align=outside,
+x grid style={white!69.01960784313725!black},
+xmin=-0.5, xmax=39.5,
+xtick pos=both,
+y grid style={white!69.01960784313725!black},
+ymin=-0.5, ymax=39.5,
+ytick pos=left
+]
+\addplot graphics [includegraphics cmd=\pgfimage,xmin=-0.5, xmax=39.5, ymin=39.5, ymax=-0.5] {rasp_INRIA_loop_1_reboots-002.png};
+\end{axis}
+
+\node at ({$(current bounding box.south west)!0.5!(current bounding box.south east)$}|-{$(current bounding box.south west)!0.98!(current bounding box.north west)$})[
+  scale=0.6,
+  anchor=north,
+  text=black,
+  rotate=0.0
+]{ };
+\end{tikzpicture}
