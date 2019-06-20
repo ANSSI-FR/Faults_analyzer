@@ -65,6 +65,7 @@ class Analyzer():
         self.xor_with_other_obs = 0
         self.sub_with_other_obs = 0
         self.other_obs_value_after_execution = 0
+        self.response_bad_format = 0
 
         self.other_obs_value_after_execution_origin_occurence = [0]*self.nb_obs
         
@@ -86,6 +87,19 @@ class Analyzer():
     def __is_done(self, ope):
         return ope[self.done_name]
 
+    def __is_faulted(self, ope):
+        if self.__is_done(ope):
+            values = self.__get_values_from_log(ope)
+            if not len(values) is self.nb_obs:
+                self.response_bad_format += 1
+                return True
+            else:
+                for i in range(self.nb_obs):
+                    if self.to_test[i]:
+                        if values[i] != self.default_values[i]:
+                            return True
+        return False
+
     def __is_set_as_faulted(self, ope):
         if self.__is_done(ope):
             return ope[self.fault_name]
@@ -98,7 +112,7 @@ class Analyzer():
 
     def __get_values_from_log(self, ope):
         try:
-            log = ope[self.log_name]
+            log = str(ope[self.log_name])
             log = log.split(self.log_separator)
             values = log[1:-1]
             values = [int(v) for v in values]
@@ -279,7 +293,7 @@ class Analyzer():
             if self.__is_set_as_reboot(ope):
                 self.__is_reboot_analysis(ope)
 
-            if self.__is_set_as_faulted(ope):
+            if self.__is_faulted(ope):
                 self.__is_faulted_analysis(ope)
 
             i += 1
@@ -343,8 +357,13 @@ class Analyzer():
 
     def get_fault_models(self):
         ret = []
-        ret.append(["Fault model unknown", "Bit set", "Bit reset", "Bit flip", "Other obs value", "Other obs complementary value", "Add with other obs", "And with other obs", "Or with other obs", "Xor with other obs", "Sub with other obs", "Other obs value after execution"])
-        ret.append([self.fault_model_unknown, self.bit_set, self.bit_reset, self.bit_flip, self.other_obs_value, self.other_obs_complementary_value, self.add_with_other_obs, self.and_with_other_obs, self.or_with_other_obs, self.xor_with_other_obs, self.sub_with_other_obs, self.other_obs_value_after_execution])
+        ret.append(["Fault model unknown", "Bit set", "Bit reset", "Bit flip", "Other obs value", "Other obs complementary value", "Add with other obs", "And with other obs", "Or with other obs", "Xor with other obs", "Sub with other obs", "Other obs value after execution", "Response bad format"])
+        ret.append([self.fault_model_unknown, self.bit_set, self.bit_reset,
+                    self.bit_flip, self.other_obs_value,
+                    self.other_obs_complementary_value, self.add_with_other_obs,
+                    self.and_with_other_obs, self.or_with_other_obs,
+                    self.xor_with_other_obs, self.sub_with_other_obs,
+                    self.other_obs_value_after_execution, self.response_bad_format])
         return ret
     
     def get_analysis_results(self):
