@@ -26,11 +26,18 @@ class Analyzer():
         self.delay_name = PARAMS["delay_name"]
         self.nb_bits = PARAMS["nb_bits"]        
         self.df = PARAMS["dataframe"]
+        self.base_add_reg = None
+        self.exp_type = None
+        if "type" in PARAMS:
+            self.exp_type = PARAMS["type"]
+        if self.exp_type is "memory":
+            self.base_add_reg = PARAMS["base_add_reg"]
         
         self.powers = list(self.df[self.power_name].unique())
         self.delays = list(self.df[self.delay_name].unique())
 
         self.values_after_execution = []
+        self.values_after_current_execution = []
         self.nb_done = 0
         self.nb_to_do = len(self.df.index)
         self.nb_reboots = 0
@@ -43,6 +50,7 @@ class Analyzer():
         self.faulted_obs = [0]*self.nb_obs
         self.faulted_values = []
         self.faulted_values_occurrence = []
+        self.base_address = []
         self.analysis_done = False
 
         self.fault_model_unknown = 0
@@ -56,7 +64,10 @@ class Analyzer():
         self.or_with_other_obs = 0
         self.xor_with_other_obs = 0
         self.sub_with_other_obs = 0
+        self.other_obs_value_after_execution = 0
 
+        self.other_obs_value_after_execution_origin_occurence = [0]*self.nb_obs
+        
     def __get_faulted_obs(self, ope):
         ret = []
         values = self.__get_values_from_log(ope)
@@ -99,8 +110,12 @@ class Analyzer():
         if not self.__is_set_as_reboot(ope) and not self.__is_set_as_faulted(ope):
             return self.__get_values_from_log(ope)
 
+    def __get_values_after_current_execution(self, ope):
+        return self.__get_values_from_log(ope)
+        
     def __is_done_analysis(self, ope):
         self.nb_done += 1
+        self.values_after_current_execution = self.__get_values_after_current_execution(ope)
         if len(self.values_after_execution) == 0:
             self.values_after_execution = self.__get_values_after_execution(ope)
 
@@ -112,14 +127,21 @@ class Analyzer():
     def __update_faulted_obs(self, faulted_obs):
         self.faulted_obs[faulted_obs] += 1        
 
-    def __update_faulted_values(self, faulted_value):
+    def __get_base_address(self, ope):
+        return self.__get_values_from_log(ope)[self.base_add_reg]
+        
+    def __update_faulted_values(self, faulted_value, ope):
         if not faulted_value in self.faulted_values:
             self.faulted_values.append(faulted_value)
             self.faulted_values_occurrence.append(1)
+            if self.exp_type is "memory":
+                self.base_address.append([self.__get_base_address(ope)])
         else:
             for i, v in enumerate(self.faulted_values):
                 if v == faulted_value:
                     self.faulted_values_occurrence[i] += 1
+                    if self.exp_type is "memory":
+                        self.base_address[i].append(self.__get_base_address(ope))
 
     def __update_bit_set(self, faulted_value):
         max_value = (1 << self.nb_bits) - 1
@@ -146,6 +168,18 @@ class Analyzer():
             return True
         return False
 
+    def __update_other_obs_value_after_execution_origin_occurence(self, faulted_value):
+        origin = self.values_after_current_execution.index(faulted_value)
+        self.other_obs_value_after_execution_origin_occurence[origin] += 1
+    
+    def __update_other_obs_value_after_execution(self, faulted_obs, faulted_value):
+        if s2u(faulted_value, self.nb_bits) in self.values_after_current_execution:
+            if not faulted_obs is self.values_after_current_execution.index(s2u(faulted_value, self.nb_bits)):
+                self.other_obs_value_after_execution += 1
+                self.__update_other_obs_value_after_execution_origin_occurence(faulted_value)
+                return True
+        return False
+    
     def __update_other_obs_complementary_value(self, faulted_obs, faulted_value):
         for val in self.default_values:
             if s2u(faulted_value, self.nb_bits) == a2_comp(val, self.nb_bits):
@@ -198,15 +232,26 @@ class Analyzer():
         faulted_value = faulted[1]
         fault_model_known = False
         fault_model_known |= self.__update_bit_set(faulted_value)
-        fault_model_known |= self.__update_bit_reset(faulted_value)
-        fault_model_known |= self.__update_bit_flip(faulted_obs, faulted_value)
-        fault_model_known |= self.__update_other_obs_value(faulted_obs, faulted_value)
-        fault_model_known |= self.__update_other_obs_complementary_value(faulted_obs, faulted_value)
-        fault_model_known |= self.__update_add_with_other_obs(faulted_obs, faulted_value)
-        fault_model_known |= self.__update_and_with_other_obs(faulted_obs, faulted_value)
-        fault_model_known |= self.__update_or_with_other_obs(faulted_obs, faulted_value)
-        fault_model_known |= self.__update_xor_with_other_obs(faulted_obs, faulted_value)
-        fault_model_known |= self.__update_sub_with_other_obs(faulted_obs, faulted_value)
+        if not fault_model_known:
+            fault_model_known |= self.__update_bit_reset(faulted_value)
+        if not fault_model_known:
+            fault_model_known |= self.__update_bit_flip(faulted_obs, faulted_value)
+        if not fault_model_known:
+            fault_model_known |= self.__update_other_obs_value(faulted_obs, faulted_value)
+        if not fault_model_known:
+            fault_model_known |= self.__update_other_obs_complementary_value(faulted_obs, faulted_value)
+        if not fault_model_known:
+            fault_model_known |= self.__update_add_with_other_obs(faulted_obs, faulted_value)
+        if not fault_model_known:
+            fault_model_known |= self.__update_and_with_other_obs(faulted_obs, faulted_value)
+        if not fault_model_known:
+            fault_model_known |= self.__update_or_with_other_obs(faulted_obs, faulted_value)
+        if not fault_model_known:
+            fault_model_known |= self.__update_xor_with_other_obs(faulted_obs, faulted_value)
+        if not fault_model_known:
+            fault_model_known |= self.__update_sub_with_other_obs(faulted_obs, faulted_value)
+        if not fault_model_known:
+            fault_model_known |= self.__update_other_obs_value_after_execution(faulted_obs, faulted_value)
         if not fault_model_known:
             self.fault_model_unknown += 1
                     
@@ -216,7 +261,7 @@ class Analyzer():
             self.nb_faulted_obs += len(ope_faulted_obs)
             for faulted in ope_faulted_obs:
                 self.__update_faulted_obs(faulted[0])
-                self.__update_faulted_values(faulted[1])
+                self.__update_faulted_values(faulted[1], ope)
                 self.__update_fault_models(faulted)
         
     def __is_faulted_analysis(self, ope):
@@ -298,8 +343,8 @@ class Analyzer():
 
     def get_fault_models(self):
         ret = []
-        ret.append(["Fault model unknown", "Bit set", "Bit reset", "Bit flip", "Other obs value", "Other obs complementary value", "Add with other obs", "And with other obs", "Or with other obs", "Xor with other obs", "Sub with other obs"])
-        ret.append([self.fault_model_unknown, self.bit_set, self.bit_reset, self.bit_flip, self.other_obs_value, self.other_obs_complementary_value, self.add_with_other_obs, self.and_with_other_obs, self.or_with_other_obs, self.xor_with_other_obs, self.sub_with_other_obs])
+        ret.append(["Fault model unknown", "Bit set", "Bit reset", "Bit flip", "Other obs value", "Other obs complementary value", "Add with other obs", "And with other obs", "Or with other obs", "Xor with other obs", "Sub with other obs", "Other obs value after execution"])
+        ret.append([self.fault_model_unknown, self.bit_set, self.bit_reset, self.bit_flip, self.other_obs_value, self.other_obs_complementary_value, self.add_with_other_obs, self.and_with_other_obs, self.or_with_other_obs, self.xor_with_other_obs, self.sub_with_other_obs, self.other_obs_value_after_execution])
         return ret
     
     def get_analysis_results(self):
@@ -322,3 +367,9 @@ class Analyzer():
             "fault_models": self.get_fault_models()
         }
         return ret
+
+    def get_base_address(self):
+        return self.base_address
+
+    def get_other_obs_value_after_execution_origin_occurence(self):
+        return self.other_obs_value_after_execution_origin_occurence

@@ -1,12 +1,6 @@
 from importlib import import_module
 from prettytable import PrettyTable
 
-def import_params(param_file="params"):
-    MODULE_NAME = param_file
-    MODULE = import_module(MODULE_NAME)
-    PARAMS = MODULE.PARAMS
-    return PARAMS
-
 def print_progress_bar(iteration,
                        total,
                        prefix="",
@@ -22,12 +16,21 @@ def print_progress_bar(iteration,
         print()
 
 def norm_percent(raw):
-    return [float(i)/sum(raw)*100 for i in raw]
+    if not sum(raw) is 0:
+        return [float(i)/sum(raw)*100 for i in raw]
+    else:
+        return [0 for i in raw]
 
 def format_table(table, format_str):
-    return [format_str.format(i) for i in table]
+    ret = []
+    for t in table:
+        if type(t) is list:
+            ret.append(format_table(t, format_str))
+        else:
+            ret.append(format_str.format(t))
+    return ret
 
-def print_result(values, results, titles=[]):
+def create_table(values, results, titles=[]):
     t = PrettyTable(titles)
     for i in range(len(values)):
         line = [values[i]]
@@ -36,4 +39,12 @@ def print_result(values, results, titles=[]):
         t.add_row(line)
     t.align = "r"
     t.float_format = "3.2"
+    return t
+
+def print_result(values, results, titles=[]):
+    t = create_table(values, results, titles)
     print(t)
+
+def add_to_html_file(file_descriptor, values, results, titles=[]):
+    t = create_table(values, results, titles)
+    file_descriptor.write(t.get_html_string())

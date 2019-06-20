@@ -25,5 +25,7 @@ PARAMS = {
     "log_name": "log",
     "log_separator": ";",
     "data_format": "0x{:08x}",
-    "nb_bits": 32
+    "nb_bits": 32,
+    "type": "memory",
+    "base_add_reg": 0
 }
