@@ -5,6 +5,7 @@ from utils import *
 from bin_utils import *
 from analyzer import Analyzer
 from argparse import ArgumentParser
+from plotter import Plotter, PlotterType
 
 sys.path += [os.getcwd()]
 
@@ -32,12 +33,8 @@ default_values = PARAMS["default_values"]
 obs_names = PARAMS["obs_names"]
 to_test = PARAMS["to_test"]
 values_after_execution = anal.get_values_after_execution()
-nb_to_do = anal.get_nb_to_do()
-nb_done = anal.get_nb_done()
-nb_reboots = anal.get_nb_reboots()
 reboot_powers = anal.get_reboot_powers()
 reboot_delays = anal.get_reboot_delays()
-nb_faults = anal.get_nb_faults()
 fault_powers = anal.get_fault_powers()
 fault_delays = anal.get_fault_delays()
 faulted_obs = anal.get_faulted_obs()
@@ -46,6 +43,8 @@ faulted_values_occurrence = anal.get_faulted_values_occurrence()
 powers = anal.get_powers()
 delays = anal.get_delays()
 fault_models = anal.get_fault_models()
+general_stats = anal.get_general_stats()
+reboot_matrix = anal.get_reboot_matrix()
 
 obs_value_after_execution_origin_occurrence = None
 if get_fault_model_number(fault_models, "Other obs value after execution"):
@@ -63,6 +62,11 @@ values_after_execution = to_unsigned_list(values_after_execution, nb_bits)
 faulted_values = to_unsigned_list(faulted_values, nb_bits)
 
 result_tables = [
+    {
+        "values": general_stats["titles"],
+        "results": [general_stats["data"]],
+        "titles": ["Stat", "Value"]
+    },
     {
         "values": powers,
         "results": [norm_percent(fault_powers), norm_percent(reboot_powers)],
@@ -90,13 +94,13 @@ result_tables = [
     }
 ]
 
-if get_exp_type(PARAMS) is "memory":
-    result_tables.append(
-        {
-            "values": format_table(faulted_values, data_format),
-            "results": [norm_percent(faulted_values_occurrence), format_table(base_address, data_format)],
-            "titles": ["Faulted values", "Occurrence (%)", "Base address"]
-        })
+# if get_exp_type(PARAMS) is "memory":
+#     result_tables.append(
+#         {
+#             "values": format_table(faulted_values, data_format),
+#             "results": [norm_percent(faulted_values_occurrence), format_table(base_address, data_format)],
+#             "titles": ["Faulted values", "Occurrence (%)", "Base address"]
+#         })
 
 if not obs_value_after_execution_origin_occurrence is None:
     result_tables.append(
@@ -106,24 +110,21 @@ if not obs_value_after_execution_origin_occurrence is None:
             "titles": ["Origin of the faulted value after execution", "Occurence (%)"]
         })
 
-stats_str = ""
-stats_str += "Number of operation to do: {}\n".format(nb_to_do)
-stats_str += "Number of operation done: {}\n".format(nb_done)
-stats_str += "Percentage done: {:3.2f}%\n".format(100*nb_done/float(nb_to_do))
-stats_str += "Number of reboots: {}\n".format(nb_reboots)
-stats_str += "Percentage of reboots: {:3.2f}%\n".format(100*nb_reboots/float(nb_done))
-stats_str += "Number of faults: {}\n".format(nb_faults)
-stats_str += "Percentage of faults: {:3.2f}%\n".format(100*nb_faults/float(nb_done))
-stats_str += "Number of faulted obs: {}\n".format(nb_faulted_obs)
-stats_str += "Average faulted obs per fault: {:3.2f}\n".format(nb_faulted_obs/float(nb_faults))
+str_tables = ""
+html_str_tables = ""
 
-f = open("results.html", "a")
-
-f.write("<p>" + stats_str.replace("\n","<br>") + "</p>")
-
-print(stats_str)
 for result_table in result_tables:
-    print_result(**result_table)
-    add_to_html_file(f, **result_table)
+    table = create_table(**result_table)
+    str_tables += table.get_string() + "\n"
+    html_str_tables += table.get_html_string()
 
-f.close()
+print(str_tables)
+
+if not reboot_matrix is None:
+    to_plot = [{
+        "title": "Reboots",
+        "type": PlotterType.MATRIX,
+        "data": reboot_matrix
+    }]
+    pl = Plotter(to_plot)
+    pl.show()

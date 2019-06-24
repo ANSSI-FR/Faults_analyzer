@@ -1,11 +1,19 @@
 import logging
 import daiquiri
+import numpy as np
 
 from bin_utils import *
 from utils import print_progress_bar
 
 class Analyzer():
 
+    def __get_map_size(self):
+        map_size = []
+        for coord in self.coordinates:
+            size = max(list(self.df[coord].unique())) + 1
+            map_size.append(size)
+        return map_size
+    
     def __init_logger(self):
         daiquiri.setup(level=logging.DEBUG)
         return daiquiri.getLogger()       
@@ -24,17 +32,24 @@ class Analyzer():
         self.log_separator = PARAMS["log_separator"]
         self.power_name = PARAMS["power_name"]
         self.delay_name = PARAMS["delay_name"]
-        self.nb_bits = PARAMS["nb_bits"]        
+        self.nb_bits = PARAMS["nb_bits"]
         self.df = PARAMS["dataframe"]
+        self.executed_instructions = PARAMS["executed_instructions"]
         self.base_add_reg = None
         self.exp_type = None
         if "type" in PARAMS:
             self.exp_type = PARAMS["type"]
         if self.exp_type is "memory":
             self.base_add_reg = PARAMS["base_add_reg"]
+        self.coordinates = None
+        if "coordinates" in PARAMS:
+            self.coordinates = PARAMS["coordinates"]
         
         self.powers = list(self.df[self.power_name].unique())
         self.delays = list(self.df[self.delay_name].unique())
+        self.map_size = None
+        if not self.coordinates is None:
+            self.map_size = self.__get_map_size()
 
         self.values_after_execution = []
         self.values_after_current_execution = []
@@ -65,10 +80,15 @@ class Analyzer():
         self.xor_with_other_obs = 0
         self.sub_with_other_obs = 0
         self.other_obs_value_after_execution = 0
-        self.response_bad_format = 0
+        self.nb_responses_bad_format = 0
+        self.executed_instruction = 0
 
         self.other_obs_value_after_execution_origin_occurence = [0]*self.nb_obs
-        
+
+        self.reboot_matrix = None
+        if not self.map_size is None:
+            self.reboot_matrix = np.zeros(self.map_size)
+
     def __get_faulted_obs(self, ope):
         ret = []
         values = self.__get_values_from_log(ope)
@@ -87,17 +107,21 @@ class Analyzer():
     def __is_done(self, ope):
         return ope[self.done_name]
 
-    def __is_faulted(self, ope):
+    def __is_response_bad_formated(self, ope):
         if self.__is_done(ope):
             values = self.__get_values_from_log(ope)
             if not len(values) is self.nb_obs:
-                self.response_bad_format += 1
+                self.nb_responses_bad_format += 1
                 return True
-            else:
-                for i in range(self.nb_obs):
-                    if self.to_test[i]:
-                        if values[i] != self.default_values[i]:
-                            return True
+            return False
+
+    def __is_faulted(self, ope):
+        if self.__is_done(ope):
+            values = self.__get_values_from_log(ope)
+            for i in range(self.nb_obs):
+                if self.to_test[i]:
+                    if values[i] != self.default_values[i]:
+                        return True
         return False
 
     def __is_set_as_faulted(self, ope):
@@ -133,13 +157,25 @@ class Analyzer():
         if len(self.values_after_execution) == 0:
             self.values_after_execution = self.__get_values_after_execution(ope)
 
+    def __update_matrix(self, ope, mat):
+        ope_coord = []
+        for coord in self.coordinates:
+            ope_coord.append(ope[coord])
+        mat[tuple(ope_coord)] += 1
+        
+
+    def __update_reboot_matrix(self, ope):
+        self.__update_matrix(ope, self.reboot_matrix)
+
     def __is_reboot_analysis(self, ope):
         self.nb_reboots += 1
         self.__update_result(ope, self.powers, self.reboot_powers, self.power_name)
         self.__update_result(ope, self.delays, self.reboot_delays, self.delay_name)
+        if not self.coordinates is None:
+            self.__update_reboot_matrix(ope)
 
     def __update_faulted_obs(self, faulted_obs):
-        self.faulted_obs[faulted_obs] += 1        
+        self.faulted_obs[faulted_obs] += 1
 
     def __get_base_address(self, ope):
         return self.__get_values_from_log(ope)[self.base_add_reg]
@@ -240,7 +276,13 @@ class Analyzer():
                     self.sub_with_other_obs += 1
                     return True
         return False
-    
+
+    def __update_executed_instruction(self, faulted_value):
+        if s2u(faulted_value, self.nb_bits) in self.executed_instructions:
+            self.executed_instruction += 1
+            return True
+        return False
+
     def __update_fault_models(self, faulted):
         faulted_obs = faulted[0]
         faulted_value = faulted[1]
@@ -267,8 +309,10 @@ class Analyzer():
         if not fault_model_known:
             fault_model_known |= self.__update_other_obs_value_after_execution(faulted_obs, faulted_value)
         if not fault_model_known:
+            fault_model_known |= self.__update_executed_instruction(faulted_value)
+        if not fault_model_known:
             self.fault_model_unknown += 1
-                    
+
     def __update_faulted_obs_and_values(self, ope):
         ope_faulted_obs = self.__get_faulted_obs(ope)
         if not ope_faulted_obs is None:
@@ -293,8 +337,9 @@ class Analyzer():
             if self.__is_set_as_reboot(ope):
                 self.__is_reboot_analysis(ope)
 
-            if self.__is_faulted(ope):
-                self.__is_faulted_analysis(ope)
+            if not self.__is_response_bad_formated(ope):
+                if self.__is_faulted(ope):
+                    self.__is_faulted_analysis(ope)
 
             i += 1
             print_progress_bar(i, self.nb_to_do, prefix = "Analysis progress:",
@@ -357,15 +402,47 @@ class Analyzer():
 
     def get_fault_models(self):
         ret = []
-        ret.append(["Fault model unknown", "Bit set", "Bit reset", "Bit flip", "Other obs value", "Other obs complementary value", "Add with other obs", "And with other obs", "Or with other obs", "Xor with other obs", "Sub with other obs", "Other obs value after execution", "Response bad format"])
+        ret.append(["Fault model unknown", "Bit set", "Bit reset", "Bit flip", "Other obs value", "Other obs complementary value", "Add with other obs", "And with other obs", "Or with other obs", "Xor with other obs", "Sub with other obs", "Other obs value after execution", "Executed instruction"])
         ret.append([self.fault_model_unknown, self.bit_set, self.bit_reset,
                     self.bit_flip, self.other_obs_value,
-                    self.other_obs_complementary_value, self.add_with_other_obs,
-                    self.and_with_other_obs, self.or_with_other_obs,
-                    self.xor_with_other_obs, self.sub_with_other_obs,
-                    self.other_obs_value_after_execution, self.response_bad_format])
+                    self.other_obs_complementary_value,
+                    self.add_with_other_obs, self.and_with_other_obs,
+                    self.or_with_other_obs, self.xor_with_other_obs,
+                    self.sub_with_other_obs,
+                    self.other_obs_value_after_execution,
+                    self.executed_instruction])
         return ret
-    
+
+    def get_nb_responses_bad_format(self):
+        return self.nb_responses_bad_format
+
+    def get_general_stats(self):
+        ret = {
+            "titles": ["Number of operations to do",
+                       "Number of operation done",
+                       "Percentage done (%)",
+                       "Number of reboots",
+                       "Percentage of reboots (%)",
+                       "Number of responses bad formated",
+                       "Percentage of responses bad formated (%)",
+                       "Number of faults",
+                       "Percentage of faults (%)",
+                       "Number of faulted obs",
+                       "Average faulted obs per fault"],
+            "data": [self.nb_to_do,
+                     self.nb_done,
+                     100*self.nb_done/float(self.nb_to_do),
+                     self.nb_reboots,
+                     100*self.nb_reboots/float(self.nb_done),
+                     self.nb_responses_bad_format,
+                     100*self.nb_responses_bad_format/float(self.nb_done),
+                     self.nb_faults,
+                     100*self.nb_faults/float(self.nb_done),
+                     self.nb_faulted_obs,
+                     self.nb_faulted_obs/float(self.nb_faults)]
+        }
+        return ret
+
     def get_analysis_results(self):
         ret = {
             "nb_to_do": self.nb_to_do,
@@ -392,3 +469,6 @@ class Analyzer():
 
     def get_other_obs_value_after_execution_origin_occurence(self):
         return self.other_obs_value_after_execution_origin_occurence
+
+    def get_reboot_matrix(self):
+        return self.reboot_matrix
