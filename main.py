@@ -20,6 +20,7 @@ def get_fault_model_number(fault_model_list, fault_model):
 
 PARSER = ArgumentParser(description="Todo.")
 PARSER.add_argument("params_file", help="File containing the paramaters for the analysis.", type=str)
+PARSER.add_argument("-t", "--trace", help="If set, will print in real time the matrix.", action="store_true")
 args = PARSER.parse_args()
 
 MODULE_NAME = args.params_file.replace(".py","").replace("/",".")
@@ -44,7 +45,6 @@ powers = anal.get_powers()
 delays = anal.get_delays()
 fault_models = anal.get_fault_models()
 general_stats = anal.get_general_stats()
-reboot_matrix = anal.get_reboot_matrix()
 
 obs_value_after_execution_origin_occurrence = None
 if get_fault_model_number(fault_models, "Other obs value after execution"):
@@ -120,11 +120,36 @@ for result_table in result_tables:
 
 print(str_tables)
 
-if not reboot_matrix is None:
-    to_plot = [{
-        "title": "Reboots",
-        "type": PlotterType.MATRIX,
-        "data": reboot_matrix
-    }]
+reboot_matrix = anal.get_reboot_matrix()
+fault_matrix = anal.get_fault_matrix()
+done_matrix = anal.get_done_matrix()
+
+if "coordinates" in PARAMS:
+    to_plot = [
+        {
+            "title": "Done",
+            "type": PlotterType.MATRIX,
+            "data": done_matrix
+        },
+        {
+            "title": "Reboots",
+            "type": PlotterType.MATRIX,
+            "data": reboot_matrix
+        },
+        {
+            "title": "Faults",
+            "type": PlotterType.MATRIX,
+            "data": fault_matrix
+        }
+    ]
     pl = Plotter(to_plot)
     pl.show()
+
+# if TRACE:
+#     #update dataframe
+#     #pass dataframe to analyzer
+#     #run analysis
+#     #get matrix
+#     #plot matrix
+#     pass
+

@@ -86,8 +86,12 @@ class Analyzer():
         self.other_obs_value_after_execution_origin_occurence = [0]*self.nb_obs
 
         self.reboot_matrix = None
+        self.fault_matrix = None
+        self.done_matrix = None
         if not self.map_size is None:
             self.reboot_matrix = np.zeros(self.map_size)
+            self.fault_matrix = np.zeros(self.map_size)
+            self.done_matrix = np.zeros(self.map_size)
 
     def __get_faulted_obs(self, ope):
         ret = []
@@ -156,13 +160,20 @@ class Analyzer():
         self.values_after_current_execution = self.__get_values_after_current_execution(ope)
         if len(self.values_after_execution) == 0:
             self.values_after_execution = self.__get_values_after_execution(ope)
+        if not self.coordinates is None:
+            self.__update_done_matrix(ope)
 
     def __update_matrix(self, ope, mat):
         ope_coord = []
         for coord in self.coordinates:
             ope_coord.append(ope[coord])
         mat[tuple(ope_coord)] += 1
-        
+
+    def __update_done_matrix(self, ope):
+        self.__update_matrix(ope, self.done_matrix)
+
+    def __update_fault_matrix(self, ope):
+        self.__update_matrix(ope, self.fault_matrix)
 
     def __update_reboot_matrix(self, ope):
         self.__update_matrix(ope, self.reboot_matrix)
@@ -218,16 +229,13 @@ class Analyzer():
             return True
         return False
 
-    def __update_other_obs_value_after_execution_origin_occurence(self, faulted_value):
-        origin = self.values_after_current_execution.index(faulted_value)
-        self.other_obs_value_after_execution_origin_occurence[origin] += 1
-    
     def __update_other_obs_value_after_execution(self, faulted_obs, faulted_value):
-        if s2u(faulted_value, self.nb_bits) in self.values_after_current_execution:
-            if not faulted_obs is self.values_after_current_execution.index(s2u(faulted_value, self.nb_bits)):
-                self.other_obs_value_after_execution += 1
-                self.__update_other_obs_value_after_execution_origin_occurence(faulted_value)
-                return True
+        for i, val in enumerate(self.values_after_current_execution):
+            if not i is faulted_obs:
+                if s2u(faulted_value, self.nb_bits) == s2u(int(val), self.nb_bits):
+                    self.other_obs_value_after_execution += 1
+                    self.other_obs_value_after_execution_origin_occurence[i] += 1
+                    return True
         return False
     
     def __update_other_obs_complementary_value(self, faulted_obs, faulted_value):
@@ -327,6 +335,9 @@ class Analyzer():
         self.__update_result(ope, self.powers, self.fault_powers, self.power_name)
         self.__update_result(ope, self.delays, self.fault_delays, self.delay_name)
         self.__update_faulted_obs_and_values(ope)
+        if not self.coordinates is None:
+            self.__update_fault_matrix(ope)
+
         
     def __ope_loop_analysis(self):
         i=0
@@ -472,3 +483,9 @@ class Analyzer():
 
     def get_reboot_matrix(self):
         return self.reboot_matrix
+
+    def get_fault_matrix(self):
+        return self.fault_matrix
+
+    def get_done_matrix(self):
+        return self.done_matrix
