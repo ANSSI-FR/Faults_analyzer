@@ -13,14 +13,13 @@ class Analyzer():
             size = max(list(self.df[coord].unique())) + 1
             map_size.append(size)
         return map_size
-    
+
     def __init_logger(self):
-        daiquiri.setup(level=logging.DEBUG)
-        return daiquiri.getLogger()       
-    
+        daiquiri.setup(level=logging.WARNING)
+
     def __init__(self, PARAMS):
         self.logger = self.__init_logger()
-        
+
         self.obs_names = PARAMS["obs_names"]
         self.nb_obs = len(self.obs_names)
         self.default_values = PARAMS["default_values"]
@@ -44,12 +43,28 @@ class Analyzer():
         self.coordinates = None
         if "coordinates" in PARAMS:
             self.coordinates = PARAMS["coordinates"]
-        
+        self.stage_coord_keys = None
+        if "stage_coordinates" in PARAMS:
+            self.stage_coord_keys = PARAMS["stage_coordinates"]
+
         self.powers = list(self.df[self.power_name].unique())
         self.delays = list(self.df[self.delay_name].unique())
         self.map_size = None
+        self.grid_coordinates = None
         if not self.coordinates is None:
             self.map_size = self.__get_map_size()
+            self.grid_coordinates = []
+            for i in range(len(self.map_size)):
+                self.grid_coordinates.append([])
+
+        self.stage_coordinates = None
+        if not self.stage_coord_keys is None:
+            if len(self.stage_coord_keys) is len(self.map_size):
+                self.stage_coordinates = []
+                for i in range(len(self.stage_coord_keys)):
+                    self.stage_coordinates.append([])
+            else:
+                self.logger.warning("Stage and Grid don't have the same dimension")
 
         self.values_after_execution = []
         self.values_after_current_execution = []
@@ -329,7 +344,7 @@ class Analyzer():
                 self.__update_faulted_obs(faulted[0])
                 self.__update_faulted_values(faulted[1], ope)
                 self.__update_fault_models(faulted)
-        
+
     def __is_faulted_analysis(self, ope):
         self.nb_faults += 1
         self.__update_result(ope, self.powers, self.fault_powers, self.power_name)
@@ -338,10 +353,18 @@ class Analyzer():
         if not self.coordinates is None:
             self.__update_fault_matrix(ope)
 
-        
+    def __update_coordinates_correspondance(self, ope):
+        for i, coord in enumerate(self.coordinates):
+            if not ope[coord] in self.grid_coordinates[i]:
+                self.grid_coordinates[i].append(ope[coord])
+                self.stage_coordinates[i].append(ope[self.stage_coord_keys[i]])
+
     def __ope_loop_analysis(self):
         i=0
         for _, ope in self.df.iterrows():
+            if not self.stage_coordinates is None:
+                self.__update_coordinates_correspondance(ope)
+
             if self.__is_done(ope):
                 self.__is_done_analysis(ope)
 
@@ -489,3 +512,8 @@ class Analyzer():
 
     def get_done_matrix(self):
         return self.done_matrix
+
+    def get_coordinates_correspondance(self):
+        if (not self.grid_coordinates is None) and (not self.stage_coordinates is None):
+            return [self.grid_coordinates, self.stage_coordinates]
+

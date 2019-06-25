@@ -45,6 +45,7 @@ powers = anal.get_powers()
 delays = anal.get_delays()
 fault_models = anal.get_fault_models()
 general_stats = anal.get_general_stats()
+coordinates_correspondance = anal.get_coordinates_correspondance()
 
 obs_value_after_execution_origin_occurrence = None
 if get_fault_model_number(fault_models, "Other obs value after execution"):
@@ -94,14 +95,6 @@ result_tables = [
     }
 ]
 
-# if get_exp_type(PARAMS) is "memory":
-#     result_tables.append(
-#         {
-#             "values": format_table(faulted_values, data_format),
-#             "results": [norm_percent(faulted_values_occurrence), format_table(base_address, data_format)],
-#             "titles": ["Faulted values", "Occurrence (%)", "Base address"]
-#         })
-
 if not obs_value_after_execution_origin_occurrence is None:
     result_tables.append(
         {
@@ -109,6 +102,15 @@ if not obs_value_after_execution_origin_occurrence is None:
             "results": [norm_percent(obs_value_after_execution_origin_occurrence)],
             "titles": ["Origin of the faulted value after execution", "Occurence (%)"]
         })
+
+if not coordinates_correspondance is None:
+    for i in range(len(PARAMS["coordinates"])):
+        result_tables.append(
+            {
+                "values": coordinates_correspondance[0][i],
+                "results": [coordinates_correspondance[1][i]],
+                "titles": [PARAMS["coordinates"][i], PARAMS["stage_coordinates"][i]]
+            })
 
 str_tables = ""
 html_str_tables = ""
