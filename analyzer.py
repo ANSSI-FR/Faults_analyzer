@@ -51,10 +51,6 @@ class Analyzer():
     stage_coordinates - a list containing the key names for getting the
     position of the stage arms.
 
-    type - type of the experiment (memory or registers).
-
-    TODO: remove the "type" parameter.
-
     """
 
     def __get_map_size(self):
@@ -76,16 +72,30 @@ class Analyzer():
             map_size.append(size)
         return map_size
     
-    def __init_logger(self):
+    def __init_logger(self, log_level=logging.DEBUG):
         """Initialize the logger the corresponding level.
-
-        TODO: pass the logging level as an argument.
 
         """
         daiquiri.setup(level=logging.DEBUG)
-        return daiquiri.getLogger()       
+        return daiquiri.getLogger()
     
-    def __init__(self, PARAMS):
+    def __init__(self,
+                 dataframe,
+                 obs_names,
+                 default_values,
+                 to_test,
+                 power_name,
+                 delay_name,
+                 done_name,
+                 fault_name,
+                 reboot_name,
+                 log_name,
+                 log_separator,
+                 data_format,
+                 nb_bits,
+                 executed_instructions,
+                 coordinates = None,
+                 log_level=logging.DEBUG):
         """Constructor of the class. Parse the parameters from the PARAMS dictionary.
         Realize also some other initialization.
 
@@ -94,42 +104,34 @@ class Analyzer():
         PARAMS - a dictionary containing all the parameters needed for the
         analysis of the experiments
 
-        TODO: pass all parameters as arguments instead of a dictionnary
         TODO: refactoring and clean up
 
         """
         # Initialization of the logger
-        self.logger = self.__init_logger()
+        self.logger = self.__init_logger(log_level)
 
         # Parsing of the PARAMS dictionary
-        self.obs_names = PARAMS["obs_names"]
+        self.obs_names = obs_names
         self.nb_obs = len(self.obs_names)
-        self.default_values = PARAMS["default_values"]
-        self.to_test = PARAMS["to_test"]
-        self.done_name = PARAMS["done_name"]
-        self.fault_name = PARAMS["fault_name"]
-        self.reboot_name = PARAMS["reboot_name"]
-        self.log_name = PARAMS["log_name"]
-        self.log_separator = PARAMS["log_separator"]
-        self.power_name = PARAMS["power_name"]
-        self.delay_name = PARAMS["delay_name"]
-        self.nb_bits = PARAMS["nb_bits"]
-        self.df = PARAMS["dataframe"]
-        self.executed_instructions = PARAMS["executed_instructions"]
-        self.base_add_reg = None
-        self.exp_type = None
-        if "type" in PARAMS:
-            self.exp_type = PARAMS["type"]
-        if self.exp_type is "memory":
-            self.base_add_reg = PARAMS["base_add_reg"]
-        self.coordinates = None
-        if "coordinates" in PARAMS:
-            self.coordinates = PARAMS["coordinates"]
+        self.default_values = default_values
+        self.to_test = to_test
+        self.done_name = done_name
+        self.fault_name = fault_name
+        self.reboot_name = reboot_name
+        self.log_name = log_name
+        self.log_separator = log_separator
+        self.power_name = power_name
+        self.delay_name = delay_name
+        self.nb_bits = nb_bits
 
+        self.df = dataframe
         # Extract all the power, delay value from the dataframe
         self.powers = list(self.df[self.power_name].unique())
         self.delays = list(self.df[self.delay_name].unique())
 
+        self.executed_instructions = executed_instructions
+
+        self.coordinates = coordinates
         # Extract the map size
         self.map_size = None
         if not self.coordinates is None:
@@ -150,7 +152,6 @@ class Analyzer():
         self.faulted_obs = [0]*self.nb_obs
         self.faulted_values = []
         self.faulted_values_occurrence = []
-        self.base_address = []
         self.analysis_done = False
 
         # Fault models
@@ -426,23 +427,8 @@ class Analyzer():
         """
         self.faulted_obs[faulted_obs] += 1
 
-    def __get_base_address(self, ope):
-        """Return the value of the register containing the base address from the
-        operation.
-
-        Arguments:
-
-        ope - the operation, which is a line from the dataframe, containing all
-        the information about this step of the experiment.
-
-        TODO: remove this useless function.
-
-        """
-        return self.__get_values_from_log(ope)[self.base_add_reg]
-
     def __update_faulted_values(self, faulted_value, ope):
-        """Update the faulted values, their occurrence and the used base address in the
-        case of a memory experiment.
+        """Update the faulted values and their occurrence.
 
         Arguments:
 
@@ -451,20 +437,14 @@ class Analyzer():
         ope - the operation, which is a line from the dataframe, containing all
         the information about this step of the experiment.
 
-        TODO: remove everything about "memory" experiment
-
         """
         if not faulted_value in self.faulted_values:
             self.faulted_values.append(faulted_value)
             self.faulted_values_occurrence.append(1)
-            if self.exp_type is "memory":
-                self.base_address.append([self.__get_base_address(ope)])
         else:
             for i, v in enumerate(self.faulted_values):
                 if v == faulted_value:
                     self.faulted_values_occurrence[i] += 1
-                    if self.exp_type is "memory":
-                        self.base_address[i].append(self.__get_base_address(ope))
 
     def __update_bit_set(self, faulted_value):
         """Update the bit set fault model. Attention ! This function only consider a
@@ -965,12 +945,6 @@ class Analyzer():
             "fault_models": self.get_fault_models()
         }
         return ret
-
-    def get_base_address(self):
-        """Return the base address.
-
-        """
-        return self.base_address
 
     def get_other_obs_value_after_execution_origin_occurence(self):
         """Return the occurrence of faulted value origin in the case of the other

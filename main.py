@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os, sys
+import logging
 from utils import *
 from bin_utils import *
 from analyzer import Analyzer
@@ -27,7 +28,7 @@ MODULE_NAME = args.params_file.replace(".py","").replace("/",".")
 MODULE = import_module(MODULE_NAME)
 PARAMS = MODULE.PARAMS
 
-anal = Analyzer(PARAMS)
+anal = Analyzer(**PARAMS)
 anal.run_analysis()
 
 default_values = PARAMS["default_values"]
