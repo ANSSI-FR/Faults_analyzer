@@ -3,80 +3,35 @@ import daiquiri
 import numpy as np
 
 from bin_utils import *
-from utils import print_progress_bar
+from utils import *
 
 class Analyzer():
     """Class doing the analysis of fault attacks experiments.
 
-    This class must be given several parameters which help to do the experiments:
-
-    dataframe - the dataframe object from the pandas library containing the
-    results of the experiments.
-
-    obs_names - the name of the observed items as named in the dataframe.
-
-    default_values - the default values of the observed.
-
-    to_test - a boolean array determining if an observed must be tested or not
-    during the analysis.
-
-    power_name - the key name for accessing the power value in the dataframe
-    lines.
-
-    delay_name - the key name for accessing the delay value in the dataframe
-    lines.
-
-    done_name - the key name for accessing if a line has been done or not.
-
-    fault_name - the key name for checking if a line has been faulted or not.
-
-    reboot_name - the key name for checking if a line has made a system reboot
-    or not.
-
-    log_name - the key name for getting the log in the dataframe line.
-
-    log_separator - the symbol used for splitting the values in the log.
-
-    data_format - the format string for displaying integer values (for example:
-    0x{:08x}).
-
-    nb_bits - the number of bits the integers must be considered encoded on.
-
-    executed_instructions - a list containing the integer value of the executed
-    instructions.
-
-    coordinates - a list containing the key names for getting the coordinates
-    over the chip.
-
-    stage_coordinates - a list containing the key names for getting the
-    position of the stage arms.
+    This class must be given several parameters which help to do the
+    experiments.
 
     """
 
-    def __get_map_size(self):
-        """Return the size of the map of the experiment.
+    fault_models = ["Fault model unknown",
+                    "Bit set",
+                    "Bit reset",
+                    "Bit flip",
+                    "Other obs value",
+                    "Other obs complementary value",
+                    "Add with other obs",
+                    "And with other obs",
+                    "Or with other obs",
+                    "Xor with other obs",
+                    "Sub with other obs",
+                    "Other obs value after execution",
+                    "Executed instruction"]
 
-        It needs two parameters:
-
-        coordinates - a list containing the key names for getting the
-        coordinates over the chip.
-
-        dataframe - the dataframe object from the pandas library containing the
-        results of the experiments.
-
-        """
-        map_size = []
-        for coord in self.coordinates:
-            # Extract the maximum coordinate and add 1 to have the size
-            size = max(list(self.df[coord].unique())) + 1
-            map_size.append(size)
-        return map_size
-    
-    def __init_logger(self, log_level=logging.DEBUG):
+    def _init_logger(self, log_level):
         """Initialize the logger the corresponding level.
 
         """
-        daiquiri.setup(level=logging.DEBUG)
+        daiquiri.setup(log_level)
         return daiquiri.getLogger()
     
     def __init__(self,
@@ -94,23 +49,51 @@ class Analyzer():
                  data_format,
                  nb_bits,
                  executed_instructions,
-                 coordinates = None,
-                 log_level=logging.DEBUG):
-        """Constructor of the class. Parse the parameters from the PARAMS dictionary.
-        Realize also some other initialization.
+                 log_level=logging.WARNING):
+        """Constructor of the class. Initialize all the needed parameters.
 
         Arguments:
 
-        PARAMS - a dictionary containing all the parameters needed for the
-        analysis of the experiments
+        dataframe - the dataframe object from the pandas library containing the
+        results of the experiments.
 
-        TODO: refactoring and clean up
+        obs_names - the name of the observed items as named in the dataframe.
+
+        default_values - the default values of the observed.
+
+        to_test - a boolean array determining if an observed must be tested or not
+        during the analysis.
+
+        power_name - the key name for accessing the power value in the dataframe
+        lines.
+
+        delay_name - the key name for accessing the delay value in the dataframe
+        lines.
+
+        done_name - the key name for accessing if a line has been done or not.
+
+        fault_name - the key name for checking if a line has been faulted or not.
+
+        reboot_name - the key name for checking if a line has made a system reboot
+        or not.
+
+        log_name - the key name for getting the log in the dataframe line.
+
+        log_separator - the symbol used for splitting the values in the log.
+
+        data_format - the format string for displaying integer values (for example:
+        0x{:08x}).
+
+        nb_bits - the number of bits the integers must be considered encoded on.
+
+        executed_instructions - a list containing the integer value of the executed
+        instructions.
 
         """
-        # Initialization of the logger
-        self.logger = self.__init_logger(log_level)
+        # Logger initialization
+        self.logger = self._init_logger(log_level)
 
-        # Parsing of the PARAMS dictionary
+        # Analysis parameters initialization
         self.obs_names = obs_names
         self.nb_obs = len(self.obs_names)
         self.default_values = default_values
@@ -122,22 +105,16 @@ class Analyzer():
         self.log_separator = log_separator
         self.power_name = power_name
         self.delay_name = delay_name
+        self.data_format = data_format
         self.nb_bits = nb_bits
-
         self.df = dataframe
-        # Extract all the power, delay value from the dataframe
+        self.executed_instructions = executed_instructions
+
+        # Extract all the power and delay values from the dataframe
         self.powers = list(self.df[self.power_name].unique())
         self.delays = list(self.df[self.delay_name].unique())
 
-        self.executed_instructions = executed_instructions
-
-        self.coordinates = coordinates
-        # Extract the map size
-        self.map_size = None
-        if not self.coordinates is None:
-            self.map_size = self.__get_map_size()
-
-        # General information about the experiment
+        # General information about the experiment initialization
         self.values_after_execution = []
         self.values_after_current_execution = []
         self.nb_done = 0
@@ -154,7 +131,7 @@ class Analyzer():
         self.faulted_values_occurrence = []
         self.analysis_done = False
 
-        # Fault models
+        # Fault models initialization
         self.fault_model_unknown = 0
         self.bit_set = 0
         self.bit_reset = 0
@@ -170,19 +147,17 @@ class Analyzer():
         self.nb_responses_bad_format = 0
         self.executed_instruction = 0
 
-        # General information about the fault models
-        self.other_obs_value_after_execution_origin_occurence = [0]*self.nb_obs
+        # Information about the fault models initialization
+        self.other_obs_value_after_execution_origin_occurrence = [0]*self.nb_obs
+        self.other_obs_value_origin_occurrence = [0]*self.nb_obs
+        self.other_obs_complementary_value_origin_occurrence = [0]*self.nb_obs
+        self.add_with_other_obs_origin_occurrence = [0]*self.nb_obs
+        self.and_with_other_obs_origin_occurrence = [0]*self.nb_obs
+        self.or_with_other_obs_origin_occurrence = [0]*self.nb_obs
+        self.xor_with_other_obs_origin_occurrence = [0]*self.nb_obs
+        self.sub_with_other_obs_origin_occurrence = [0]*self.nb_obs
 
-        # Matrix
-        self.reboot_matrix = None
-        self.fault_matrix = None
-        self.done_matrix = None
-        if not self.map_size is None:
-            self.reboot_matrix = np.zeros(self.map_size)
-            self.fault_matrix = np.zeros(self.map_size)
-            self.done_matrix = np.zeros(self.map_size)
-
-    def __get_faulted_obs(self, ope):
+    def _get_faulted_obs(self, ope):
         """Return the faulted observed to test with their faulted value from an
         operation.
 
@@ -193,7 +168,7 @@ class Analyzer():
 
         """
         ret = []
-        values = self.__get_values_from_log(ope)
+        values = self._get_values_from_log(ope)
         if not values is None:
             for i in range(len(values)):
                 if self.to_test[i]:
@@ -201,7 +176,7 @@ class Analyzer():
                         ret.append([i, values[i]])
         return ret
         
-    def __update_result(self, ope, values, result, param):
+    def _update_result(self, ope, values, result, param):
         """Update a list of results.
 
         Arguments:
@@ -221,7 +196,7 @@ class Analyzer():
         value_index = values.index(param_value)
         result[value_index] += 1
         
-    def __is_done(self, ope):
+    def _is_done(self, ope):
         """Return if the operation is set as done.
 
         Arguments:
@@ -232,7 +207,7 @@ class Analyzer():
         """
         return ope[self.done_name]
 
-    def __is_response_bad_formated(self, ope):
+    def _is_response_bad_formated(self, ope):
         """Return if the response of receive during the operation is bad formated. Ie.
         the number of values from the log in different from the number of
         observed.
@@ -243,14 +218,14 @@ class Analyzer():
         the information about this step of the experiment.
 
         """
-        if self.__is_done(ope):
-            values = self.__get_values_from_log(ope)
+        if self._is_done(ope):
+            values = self._get_values_from_log(ope)
             if not len(values) is self.nb_obs:
                 self.nb_responses_bad_format += 1
                 return True
             return False
 
-    def __is_faulted(self, ope):
+    def _is_faulted(self, ope):
         """Return if the operation has at least one observed faulted.
 
         Arguments:
@@ -259,15 +234,15 @@ class Analyzer():
         the information about this step of the experiment.
 
         """
-        if self.__is_done(ope):
-            values = self.__get_values_from_log(ope)
+        if self._is_done(ope):
+            values = self._get_values_from_log(ope)
             for i in range(self.nb_obs):
                 if self.to_test[i]:
                     if values[i] != self.default_values[i]:
                         return True
         return False
 
-    def __is_set_as_faulted(self, ope):
+    def _is_set_as_faulted(self, ope):
         """Return if the operation is set as faulted or not.
 
         Arguments:
@@ -276,11 +251,11 @@ class Analyzer():
         the information about this step of the experiment.
 
         """
-        if self.__is_done(ope):
+        if self._is_done(ope):
             return ope[self.fault_name]
         return False
 
-    def __is_set_as_reboot(self, ope):
+    def _is_set_as_reboot(self, ope):
         """Return if the operation is set as reboot or not.
 
         Arguments:
@@ -289,11 +264,11 @@ class Analyzer():
         the information about this step of the experiment.
 
         """
-        if self.__is_done(ope):
+        if self._is_done(ope):
             return ope[self.reboot_name]
         return False
 
-    def __get_values_from_log(self, ope):
+    def _get_values_from_log(self, ope):
         """Return the values of the observed from the log.
 
         Arguments:
@@ -309,9 +284,9 @@ class Analyzer():
             values = [int(v) for v in values]
             return values
         except Exception as e:
-            self.logger.error("In __get_values_from_log(): " + str(e))
+            self.logger.error("In _get_values_from_log(): " + str(e))
     
-    def __get_values_after_execution(self, ope):
+    def _get_values_after_execution(self, ope):
         """Return the values of the observed if the operation is neither reboot nor
         faulted. This should correspond to the expected values of the observed after a
         normal execution. However, in some case, these value can be different from an
@@ -324,10 +299,10 @@ class Analyzer():
         the information about this step of the experiment.
 
         """
-        if not self.__is_set_as_reboot(ope) and not self.__is_set_as_faulted(ope):
-            return self.__get_values_from_log(ope)
+        if not self._is_set_as_reboot(ope) and not self._is_set_as_faulted(ope):
+            return self._get_values_from_log(ope)
 
-    def __get_values_after_current_execution(self, ope):
+    def _get_values_after_current_execution(self, ope):
         """Return the values of the observed as stored in the log.
 
         Arguments:
@@ -336,9 +311,9 @@ class Analyzer():
         the information about this step of the experiment.
 
         """
-        return self.__get_values_from_log(ope)
+        return self._get_values_from_log(ope)
         
-    def __is_done_analysis(self, ope):
+    def _is_done_analysis(self, ope):
         """Do the analysis routine in the case the operation is done.
 
         Arguments:
@@ -348,60 +323,11 @@ class Analyzer():
 
         """
         self.nb_done += 1
-        self.values_after_current_execution = self.__get_values_after_current_execution(ope)
+        self.values_after_current_execution = self._get_values_after_current_execution(ope)
         if len(self.values_after_execution) == 0:
-            self.values_after_execution = self.__get_values_after_execution(ope)
-        if not self.coordinates is None:
-            self.__update_done_matrix(ope)
+            self.values_after_execution = self._get_values_after_execution(ope)
 
-    def __update_matrix(self, ope, mat):
-        """Update the matrix with the coordinates of the operation.
-
-        Arguments:
-
-        ope - the operation, which is a line from the dataframe, containing all
-        the information about this step of the experiment.
-        
-        """
-        ope_coord = []
-        for coord in self.coordinates:
-            ope_coord.append(ope[coord])
-        mat[tuple(ope_coord)] += 1
-
-    def __update_done_matrix(self, ope):
-        """Update the done matrix.
-
-        Arguments:
-
-        ope - the operation, which is a line from the dataframe, containing all
-        the information about this step of the experiment.
-
-        """
-        self.__update_matrix(ope, self.done_matrix)
-
-    def __update_fault_matrix(self, ope):
-        """Update the fault matrix.
-
-        Arguments:
-
-        ope - the operation, which is a line from the dataframe, containing all
-        the information about this step of the experiment.
-
-        """
-        self.__update_matrix(ope, self.fault_matrix)
-
-    def __update_reboot_matrix(self, ope):
-        """Update the reboot matrix.
-
-        Arguments:
-
-        ope - the operation, which is a line from the dataframe, containing all
-        the information about this step of the experiment.
-
-        """
-        self.__update_matrix(ope, self.reboot_matrix)
-
-    def __is_reboot_analysis(self, ope):
+    def _is_reboot_analysis(self, ope):
         """Do the analysis routine in the case the operation led to a reboot of the
         system.
 
@@ -412,12 +338,10 @@ class Analyzer():
 
         """
         self.nb_reboots += 1
-        self.__update_result(ope, self.powers, self.reboot_powers, self.power_name)
-        self.__update_result(ope, self.delays, self.reboot_delays, self.delay_name)
-        if not self.coordinates is None:
-            self.__update_reboot_matrix(ope)
+        self._update_result(ope, self.powers, self.reboot_powers, self.power_name)
+        self._update_result(ope, self.delays, self.reboot_delays, self.delay_name)
 
-    def __update_faulted_obs(self, faulted_obs):
+    def _update_faulted_obs(self, faulted_obs):
         """Update the list of the faulted observed.
 
         Arguments:
@@ -427,7 +351,7 @@ class Analyzer():
         """
         self.faulted_obs[faulted_obs] += 1
 
-    def __update_faulted_values(self, faulted_value, ope):
+    def _update_faulted_values(self, faulted_value, ope):
         """Update the faulted values and their occurrence.
 
         Arguments:
@@ -446,7 +370,7 @@ class Analyzer():
                 if v == faulted_value:
                     self.faulted_values_occurrence[i] += 1
 
-    def __update_bit_set(self, faulted_value):
+    def _update_bit_set(self, faulted_value):
         """Update the bit set fault model. Attention ! This function only consider a
         bit set on the WHOLE word.
 
@@ -461,7 +385,7 @@ class Analyzer():
             return True
         return False
 
-    def __update_bit_reset(self, faulted_value):
+    def _update_bit_reset(self, faulted_value):
         """Update the bit reset fault model. Attention ! This function only consider a
         bit reset on the WHOLE word.
 
@@ -475,7 +399,7 @@ class Analyzer():
             return True
         return False
 
-    def __update_bit_flip(self, faulted_obs, faulted_value):
+    def _update_bit_flip(self, faulted_obs, faulted_value):
         """Update the bit flip fault model. Attention ! This function only consider a
         bit flip on the WHOLE world.
 
@@ -491,7 +415,7 @@ class Analyzer():
             return True
         return False
 
-    def __update_other_obs_value(self, faulted_obs, faulted_value):
+    def _update_other_obs_value(self, faulted_obs, faulted_value):
         """Update the other observed value fault model considering the initial
         state.
 
@@ -502,12 +426,15 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
-        if s2u(faulted_value, self.nb_bits) in self.default_values:
-            self.other_obs_value += 1
-            return True
+        for i, val in enumerate(self.default_values):
+            if not i is faulted_obs:
+                if s2u(faulted_value, self.nb_bits) in self.default_values:
+                    self.other_obs_value += 1
+                    self.other_obs_value_origin_occurrence[i] += 1
+                return True
         return False
 
-    def __update_other_obs_value_after_execution(self, faulted_obs, faulted_value):
+    def _update_other_obs_value_after_execution(self, faulted_obs, faulted_value):
         """Update the other observed value fault model considering the values of the observed after the execution of the program.
 
         Arguments:
@@ -521,11 +448,11 @@ class Analyzer():
             if not i is faulted_obs:
                 if s2u(faulted_value, self.nb_bits) == s2u(int(val), self.nb_bits):
                     self.other_obs_value_after_execution += 1
-                    self.other_obs_value_after_execution_origin_occurence[i] += 1
+                    self.other_obs_value_after_execution_origin_occurrence[i] += 1
                     return True
         return False
     
-    def __update_other_obs_complementary_value(self, faulted_obs, faulted_value):
+    def _update_other_obs_complementary_value(self, faulted_obs, faulted_value):
         """Update the other observed complementary value fault model considering the
         initial values of the observed.
 
@@ -536,13 +463,15 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
-        for val in self.default_values:
-            if s2u(faulted_value, self.nb_bits) == a2_comp(val, self.nb_bits):
-                self.other_obs_complementary_value += 1
-                return True
+        for i, val in enumerate(self.default_values):
+            if not i is faulted_obs:
+                if s2u(faulted_value, self.nb_bits) == a2_comp(val, self.nb_bits):
+                    self.other_obs_complementary_value += 1
+                    self.other_obs_complementary_value_origin_occurrence[i] += 1
+                    return True
         return False
 
-    def __update_add_with_other_obs(self, faulted_obs, faulted_value):
+    def _update_add_with_other_obs(self, faulted_obs, faulted_value):
         """Update the add with other observed fault model considering the initial
         values of the observed.
 
@@ -557,10 +486,11 @@ class Analyzer():
             if s2u(faulted_value, self.nb_bits) == s2u(self.default_values[faulted_obs] + val, self.nb_bits):
                 if i != faulted_obs:
                     self.add_with_other_obs += 1
+                    self.add_with_other_obs_origin_occurrence[i] += 1
                     return True
         return False
     
-    def __update_and_with_other_obs(self, faulted_obs, faulted_value):
+    def _update_and_with_other_obs(self, faulted_obs, faulted_value):
         """Update the and with other observed fault model considering the initial
         values of the observed.
 
@@ -575,10 +505,11 @@ class Analyzer():
             if s2u(faulted_value, self.nb_bits) == s2u(self.default_values[faulted_obs] & val, self.nb_bits):
                 if i != faulted_obs:
                     self.and_with_other_obs += 1
+                    self.and_with_other_obs_origin_occurrence[i] += 1
                     return True
         return False
     
-    def __update_or_with_other_obs(self, faulted_obs, faulted_value):
+    def _update_or_with_other_obs(self, faulted_obs, faulted_value):
         """Update the or with other observed fault model considering the initial
         values of the observed.
 
@@ -593,10 +524,11 @@ class Analyzer():
             if s2u(faulted_value, self.nb_bits) == s2u(self.default_values[faulted_obs] | val, self.nb_bits):
                 if i != faulted_obs:
                     self.or_with_other_obs += 1
+                    self.or_with_other_obs_origin_occurrence[i] += 1
                     return True
         return False
     
-    def __update_xor_with_other_obs(self, faulted_obs, faulted_value):
+    def _update_xor_with_other_obs(self, faulted_obs, faulted_value):
         """Update the xor with other observed fault model considering the initial
         values of the observed.
 
@@ -611,10 +543,11 @@ class Analyzer():
             if s2u(faulted_value, self.nb_bits) == s2u(self.default_values[faulted_obs] ^ val, self.nb_bits):
                 if i != faulted_obs:
                     self.xor_with_other_obs += 1
+                    self.xor_with_other_obs_origin_occurrence[i] += 1
                     return True
         return False
     
-    def __update_sub_with_other_obs(self, faulted_obs, faulted_value):
+    def _update_sub_with_other_obs(self, faulted_obs, faulted_value):
         """Update the sub with other observed fault model considering the initial
         values of the observed.
 
@@ -629,10 +562,11 @@ class Analyzer():
             if s2u(faulted_value, self.nb_bits) == s2u(self.default_values[faulted_obs] - val, self.nb_bits):
                 if i != faulted_obs:
                     self.sub_with_other_obs += 1
+                    self.sub_with_other_obs_origin_occurrence[i] += 1
                     return True
         return False
 
-    def __update_executed_instruction(self, faulted_value):
+    def _update_executed_instruction(self, faulted_value):
         """Update the executed instruction fault model.
 
         Arguments:
@@ -645,7 +579,7 @@ class Analyzer():
             return True
         return False
 
-    def __update_fault_models(self, faulted):
+    def _update_fault_models(self, faulted):
         """Update the fault models. Attention ! This function is not satisfactory as it
         will stop once a fault explain the faulted value. However, several fault models
         might explain it. But removing the fault_model_known test will biased the
@@ -660,33 +594,33 @@ class Analyzer():
         faulted_obs = faulted[0]
         faulted_value = faulted[1]
         fault_model_known = False
-        fault_model_known |= self.__update_bit_set(faulted_value)
+        fault_model_known |= self._update_bit_set(faulted_value)
         if not fault_model_known:
-            fault_model_known |= self.__update_bit_reset(faulted_value)
+            fault_model_known |= self._update_bit_reset(faulted_value)
         if not fault_model_known:
-            fault_model_known |= self.__update_bit_flip(faulted_obs, faulted_value)
+            fault_model_known |= self._update_bit_flip(faulted_obs, faulted_value)
         if not fault_model_known:
-            fault_model_known |= self.__update_other_obs_value(faulted_obs, faulted_value)
+            fault_model_known |= self._update_other_obs_value(faulted_obs, faulted_value)
         if not fault_model_known:
-            fault_model_known |= self.__update_other_obs_complementary_value(faulted_obs, faulted_value)
+            fault_model_known |= self._update_other_obs_complementary_value(faulted_obs, faulted_value)
         if not fault_model_known:
-            fault_model_known |= self.__update_add_with_other_obs(faulted_obs, faulted_value)
+            fault_model_known |= self._update_add_with_other_obs(faulted_obs, faulted_value)
         if not fault_model_known:
-            fault_model_known |= self.__update_and_with_other_obs(faulted_obs, faulted_value)
+            fault_model_known |= self._update_and_with_other_obs(faulted_obs, faulted_value)
         if not fault_model_known:
-            fault_model_known |= self.__update_or_with_other_obs(faulted_obs, faulted_value)
+            fault_model_known |= self._update_or_with_other_obs(faulted_obs, faulted_value)
         if not fault_model_known:
-            fault_model_known |= self.__update_xor_with_other_obs(faulted_obs, faulted_value)
+            fault_model_known |= self._update_xor_with_other_obs(faulted_obs, faulted_value)
         if not fault_model_known:
-            fault_model_known |= self.__update_sub_with_other_obs(faulted_obs, faulted_value)
+            fault_model_known |= self._update_sub_with_other_obs(faulted_obs, faulted_value)
         if not fault_model_known:
-            fault_model_known |= self.__update_other_obs_value_after_execution(faulted_obs, faulted_value)
+            fault_model_known |= self._update_other_obs_value_after_execution(faulted_obs, faulted_value)
         if not fault_model_known:
-            fault_model_known |= self.__update_executed_instruction(faulted_value)
+            fault_model_known |= self._update_executed_instruction(faulted_value)
         if not fault_model_known:
             self.fault_model_unknown += 1
 
-    def __update_faulted_obs_and_values(self, ope):
+    def _update_faulted_obs_and_values(self, ope):
         """Update the number of faulted observed, the faulted observed, the faulted
         values and the fault models.
 
@@ -696,15 +630,15 @@ class Analyzer():
         the information about this step of the experiment.
 
         """
-        ope_faulted_obs = self.__get_faulted_obs(ope)
+        ope_faulted_obs = self._get_faulted_obs(ope)
         if not ope_faulted_obs is None:
             self.nb_faulted_obs += len(ope_faulted_obs)
             for faulted in ope_faulted_obs:
-                self.__update_faulted_obs(faulted[0])
-                self.__update_faulted_values(faulted[1], ope)
-                self.__update_fault_models(faulted)
-        
-    def __is_faulted_analysis(self, ope):
+                self._update_faulted_obs(faulted[0])
+                self._update_faulted_values(faulted[1], ope)
+                self._update_fault_models(faulted)
+
+    def _is_faulted_analysis(self, ope):
         """Do the analysis routine in the case the operation has been faulted.
 
         Arguments:
@@ -714,73 +648,111 @@ class Analyzer():
 
         """
         self.nb_faults += 1
-        self.__update_result(ope, self.powers, self.fault_powers, self.power_name)
-        self.__update_result(ope, self.delays, self.fault_delays, self.delay_name)
-        self.__update_faulted_obs_and_values(ope)
-        if not self.coordinates is None:
-            self.__update_fault_matrix(ope)
+        self._update_result(ope, self.powers, self.fault_powers, self.power_name)
+        self._update_result(ope, self.delays, self.fault_delays, self.delay_name)
+        self._update_faulted_obs_and_values(ope)
 
-        
-    def __ope_loop_analysis(self):
+    def _analysis(self, ope):
+        """Run the analysis on a given operation. For adding analysis in a daughter
+        class, define this function calling super()._analysis().
+
+        Arguments:
+
+        ope - the operation, which is a line from the dataframe, containing all
+        the information about this step of the experiment.
+
+        """
+        if self._is_done(ope):
+            self._is_done_analysis(ope)
+
+        if self._is_set_as_reboot(ope):
+            self._is_reboot_analysis(ope)
+
+        if not self._is_response_bad_formated(ope):
+            if self._is_faulted(ope):
+                self._is_faulted_analysis(ope)
+
+    def _set_fault_models_occurrence(self):
+        """Create the fault model occurrence list.
+
+        """
+        self.fault_models_occurrence = [self.fault_model_unknown,
+                                        self.bit_set,
+                                        self.bit_reset,
+                                        self.bit_flip,
+                                        self.other_obs_value,
+                                        self.other_obs_complementary_value,
+                                        self.add_with_other_obs,
+                                        self.and_with_other_obs,
+                                        self.or_with_other_obs,
+                                        self.xor_with_other_obs,
+                                        self.sub_with_other_obs,
+                                        self.other_obs_value_after_execution,
+                                        self.executed_instruction]
+
+    def _ope_loop_analysis(self):
         """Main loop of the analysis. Go through every operation and launch the
-        corresponding analysis routines."""
+        analysis.
+
+        """
         i=0
         for _, ope in self.df.iterrows():
-            if self.__is_done(ope):
-                self.__is_done_analysis(ope)
-
-            if self.__is_set_as_reboot(ope):
-                self.__is_reboot_analysis(ope)
-
-            if not self.__is_response_bad_formated(ope):
-                if self.__is_faulted(ope):
-                    self.__is_faulted_analysis(ope)
-
+            self._analysis(ope)
             i += 1
             print_progress_bar(i, self.nb_to_do, prefix = "Analysis progress:",
                                suffix = "Complete", length=50)
-            
+
     def run_analysis(self):
         """Run the analysis. This function must be called before getting any result.
 
-        TODO: Automatically run this function if a result is asked and it has
-        not been done.
-
         """
         if self.analysis_done == False:
-            self.__ope_loop_analysis()
+            self._ope_loop_analysis()
+            self._set_fault_models_occurrence()
             self.analysis_done = True
         else:
             self.logger.info("Analysis already done, no need to do it again.")
+
+    def _check_analysis_done(self):
+        """Check if the analysis has been done. If not, do it.
+
+        """
+        if self.analysis_done == False:
+            self.run_analysis()
 
     def get_nb_faulted_obs(self):
         """Return the number of faulted observed.
 
         """
+        self._check_analysis_done()
         return self.nb_faulted_obs
 
     def get_nb_to_do(self):
         """Return the number of operations to do.
 
         """
+        self._check_analysis_done()
         return self.nb_to_do
 
     def get_powers(self):
         """Return the tested voltage powers.
 
         """
+        self._check_analysis_done()
         return self.powers
 
     def get_delays(self):
         """Return the tested delays.
 
         """
+        self._check_analysis_done()
         return self.delays
             
     def get_obs_names(self):
         """Return the names of the observed.
 
         """
+        self._check_analysis_done()
         return self.obs_names
             
     def get_faulted_values(self):
@@ -789,6 +761,7 @@ class Analyzer():
         TODO: Merge the faulted values and their occurrence.
 
         """
+        self._check_analysis_done()
         return self.faulted_values
 
     def get_faulted_values_occurrence(self):
@@ -797,135 +770,126 @@ class Analyzer():
         TODO: Merge the faulted values and their occurrence.
 
         """
+        self._check_analysis_done()
         return self.faulted_values_occurrence
             
     def get_faulted_obs(self):
         """Return the faulted observed occurrence.
 
         """
+        self._check_analysis_done()
         return self.faulted_obs
             
     def get_fault_delays(self):
         """Return delays occurrence in faults.
         
         """
+        self._check_analysis_done()
         return self.fault_delays
             
     def get_fault_powers(self):
         """Return voltage power occurrence in faults.
 
         """
+        self._check_analysis_done()
         return self.fault_powers
             
     def get_nb_faults(self):
         """Return the number of faults.
 
         """
+        self._check_analysis_done()
         return self.nb_faults
             
     def get_reboot_delays(self):
         """Return delays occurrence in reboots.
 
         """
+        self._check_analysis_done()
         return self.reboot_delays
             
     def get_reboot_powers(self):
         """Return voltage powers occurrence in reboots.
 
         """
+        self._check_analysis_done()
         return self.reboot_powers
             
     def get_nb_reboots(self):
         """Return the number of reboots.
 
         """
+        self._check_analysis_done()
         return self.nb_reboots
         
     def get_values_after_execution(self):
         """Return the values after execution. Attention ! These values correspond to
         one non faulted and non reboot operation but might change between
-        operations."""
+        operations.
+
+        """
+        self._check_analysis_done()
         return self.values_after_execution
 
     def get_nb_done(self):
         """Return the number of done operations.
 
         """
+        self._check_analysis_done()
         return self.nb_done
 
     def get_fault_models(self):
         """Return the fault models and their corresponding occurrence in faults.
 
         """
-        ret = []
-        ret.append(["Fault model unknown",
-                    "Bit set",
-                    "Bit reset",
-                    "Bit flip",
-                    "Other obs value",
-                    "Other obs complementary value",
-                    "Add with other obs",
-                    "And with other obs",
-                    "Or with other obs",
-                    "Xor with other obs",
-                    "Sub with other obs",
-                    "Other obs value after execution",
-                    "Executed instruction"])
-        ret.append([self.fault_model_unknown,
-                    self.bit_set,
-                    self.bit_reset,
-                    self.bit_flip,
-                    self.other_obs_value,
-                    self.other_obs_complementary_value,
-                    self.add_with_other_obs,
-                    self.and_with_other_obs,
-                    self.or_with_other_obs,
-                    self.xor_with_other_obs,
-                    self.sub_with_other_obs,
-                    self.other_obs_value_after_execution,
-                    self.executed_instruction])
+        self._check_analysis_done()
+        ret = [self.fault_models]
+        ret.append(norm_percent(self.fault_models_occurrence))
         return ret
 
     def get_nb_responses_bad_format(self):
         """Return the number of responses bad formated.
 
         """
+        self._check_analysis_done()
         return self.nb_responses_bad_format
 
     def get_general_stats(self):
         """Return the general statistics of the experiments and their values.
 
         """
-        ret = {
-            "titles": ["Number of operations to do",
-                       "Number of operation done",
-                       "Percentage done (%)",
-                       "Number of reboots",
-                       "Percentage of reboots (%)",
-                       "Number of responses bad formated",
-                       "Percentage of responses bad formated (%)",
-                       "Number of faults",
-                       "Percentage of faults (%)",
-                       "Number of faulted obs",
-                       "Average faulted obs per fault"],
-            "data": [self.nb_to_do,
-                     self.nb_done,
-                     100*self.nb_done/float(self.nb_to_do),
-                     self.nb_reboots,
-                     100*self.nb_reboots/float(self.nb_done),
-                     self.nb_responses_bad_format,
-                     100*self.nb_responses_bad_format/float(self.nb_done),
-                     self.nb_faults,
-                     100*self.nb_faults/float(self.nb_done),
-                     self.nb_faulted_obs,
-                     self.nb_faulted_obs/float(self.nb_faults)]
-        }
+        self._check_analysis_done()
+        ret = [
+            ["Number of operations to do",
+             "Number of operation done",
+             "Percentage done (%)",
+             "Number of reboots",
+             "Percentage of reboots (%)",
+             "Number of responses bad formated",
+             "Percentage of responses bad formated (%)",
+             "Number of faults",
+             "Percentage of faults (%)",
+             "Number of faulted obs",
+             "Average faulted obs per fault"],
+            [self.nb_to_do,
+             self.nb_done,
+             100*self.nb_done/float(self.nb_to_do),
+             self.nb_reboots,
+             100*self.nb_reboots/float(self.nb_done),
+             self.nb_responses_bad_format,
+             100*self.nb_responses_bad_format/float(self.nb_done),
+             self.nb_faults,
+             100*self.nb_faults/float(self.nb_done),
+             self.nb_faulted_obs,
+             self.nb_faulted_obs/float(self.nb_faults)]
+        ]
         return ret
 
     def get_analysis_results(self):
         """Return the analysis result.
 
         """
+        self._check_analysis_done()
         ret = {
             "nb_to_do": self.nb_to_do,
             "nb_done": self.nb_done,
@@ -946,25 +910,215 @@ class Analyzer():
         }
         return ret
 
-    def get_other_obs_value_after_execution_origin_occurence(self):
+    def get_other_obs_value_after_execution_origin_occurrence(self):
         """Return the occurrence of faulted value origin in the case of the other
-        observed value after execution faulted model."""
-        return self.other_obs_value_after_execution_origin_occurence
-
-    def get_reboot_matrix(self):
-        """Return the reboot matrix.
+        observed value after execution faulted model.
 
         """
-        return self.reboot_matrix
+        self._check_analysis_done()
+        return self.other_obs_value_after_execution_origin_occurrence
 
-    def get_fault_matrix(self):
-        """Return the fault matrix.
-
-        """
-        return self.fault_matrix
-
-    def get_done_matrix(self):
-        """Return the done matrix.
+    def _get_other_obs_values_after_execution_result(self):
+        """Return the dictionary containing the occurrence of origin of the faulted
+        value in the case of the other observed values after execution fault
+        model.
 
         """
-        return self.done_matrix
+        ret = {
+            "title": "Origin of the faulted value after execution",
+            "labels": ["Observed", "Occurrence (%)"],
+            "data": [self.obs_names,
+                     norm_percent(self.other_obs_value_after_execution_origin_occurrence)]
+        }
+        return ret
+
+    def _get_other_obs_values_after_execution_result(self):
+        """Return the dictionary containing the occurrence of origin of the faulted
+        value in the case of the other observed values fault
+        model.
+
+        """
+        ret = {
+            "title": "Origin of the faulted value",
+            "labels": ["Observed", "Occurrence (%)"],
+            "data": [self.obs_names,
+                     norm_percent(self.other_obs_value_origin_occurrence)]
+        }
+        return ret
+
+    def _get_other_obs_complementary_value_result(self):
+        ret = {
+            "title": "Origin of the faulted complementary value",
+            "labels": ["Observed", "Occurrence (%)"],
+            "data": [self.obs_names,
+                     norm_percent(self.other_obs_complementary_value_origin_occurrence)]
+        }
+        return ret
+
+    def _get_add_with_other_obs_result(self):
+        ret = {
+            "title": "Origin of the added value",
+            "labels": ["Observed", "Occurrence (%)"],
+            "data": [self.obs_names,
+                     norm_percent(self.add_with_other_obs_origin_occurrence)]
+        }
+        return ret
+
+    def _get_and_with_other_obs_result(self):
+        ret = {
+            "title": "Origin of the ANDed value",
+            "labels": ["Observed", "Occurrence (%)"],
+            "data": [self.obs_names,
+                     norm_percent(self.and_with_other_obs_origin_occurrence)]
+        }
+        return ret
+
+    def _get_or_with_other_obs_result(self):
+        ret = {
+            "title": "Origin of the ORed value",
+            "labels": ["Observed", "Occurrence (%)"],
+            "data": [self.obs_names,
+                     norm_percent(self.or_with_other_obs_origin_occurrence)]
+        }
+        return ret
+
+    def _get_xor_with_other_obs_result(self):
+        ret = {
+            "title": "Origin of the XORed value",
+            "labels": ["Observed", "Occurrence (%)"],
+            "data": [self.obs_names,
+                     norm_percent(self.xor_with_other_obs_origin_occurrence)]
+        }
+        return ret
+
+    def _get_sub_with_other_obs_result(self):
+        
+        ret = {
+            "title": "Origin of the subtracted value",
+            "labels": ["Observed", "Occurrence (%)"],
+            "data": [self.obs_names,
+                     norm_percent(self.sub_with_other_obs_origin_occurrence)]
+        }
+        return ret
+
+    def _get_fault_model_result(self, fault_model):
+        """Return the dictionary containing the results of the given fault model.
+
+        Arguments:
+
+        fault_model - the fault model from which to get the result.
+
+        """
+        if fault_model == "Other obs value after execution":
+            return self._get_other_obs_values_after_execution_result()
+        elif fault_model == "Other obs value":
+            return self._get_other_obs_values_result()
+        elif fault_model == "Other obs complementary value":
+            return self._get_other_obs_complementary_value_result()
+        elif fault_model == "Add with other obs":
+            return self._get_add_with_other_obs_result()
+        elif fault_model == "And with other obs":
+            return self._get_and_with_other_obs_result()
+        elif fault_model == "Or with other obs":
+            return self._get_or_with_other_obs_result()
+        elif fault_model == "Xor with other obs":
+            return self._get_xor_with_other_obs_result()
+        elif fault_model == "Sub with other obs":
+            return self._get_sub_with_other_obs_result()
+        else:
+            self.logger.error("Failed to get the results for the fault model : {}".format(fault_model))
+
+    def _get_fault_model_occurrence(self, fault_model):
+        """Return the number of occurrence of the given fault model.
+
+        Arguments:
+
+        fault_model - the fault model to get the number of occurrence.
+
+        """
+        return self.fault_models_occurrence[self.fault_models.index(fault_model)]
+
+    def _add_fault_model_information(self, result):
+        """Check over all fault models if they have appear during the experiment. If
+        they did, add the corresponding information to the result dictionary.
+
+        Arguments:
+
+        result - the result dictionary to update with the fault model information.
+
+        """
+        for fault_model in self.fault_models:
+            if self._get_fault_model_occurrence(fault_model) > 0:
+                fault_model_result = self._get_fault_model_result(fault_model)
+                result.append(fault_model_result)
+        return result
+
+    def get_results(self):
+        """Return list of dictionaries containing all the results of the analysis.
+
+        """
+        self._check_analysis_done()
+        result = [
+            {
+                "title": "General statistics",
+                "labels": ["Statistic", "Value"],
+                "data": self.get_general_stats()
+            },
+            {
+                "title": "Effect of the power value",
+                "labels": ["Power value (V)", "Fault (%)", "Reboot (%)"],
+                "data": [self.powers,
+                         norm_percent(self.fault_powers),
+                         norm_percent(self.reboot_powers)]
+            },
+            {
+                "title": "Effect of the delay",
+                "labels": ["Delays (ns)", "Fault (%)", "Reboot (%)"],
+                "data": [self.delays,
+                         norm_percent(self.fault_delays),
+                         norm_percent(self.reboot_delays)]
+            },
+            {
+                "title": "Observed statistics",
+                "labels": ["Observed",
+                           "Default value",
+                           "Value after execution",
+                           "Fault (%)",
+                           "Tested"],
+                "data": [self.obs_names,
+                         format_table(self.default_values, self.data_format),
+                         format_table(self.values_after_execution, self.data_format),
+                         norm_percent(self.faulted_obs),
+                         self.to_test]
+            },
+            {
+                "title": "Faulted values statistics",
+                "labels": ["Faulted values", "Occurrence (%)"],
+                "data": [format_table(self.faulted_values, self.data_format),
+                         norm_percent(self.faulted_values_occurrence)]
+            },
+            {
+                "title": "Fault model statistics",
+                "labels": ["Fault model", "Occurrence (%)"],
+                "data": self.get_fault_models()
+            }
+        ]
+        result = self._add_fault_model_information(result)
+        return result
+
+    def get_effects_distribution(self):
+        result = {
+            "title": "Effects distribution",
+            "labels": ["Effect", "Occurrence"],
+            "data": [["Reboots", "Response bad formated", "Faults"],
+                     [self.nb_reboots, self.nb_responses_bad_format, self.nb_faults]]
+        }
+        return result
+
+    def set_dataframe(self, df):
+        """Set the dataframe to the new value. Set the analysis_done flag to False as
+        no analysis has been done on this dataframe.
+
+        """
+        self.df = df
+        self.analysis_done = False

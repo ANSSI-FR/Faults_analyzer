@@ -4,7 +4,7 @@ import os, sys
 import logging
 from utils import *
 from bin_utils import *
-from analyzer import Analyzer
+from carto_analyzer import CartoAnalyzer
 from argparse import ArgumentParser
 from plotter import Plotter, PlotterType
 
@@ -28,7 +28,7 @@ MODULE_NAME = args.params_file.replace(".py","").replace("/",".")
 MODULE = import_module(MODULE_NAME)
 PARAMS = MODULE.PARAMS
 
-anal = Analyzer(**PARAMS)
+anal = CartoAnalyzer(**PARAMS)
 anal.run_analysis()
 
 default_values = PARAMS["default_values"]
@@ -53,9 +53,6 @@ if get_fault_model_number(fault_models, "Other obs value after execution"):
     obs_value_after_execution_origin_occurrence = anal.get_other_obs_value_after_execution_origin_occurence()
 
 nb_faulted_obs = anal.get_nb_faulted_obs()
-base_address = None
-if get_exp_type(PARAMS) is "memory":
-    base_address = anal.get_base_address()
 
 data_format = PARAMS["data_format"]
 nb_bits = PARAMS["nb_bits"]

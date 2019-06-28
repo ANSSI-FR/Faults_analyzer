@@ -1,6 +1,3 @@
-from importlib import import_module
-from prettytable import PrettyTable
-
 def print_progress_bar(iteration,
                        total,
                        prefix="",
@@ -29,22 +26,3 @@ def format_table(table, format_str):
         else:
             ret.append(format_str.format(t))
     return ret
-
-def create_table(values, results, titles=[]):
-    t = PrettyTable(titles)
-    for i in range(len(values)):
-        line = [values[i]]
-        for j in range(len(results)):
-            line.append(results[j][i])
-        t.add_row(line)
-    t.align = "r"
-    t.float_format = "3.2"
-    return t
-
-def print_result(values, results, titles=[]):
-    t = create_table(values, results, titles)
-    print(t)
-
-def add_to_html_file(file_descriptor, values, results, titles=[]):
-    t = create_table(values, results, titles)
-    file_descriptor.write(t.get_html_string())
