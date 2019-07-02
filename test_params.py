@@ -2,7 +2,7 @@ import pandas as pd
 
 NB_REGISTERS = 14
 
-RESULT_FILE = "/media/nas/projects/fault_attacks_test/devices/intel_core_i3/manips/mov_rbxrbx_carto_die_40x40/results/intel_core_i3_mov_rbxrbx_carto_die_40x40_20190624_1229/main.csv"
+RESULT_FILE = "/media/nas/projects/fault_attacks_test/devices/intel_core_i3/manips/mov_rbxrbx_fix/results/intel_core_i3_fix_20190628_1509/main.csv"
 
 PARAMS = {
     "dataframe": pd.read_csv(RESULT_FILE, error_bad_lines=False),

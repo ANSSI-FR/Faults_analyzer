@@ -10,6 +10,7 @@ from bin_utils import *
 from analyzer import Analyzer
 from argparse import ArgumentParser
 from formater import Formater
+from plotter import PlotterType
 
 sys.path += [os.getcwd()]
 
@@ -29,3 +30,11 @@ form = Formater(results)
 result_str = form.get_printable_str()
 
 print(result_str)
+
+form.set_to_plot(-1, PlotterType.PIE, 1, 0)
+pl = form.get_plotter()
+pl.show()
+
+form.set_to_plot(-1, PlotterType.BAR, 1, 0)
+pl = form.get_plotter()
+pl.show()

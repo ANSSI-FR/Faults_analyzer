@@ -428,10 +428,10 @@ class Analyzer():
         """
         for i, val in enumerate(self.default_values):
             if not i is faulted_obs:
-                if s2u(faulted_value, self.nb_bits) in self.default_values:
+                if s2u(faulted_value, self.nb_bits) == s2u(int(val), self.nb_bits):
                     self.other_obs_value += 1
                     self.other_obs_value_origin_occurrence[i] += 1
-                return True
+                    return True
         return False
 
     def _update_other_obs_value_after_execution(self, faulted_obs, faulted_value):
@@ -932,7 +932,7 @@ class Analyzer():
         }
         return ret
 
-    def _get_other_obs_values_after_execution_result(self):
+    def _get_other_obs_values_result(self):
         """Return the dictionary containing the occurrence of origin of the faulted
         value in the case of the other observed values fault
         model.
@@ -1026,7 +1026,7 @@ class Analyzer():
         elif fault_model == "Sub with other obs":
             return self._get_sub_with_other_obs_result()
         else:
-            self.logger.error("Failed to get the results for the fault model : {}".format(fault_model))
+            self.logger.warning("Failed to get the results for the fault model : {}".format(fault_model))
 
     def _get_fault_model_occurrence(self, fault_model):
         """Return the number of occurrence of the given fault model.
@@ -1050,7 +1050,8 @@ class Analyzer():
         for fault_model in self.fault_models:
             if self._get_fault_model_occurrence(fault_model) > 0:
                 fault_model_result = self._get_fault_model_result(fault_model)
-                result.append(fault_model_result)
+                if fault_model_result != None:
+                    result.append(fault_model_result)
         return result
 
     def get_results(self):
