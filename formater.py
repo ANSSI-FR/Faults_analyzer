@@ -58,11 +58,48 @@ class Formater():
         if to_plot["type"] is PlotterType.BAR:
             return self.result_to_bar(result, to_plot)
 
-    def set_to_plot(self, i, plot_type, data_to_plot, data_labels):
+    def set_to_plot(self, result_index, plot_type, data_to_plot=1, data_labels=0):
+        """Add a rule for plotting the target result.
+
+        Arguments:
+
+        result_index (int) - The index of the result to plot. The result is a
+        table.
+
+        plot_type (PlotterType) - The way to plot the result.
+
+        data_to_plot (int) - The column index of the data to plot from the
+        result. Default value is 1.
+
+        data_labels (int) - The column index to use as labels from the result. Default
+        value is 0.
+
+        Example:
+
+        Considering the following result table with the call
+        set_to_plot(result_index, plot_type, 1, 0):
+
+        +----------+------------+
+        | City     | Population | <-- used as axis labels if needed
+        +----------+------------+
+        | New York | 8623000    |
+        | Paris    | 2141000    |
+        | London   | 8136000    |
+        +----------+------------+
+           /|\          /|\
+            |            |
+         used as       used as
+        labels in     data in
+        the plot       the plot
+
+        """
         if plot_type in PlotterType:
-            self.to_plot[i] = {"type": plot_type,
-                               "data_to_plot": data_to_plot,
-                               "labels": data_labels}
+            i = result_index
+            self.to_plot[i] = {
+                "type": plot_type,
+                "data_to_plot": data_to_plot,
+                "labels": data_labels
+            }
 
     def get_plotter(self):
         to_plot = []

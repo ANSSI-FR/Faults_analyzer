@@ -10,7 +10,6 @@ from bin_utils import *
 from analyzer import Analyzer
 from argparse import ArgumentParser
 from formater import Formater
-from plotter import PlotterType
 
 sys.path += [os.getcwd()]
 
@@ -21,20 +20,34 @@ args = PARSER.parse_args()
 
 MODULE_NAME = args.params_file.replace(".py","").replace("/",".")
 MODULE = import_module(MODULE_NAME)
-PARAMS = MODULE.PARAMS
+TO_ANALYZE = MODULE.TO_ANALYZE
 
-anal = Analyzer(**PARAMS)
-results = anal.get_results()
-results.append(anal.get_effects_distribution())
-form = Formater(results)
-result_str = form.get_printable_str()
+for to_a in TO_ANALYZE:
+    params = to_a["params"]
 
-print(result_str)
+    print("\n\nAnalyzing {}\n".format(to_a["file"]))
 
-form.set_to_plot(-1, PlotterType.PIE, 1, 0)
-pl = form.get_plotter()
-pl.show()
+    anal = Analyzer(**params)
+    results = anal.get_results()
+    results.append(anal.get_effects_distribution())
+    
+    to_a.update({"results": results})
 
-form.set_to_plot(-1, PlotterType.BAR, 1, 0)
-pl = form.get_plotter()
-pl.show()
+    form = Formater(results)
+    result_str = form.get_printable_str()
+
+    to_a.update({"result_str": result_str})
+    
+    print(result_str)
+    for to_plot in to_a["to_plot"]:
+        form.set_to_plot(**to_plot)
+    pl = form.get_plotter()
+    pl.show()
+
+# form.set_to_plot(-1, PlotterType.PIE, 1, 0)
+# pl = form.get_plotter()
+# pl.show()
+
+# form.set_to_plot(-1, PlotterType.BAR, 1, 0)
+# pl = form.get_plotter()
+# pl.show()
