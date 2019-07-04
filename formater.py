@@ -21,8 +21,9 @@ class Formater():
         ret_str = ""
         for i, result in enumerate(self.results):
             if self.to_print[i]:
-                title = result.pop("title")
-                t = self._create_table(**result)
+                local_res = result.copy()
+                title = local_res.pop("title")
+                t = self._create_table(**local_res)
                 ret_str += "\n" + title + "\n"
                 ret_str += t.get_string() + "\n"
         return ret_str
@@ -32,8 +33,9 @@ class Formater():
         ret_str = ""
         for i, result in enumerate(self.results):
             if self.to_print[i]:
-                title = result.pop("title")
-                t = self._create_table(**result)
+                local_res = result.copy()
+                title = local_res.pop("title")
+                t = self._create_table(**local_res)
                 ret_str += "<h2>" + title + "</h2>"
                 ret_str += t.get_html_string() + "<br>"
         return ret_str

@@ -7,6 +7,8 @@ from importlib import import_module
 
 from utils import *
 from bin_utils import *
+from results import merge_results
+
 from analyzer import Analyzer
 from argparse import ArgumentParser
 from formater import Formater
@@ -22,6 +24,8 @@ MODULE_NAME = args.params_file.replace(".py","").replace("/",".")
 MODULE = import_module(MODULE_NAME)
 TO_ANALYZE = MODULE.TO_ANALYZE
 
+results_list = []
+
 for to_a in TO_ANALYZE:
     params = to_a["params"]
 
@@ -29,25 +33,21 @@ for to_a in TO_ANALYZE:
 
     anal = Analyzer(**params)
     results = anal.get_results()
-    results.append(anal.get_effects_distribution())
-    
-    to_a.update({"results": results})
+    results.add_result(anal.get_effects_distribution())
 
-    form = Formater(results)
+    results_list.append(results)
+
+    form = Formater(results.get_results())
     result_str = form.get_printable_str()
-
-    to_a.update({"result_str": result_str})
-    
     print(result_str)
-    for to_plot in to_a["to_plot"]:
-        form.set_to_plot(**to_plot)
-    pl = form.get_plotter()
-    pl.show()
 
-# form.set_to_plot(-1, PlotterType.PIE, 1, 0)
-# pl = form.get_plotter()
-# pl.show()
+    # for to_plot in to_a["to_plot"]:
+    #     form.set_to_plot(**to_plot)
+    # pl = form.get_plotter()
+    # pl.show()
 
-# form.set_to_plot(-1, PlotterType.BAR, 1, 0)
-# pl = form.get_plotter()
-# pl.show()
+merged_result = merge_results(results_list, "Fault model statistics" ,
+                              [True]*2, [True, False])
+form = Formater(merged_result.get_results())
+res_str = form.get_printable_str()
+print(res_str)

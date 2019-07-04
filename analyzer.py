@@ -5,6 +5,8 @@ import numpy as np
 from bin_utils import *
 from utils import *
 
+from results import Results
+
 class Analyzer():
     """Class doing the analysis of fault attacks experiments.
 
@@ -35,6 +37,7 @@ class Analyzer():
         return daiquiri.getLogger()
     
     def __init__(self,
+                 exp,
                  dataframe,
                  obs_names,
                  default_values,
@@ -109,6 +112,10 @@ class Analyzer():
         self.nb_bits = nb_bits
         self.df = dataframe
         self.executed_instructions = executed_instructions
+        self.exp = exp
+
+        # Results
+        self.results = Results(self.exp)
 
         # Extract all the power and delay values from the dataframe
         self.powers = list(self.df[self.power_name].unique())
@@ -1105,7 +1112,8 @@ class Analyzer():
             }
         ]
         result = self._add_fault_model_information(result)
-        return result
+        self.results.set_results(result)
+        return self.results
 
     def get_effects_distribution(self):
         result = {

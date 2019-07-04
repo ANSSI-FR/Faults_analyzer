@@ -12,6 +12,7 @@ RESULTS_FILES = [
 ]
 
 PARAMS = [{
+    "exp": result_file,
     "dataframe": pd.read_csv(result_file, error_bad_lines=False),
     "obs_names": ["rax", "rbx", "rcx", "rdx", "rsi", "rdi", "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15"],
     "default_values": [((1 << (63 - i)) + (1 << i)) for i in range(NB_REGISTERS)],
