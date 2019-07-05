@@ -14,6 +14,9 @@ class Formater():
             t.add_column(labels[i], col)
         return t
 
+    def set_all_to_print(self, v):
+        self.to_print = [v] * len(self.results)
+
     def toggle_to_print(self, i):
         self.to_print[i] = not self.to_print[i]
 
@@ -27,7 +30,6 @@ class Formater():
                 ret_str += "\n" + title + "\n"
                 ret_str += t.get_string() + "\n"
         return ret_str
-
 
     def get_html_str(self):
         ret_str = ""
@@ -59,6 +61,9 @@ class Formater():
             return self.result_to_pie(result, to_plot)
         if to_plot["type"] is PlotterType.BAR:
             return self.result_to_bar(result, to_plot)
+
+    def remove_all_to_plot(self):
+        self.to_plot = [False] * len(self.results)
 
     def set_to_plot(self, result_index, plot_type, data_to_plot=1, data_labels=0):
         """Add a rule for plotting the target result.

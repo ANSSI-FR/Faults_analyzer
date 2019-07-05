@@ -1,3 +1,7 @@
+def print_list(l):
+    for elem in l:
+        print(elem)
+
 def print_progress_bar(iteration,
                        total,
                        prefix="",

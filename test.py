@@ -1,53 +1,55 @@
 #!/usr/bin/env python3
 
-import os, sys
-import logging
-
-from importlib import import_module
-
-from utils import *
-from bin_utils import *
 from results import merge_results
-
 from analyzer import Analyzer
-from argparse import ArgumentParser
 from formater import Formater
+from manip import Manip, format_manip_info
+from plotter import PlotterType
+from manips_manager import ManipsManager
 
-sys.path += [os.getcwd()]
+from test_manip_info_list import manip_info_list, base_dir
 
-PARSER = ArgumentParser(description="Todo.")
-PARSER.add_argument("params_file", help="File containing the paramaters for the analysis.", type=str)
-PARSER.add_argument("-t", "--trace", help="If set, will print in real time the matrix.", action="store_true")
-args = PARSER.parse_args()
+def print_results_list(result_list):
+    for i, results in enumerate(results_list):
+        to_print = "[{}] {}".format(i, results.exp)
+        print(to_print)
 
-MODULE_NAME = args.params_file.replace(".py","").replace("/",".")
-MODULE = import_module(MODULE_NAME)
-TO_ANALYZE = MODULE.TO_ANALYZE
+manips = []
+for manip_info in manip_info_list:
+    formated_manip_info = format_manip_info(manip_info)
+    manips.append(Manip(**formated_manip_info))
+mm = ManipsManager(base_dir, manips)
+mm.manage_manips()
 
 results_list = []
 
-for to_a in TO_ANALYZE:
-    params = to_a["params"]
-
-    print("\n\nAnalyzing {}\n".format(to_a["file"]))
-
+for manip in manips:
+    params = manip.get_params()
+    print("\nAnalyzing {}\n".format(manip.result_name))
     anal = Analyzer(**params)
     results = anal.get_results()
     results.add_result(anal.get_effects_distribution())
-
     results_list.append(results)
+    print("\n{} analysis done\n".format(manip.result_name))
 
-    form = Formater(results.get_results())
-    result_str = form.get_printable_str()
+print_results_list(results_list)
+
+for results in results_list:
+    results_str = results.get_results_table_str()
+    print(results_str)
+
+    result_str = results.get_result_table_str(2)
     print(result_str)
 
-    # for to_plot in to_a["to_plot"]:
-    #     form.set_to_plot(**to_plot)
-    # pl = form.get_plotter()
-    # pl.show()
+    titles_str = results.get_results_titles_str()
+    print(titles_str)
 
-merged_result = merge_results(results_list, "Fault model statistics" ,
-                              [True]*2, [True, False])
-form = Formater(merged_result.get_results())
-res_str = form.get_printable_str()
-print(res_str)
+    pl = results.get_plotter("Effects distribution", PlotterType.PIE, "Occurrence",
+                             "Effect")
+    pl.show()
+
+# merged_result = merge_results(results_list, "Fault model statistics" ,
+#                               [True]*2, [True, False])
+# form = Formater(merged_result.get_results())
+# res_str = form.get_printable_str()
+# print(res_str)
