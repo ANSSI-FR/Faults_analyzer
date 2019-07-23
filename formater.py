@@ -1,5 +1,5 @@
 from prettytable import PrettyTable
-from plotter import Plotter, PlotterType
+from plotter import Plotter, PlotterType, types_str
 
 class Formater():
 
@@ -43,24 +43,69 @@ class Formater():
         return ret_str
 
     def result_to_pie(self, result, to_plot):
-        to_plot = {"data": result["data"][to_plot["data_to_plot"]],
+        to_plot = {"data": result["data"][to_plot["data_to_plot"][0]],
                    "labels": result["data"][to_plot["labels"]],
                    "type": PlotterType.PIE}
         return to_plot
 
     def result_to_bar(self, result, to_plot):
-        to_plot = {"data": result["data"][to_plot["data_to_plot"]],
+        to_plot = {"data": result["data"][to_plot["data_to_plot"][0]],
                    "x_ticklabels": result["data"][to_plot["labels"]],
                    "type": PlotterType.BAR,
                    "x_label": result["labels"][to_plot["labels"]],
                    "y_label": result["labels"][to_plot["data_to_plot"]]}
         return to_plot
 
+    def get_data_from_index_list(self, result, index_list):
+        ret = []
+        for index in index_list:
+            ret.append(result["data"][index])
+        return ret
+
+    def get_data_labels_from_index_list(self, result, index_list):
+        ret = []
+        for index in index_list:
+            ret.append(result["labels"][index])
+        return ret
+
+    def get_common_label_from_labels(self, labels):
+        split_labels = []
+        ret = ""
+        for label in labels:
+            split_labels.append(label.split(" "))
+        for word in split_labels[0]:
+            in_all = True
+            for split_label in split_labels:
+                if not word in split_label:
+                    in_all = False
+            if in_all:
+                for i, label in enumerate(labels):
+                    labels[i] = label.replace(word, "")
+                ret += word + " "
+        return ret
+
+
+    def result_to_multibar(self, result, to_plot):
+        data = self.get_data_from_index_list(result, to_plot["data_to_plot"])
+        data_labels = self.get_data_labels_from_index_list(result, to_plot["data_to_plot"])
+        label = self.get_common_label_from_labels(data_labels)
+        to_plot = {"data": data,
+                   "x_ticklabels": result["data"][to_plot["labels"]],
+                   "type": PlotterType.MULTIBAR,
+                   "x_label": result["labels"][to_plot["labels"]],
+                   "y_label": label,
+                   "bar_width": 0.6/len(data),
+                   "legend": data_labels
+        }
+        return to_plot
+
     def result_to_plot(self, result, to_plot):
-        if to_plot["type"] is PlotterType.PIE:
+        if (to_plot["type"] is PlotterType.PIE) or (to_plot["type"] == "pie"):
             return self.result_to_pie(result, to_plot)
-        if to_plot["type"] is PlotterType.BAR:
+        if (to_plot["type"] is PlotterType.BAR) or (to_plot["type"] == "bar"):
             return self.result_to_bar(result, to_plot)
+        if (to_plot["type"] is PlotterType.MULTIBAR) or (to_plot["type"] == "multibar"):
+            return self.result_to_multibar(result, to_plot)
 
     def remove_all_to_plot(self):
         self.to_plot = [False] * len(self.results)
@@ -100,7 +145,7 @@ class Formater():
         the plot       the plot
 
         """
-        if plot_type in PlotterType:
+        if (plot_type in PlotterType) or (plot_type in types_str):
             i = result_index
             self.to_plot[i] = {
                 "type": plot_type,

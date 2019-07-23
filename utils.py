@@ -1,3 +1,22 @@
+def str_to_index_list(index_str):
+    index_list = []
+    if "," in index_str:
+        index_str = index_str.split(",")
+        for index in index_str:
+            index_list.append(int(index))
+    elif "-" in index_str:
+        index_str = index_str.split("-")
+        if len(index_str) == 2:
+            start = int(index_str[0])
+            end = int(index_str[1])
+            for index in range(start, end+1):
+                index_list.append(int(index))
+        else:
+            print("Error: wrong size for index list")
+    else:
+        index_list = [int(index_str)]
+    return index_list
+
 def print_list(l):
     for elem in l:
         print(elem)

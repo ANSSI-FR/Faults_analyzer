@@ -52,7 +52,8 @@ class Analyzer():
                  data_format,
                  nb_bits,
                  executed_instructions,
-                 log_level=logging.WARNING):
+                 log_level=logging.WARNING,
+                 progress=False):
         """Constructor of the class. Initialize all the needed parameters.
 
         Arguments:
@@ -92,6 +93,8 @@ class Analyzer():
         executed_instructions - a list containing the integer value of the executed
         instructions.
 
+        progress - a flag that set if the progress bar must be printed
+
         """
         # Logger initialization
         self.logger = self._init_logger(log_level)
@@ -113,6 +116,7 @@ class Analyzer():
         self.df = dataframe
         self.executed_instructions = executed_instructions
         self.exp = exp
+        self.progress = progress
 
         # Results
         self.results = Results(self.exp)
@@ -200,8 +204,11 @@ class Analyzer():
 
         """
         param_value = ope[param]
-        value_index = values.index(param_value)
-        result[value_index] += 1
+        try:
+            value_index = values.index(param_value)
+            result[value_index] += 1
+        except:
+            print("Error in parameter parsing: ignoring the operation")
         
     def _is_done(self, ope):
         """Return if the operation is set as done.
@@ -705,9 +712,9 @@ class Analyzer():
         i=0
         for _, ope in self.df.iterrows():
             self._analysis(ope)
-            i += 1
-            print_progress_bar(i, self.nb_to_do, prefix = "Analysis progress:",
-                               suffix = "Complete", length=50)
+            if self.progress:
+                i += 1
+                print_progress_bar(i, self.nb_to_do, prefix = "Analysis progress:", suffix = "Complete", length=50)
 
     def run_analysis(self):
         """Run the analysis. This function must be called before getting any result.
@@ -876,8 +883,7 @@ class Analyzer():
              "Percentage of responses bad formated (%)",
              "Number of faults",
              "Percentage of faults (%)",
-             "Number of faulted obs",
-             "Average faulted obs per fault"],
+             "Number of faulted obs"],
             [self.nb_to_do,
              self.nb_done,
              100*self.nb_done/float(self.nb_to_do),
@@ -887,9 +893,11 @@ class Analyzer():
              100*self.nb_responses_bad_format/float(self.nb_done),
              self.nb_faults,
              100*self.nb_faults/float(self.nb_done),
-             self.nb_faulted_obs,
-             self.nb_faulted_obs/float(self.nb_faults)]
+             self.nb_faulted_obs]
         ]
+        if self.nb_faults != 0:
+            ret[0].append("Average faulted obs per fault")
+            ret[1].append(self.nb_faulted_obs/float(self.nb_faults))
         return ret
 
     def get_analysis_results(self):

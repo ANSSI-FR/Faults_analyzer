@@ -1,5 +1,7 @@
 from manip import ManipInfoMaker
 
+# TODO: inherit from the CmdInterface class
+
 class ManipsManager():
 
     manips = []

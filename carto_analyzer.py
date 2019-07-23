@@ -72,23 +72,9 @@ class CartoAnalyzer(Analyzer):
         return map_size
 
     def __init__(self,
-                 dataframe,
-                 obs_names,
-                 default_values,
-                 to_test,
-                 power_name,
-                 delay_name,
-                 done_name,
-                 fault_name,
-                 reboot_name,
-                 log_name,
-                 log_separator,
-                 data_format,
-                 nb_bits,
-                 executed_instructions,
-                 coordinates, # argument needed by the daughter class
-                 stage_coordinates, # argument needed by the daughter class
-                 log_level=logging.WARNING):
+                 coordinates,
+                 stage_coordinates,
+                 **kwargs):
         """Constructor of the class. Initialize all the needed parameters.
 
         Arguments:
@@ -134,21 +120,7 @@ class CartoAnalyzer(Analyzer):
         during the experiment.
 
         """
-        super().__init__(dataframe,
-                         obs_names,
-                         default_values,
-                         to_test,
-                         power_name,
-                         delay_name,
-                         done_name,
-                         fault_name,
-                         reboot_name,
-                         log_name,
-                         log_separator,
-                         data_format,
-                         nb_bits,
-                         executed_instructions,
-                         log_level)
+        super().__init__(**kwargs)
 
         self.coordinates = coordinates
         self.stage_coord_keys = stage_coordinates
@@ -165,7 +137,9 @@ class CartoAnalyzer(Analyzer):
         else:
             self.logger.warning("Stage and Grid don't have the same dimensions.")
 
-        # Matrix
+        self.clear_matrix()
+
+    def clear_matrix(self):
         self.reboot_matrix = np.zeros(self.map_size)
         self.fault_matrix = np.zeros(self.map_size)
         self.done_matrix = np.zeros(self.map_size)
@@ -177,11 +151,13 @@ class CartoAnalyzer(Analyzer):
 
         ope - the operation, which is a line from the dataframe, containing all
         the information about this step of the experiment.
-        
+
         """
         ope_coord = []
         for coord in self.coordinates:
-            ope_coord.append(ope[coord])
+            if np.isnan(ope[coord]):
+                return
+            ope_coord.append(int(ope[coord]))
         mat[tuple(ope_coord)] += 1
 
     def _update_done_matrix(self, ope):
@@ -313,3 +289,28 @@ class CartoAnalyzer(Analyzer):
         """
         self._check_analysis_done()
         return self.done_matrix
+
+    def run_analysis(self):
+        self.clear_matrix()
+        super().run_analysis()
+
+    def get_coordinates_correspondance_result(self, axe):
+        coord = "unknown"
+        if axe == 0:
+            coord = "y"
+        elif axe == 1:
+            coord = "x"
+        else:
+            return None
+        ret = {
+            "title": "Coordinates correspondance on {} axis".format(coord),
+            "labels": [self.coordinates[axe], self.stage_coord_keys[axe]],
+            "data": [self.grid_coordinates[axe], self.stage_coordinates[axe]]
+        }
+        return ret
+
+    def get_results(self):
+        results = super().get_results()
+        results.add_result(self.get_coordinates_correspondance_result(0))
+        results.add_result(self.get_coordinates_correspondance_result(1))
+        return results

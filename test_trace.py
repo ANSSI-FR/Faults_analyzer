@@ -7,7 +7,6 @@ from manip import Manip, format_manip_info
 from plotter import PlotterType, Plotter
 from manips_manager import ManipsManager
 from results_manager import ResultsManager
-from my_thread import MyThread
 
 from test_manip_info_list import carto_info_list, base_dir
 
@@ -22,7 +21,7 @@ mm.manage_manips()
 
 results_list = []
 
-def plot_matrix(anal):
+def create_to_plot(anal):
     done_matrix = anal.get_done_matrix()
     reboot_matrix = anal.get_reboot_matrix()
     fault_matrix = anal.get_fault_matrix()
@@ -43,22 +42,19 @@ def plot_matrix(anal):
             "title": "Faults"
         }
     ]
-    pl = Plotter(to_plot)
-    pl.show()
+    return to_plot
 
-for manip in manips:
-    params = manip.get_params()
-    print("\nAnalyzing {}\n".format(manip.result_name))
-    anal = CartoAnalyzer(progress=True, **params)
-    results = anal.get_results()
-    results.add_result(anal.get_effects_distribution())
-    results_list.append(results)
-    print("\n{} analysis done\n".format(manip.result_name))
+#TODO: ask for manip to trace
 
-th = MyThread(plot_matrix, anal)
-th.start()
+manip = manips[0]
+params = manip.get_params()
+anal = CartoAnalyzer(**params)
 
-rm = ResultsManager(results_list)
-rm.start_interface()
-
-th.join()
+to_plot = create_to_plot(anal)
+pl = Plotter(to_plot)
+while 1:
+    df = manip.get_dataframe()
+    anal.set_dataframe(df)
+    to_plot = create_to_plot(anal)
+    pl.set_to_plot(to_plot)
+    pl.show(blocking=False)

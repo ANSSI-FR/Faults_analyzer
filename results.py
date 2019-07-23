@@ -1,6 +1,16 @@
 import logging
 
 from formater import Formater
+from utils import str_to_index_list
+
+def str_to_binary_table(str_in, nb_columns):
+    if str_in in ["a", "all"]:
+        return [True]*nb_columns
+    index_list = str_to_index_list(str_in)
+    ret = [False]*nb_columns
+    for index in index_list:
+        ret[index] = True
+    return ret
 
 def get_merged_labels(results_list, result_to_merge, columns_to_merge,
                       columns_in_common):
@@ -13,7 +23,7 @@ def get_merged_labels(results_list, result_to_merge, columns_to_merge,
                     if i_res == 0:
                         ret.append(label)
                 else:
-                    to_append = "{} - {}".format(label, results.exp.split("/")[-2])
+                    to_append = "{} - {}".format(label, results.exp)
                     ret.append(to_append)
     return ret
 
@@ -34,12 +44,20 @@ def get_merged_data(results_list, result_to_merge, columns_to_merge,
 def get_merged_exp(results_list):
     ret = "Merged results of ["
     for results in results_list:
-        ret += "{}, ".format(results.exp.split("/")[-2])
+        ret += "{}, ".format(results.exp)
     ret += "]"
     return ret
 
+def index_to_result(results_list, result_to_merge):
+    if type(result_to_merge) is str:
+        return result_to_merge
+    else:
+        return results_list[0].get_result_title(result_to_merge)
+
 def merge_results(results_list, result_to_merge, columns_to_merge,
                   columns_in_common):
+    result_to_merge = index_to_result(results_list, result_to_merge)
+
     merged_title = result_to_merge
     merged_labels = get_merged_labels(results_list, result_to_merge,
                                       columns_to_merge, columns_in_common)
@@ -85,10 +103,16 @@ class Results():
         self.nb_results += 1
         self.form = Formater(self.results)
 
+    def get_result_title(self, index):
+        return self.results[index]["title"]
+    
     def get_result(self, result):
         for res in self.results:
             if res["title"] == result:
                 return res
+
+    def get_result_from_index(self, index):
+        return self.results[index]
 
     def get_result_index(self, result):
         if type(result) == int:
@@ -123,14 +147,11 @@ class Results():
         self.form.toggle_to_print(result_index)
         return self.form.get_printable_str()
 
-    def get_results_html_str(self):
-        self.form.set_all_to_print(True)
-        return self.form.get_html_str()
-
-    def get_result_table_str(self, result):
+    def toggle_result_to_print(self, result):
         result_index = self.get_result_index(result)
-        self.form.set_all_to_print(False)
         self.form.toggle_to_print(result_index)
+
+    def get_printable_str(self):
         return self.form.get_printable_str()
 
     def set_to_plot(self, result, plot_type, data_to_plot, data_labels):
@@ -140,6 +161,8 @@ class Results():
 
     def get_label_index(self, result, label):
         if type(label) == int:
+            return label
+        elif type(label) == list:
             return label
         elif type(label) == str:
             result_index = self.get_result_index(result)
