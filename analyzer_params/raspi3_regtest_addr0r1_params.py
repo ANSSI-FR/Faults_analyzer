@@ -1,13 +1,12 @@
-import pandas as pd
-
 NB_REGISTERS = 10
 
-RESULT_FILE = "/media/nas/projects/Fault_attacks/EM/Raspi3/raspi3_manip_liblsc_NEW/liblsc/results/rasp_altmovallreg_20190611_1631/main.csv"
+DEFAULT_VALUES = [((1 << (31 - i)) + (1 << i)) for i in range(NB_REGISTERS)]
+DEFAULT_VALUES[0] = DEFAULT_VALUES[0] + 100
+DEFAULT_VALUES[1] = 1
 
-PARAMS = {
-    "dataframe": pd.read_csv(RESULT_FILE, error_bad_lines=False),
+params = {
     "obs_names": ["r{}".format(i) for i in range(NB_REGISTERS)],
-    "default_values": [((1 << (31 - i)) + (1 << i)) for i in range(NB_REGISTERS)],
+    "default_values": DEFAULT_VALUES,
     "to_test": [True for i in range(NB_REGISTERS)],
     "power_name": "injector_P",
     "delay_name": "injector_D",
@@ -17,5 +16,8 @@ PARAMS = {
     "log_name": "log",
     "log_separator": ";",
     "data_format": "0x{:08x}",
-    "nb_bits": 32
+    "nb_bits": 32,
+    "executed_instructions": [],
+    "coordinates": ["plan_ygrid", "plan_xgrid"],
+    "stage_coordinates": ["stage_y", "stage_x"]
 }

@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 
-from results import merge_results
 from analyzer import Analyzer
-from formater import Formater
 from manip import Manip, format_manip_info
-from plotter import PlotterType
 from manips_manager import ManipsManager
 from results_manager import ResultsManager
 
@@ -22,7 +19,7 @@ results_list = []
 for manip in manips:
     params = manip.get_params()
     print("\nAnalyzing {}\n".format(manip.result_name))
-    anal = Analyzer(**params, progress=True)
+    anal = Analyzer(progress=True, **params)
     results = anal.get_results()
     results.add_result(anal.get_effects_distribution())
     results_list.append(results)

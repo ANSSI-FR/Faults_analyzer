@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import matplotlib.pyplot as plt
 
 from results import merge_results
 from analyzer import Analyzer
@@ -28,11 +29,6 @@ def plot_matrix(anal):
     fault_matrix = anal.get_fault_matrix()
     to_plot = [
         {
-            "data": done_matrix,
-            "type": PlotterType.MATRIX,
-            "title": "Done"
-        },
-        {
             "data": reboot_matrix,
             "type": PlotterType.MATRIX,
             "title": "Reboots"
@@ -41,9 +37,27 @@ def plot_matrix(anal):
             "data": fault_matrix,
             "type": PlotterType.MATRIX,
             "title": "Faults"
+        },
+        {
+            "data": reboot_matrix,
+            "type": PlotterType.MATRIXSCATTER,
+            "title": "Reboots",
+            "revert_y_axis": True,
+            "image": "bcm2837_square.jpg", #TODO: give the image as a parameter
+            "scale_to_image": True
+            #"x_scale": 0.5 #TODO: give the x_scale as a parameter
+        },
+        {
+            "data": fault_matrix,
+            "type": PlotterType.MATRIXSCATTER,
+            "title": "Faults",
+            "revert_y_axis": True,
+            "image": "bcm2837_square.jpg", #TODO: give the image as a parameter
+            "scale_to_image": True
+            #"x_scale": 0.5 #TODO: give the x_scale as a parameter
         }
     ]
-    pl = Plotter(to_plot)
+    pl = Plotter(to_plot, cmap=plt.cm.jet)
     pl.show()
 
 for manip in manips:
@@ -55,10 +69,7 @@ for manip in manips:
     results_list.append(results)
     print("\n{} analysis done\n".format(manip.result_name))
 
-th = MyThread(plot_matrix, anal)
-th.start()
+plot_matrix(anal)
 
 rm = ResultsManager(results_list)
 rm.start_interface()
-
-th.join()

@@ -252,7 +252,7 @@ class Analyzer():
             values = self._get_values_from_log(ope)
             for i in range(self.nb_obs):
                 if self.to_test[i]:
-                    if values[i] != self.default_values[i]:
+                    if s2u(values[i], self.nb_bits) != s2u(self.default_values[i], self.nb_bits):
                         return True
         return False
 
@@ -294,12 +294,16 @@ class Analyzer():
         try:
             log = str(ope[self.log_name])
             log = log.split(self.log_separator)
-            values = log[1:-1]
-            values = [int(v) for v in values]
+            if log[0] == "FlagBegin": #TODO: make flag as parameter
+                log = log[1:]
+            if log[-1] == "FlagEnd": #TODO: make flag as parameter
+                log = log[:-1]
+            values = [s2u(int(v),self.nb_bits) for v in log]
             return values
         except Exception as e:
-            self.logger.error("In _get_values_from_log(): " + str(e))
-    
+            return []
+            #self.logger.error("In _get_values_from_log(): " + str(e))
+
     def _get_values_after_execution(self, ope):
         """Return the values of the observed if the operation is neither reboot nor
         faulted. This should correspond to the expected values of the observed after a
@@ -338,7 +342,9 @@ class Analyzer():
         """
         self.nb_done += 1
         self.values_after_current_execution = self._get_values_after_current_execution(ope)
-        if len(self.values_after_execution) == 0:
+        if self.values_after_execution == None:
+            self.values_after_execution = self._get_values_after_execution(ope)
+        elif len(self.values_after_execution) == 0:
             self.values_after_execution = self._get_values_after_execution(ope)
 
     def _is_reboot_analysis(self, ope):

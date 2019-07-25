@@ -24,8 +24,8 @@ class ManipInfoMaker():
         self.manip_info = {
             "base_dir": base_dir,
             "device": "",
-            "manip": "",
-            "result": "",
+            "manip_name": "",
+            "result_name": "",
             "params_file": ""
         }
         self.done = False
@@ -48,13 +48,13 @@ class ManipInfoMaker():
         dir_to_print = "{}/devices".format(self.manip_info["base_dir"])
         if key == "device":
             pass
-        elif key == "manip":
+        elif key == "manip_name":
             print(self.manip_info["device"])
             dir_to_print += "/{}/manips".format(self.manip_info["device"])
-        elif key == "result":
-            dir_to_print += "/{}/manips/{}/results".format(self.manip_info["device"], self.manip_info["manip"])
+        elif key == "result_name":
+            dir_to_print += "/{}/manips/{}/results".format(self.manip_info["device"], self.manip_info["manip_name"])
         elif key == "params_file":
-            dir_to_print += "/{}/manips/{}".format(self.manip_info["device"], self.manip_info["manip"])
+            dir_to_print += "/{}/manips/{}".format(self.manip_info["device"], self.manip_info["manip_name"])
         else:
             print("Key {} does not exists".format(key))
             return
