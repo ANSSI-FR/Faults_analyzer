@@ -139,10 +139,25 @@ class CartoAnalyzer(Analyzer):
 
         self.clear_matrix()
 
+    def clear_reboot_powers_matrix(self):
+        self.reboot_powers_matrix = []
+        for i in range(len(self.powers)):
+            self.reboot_powers_matrix.append(np.zeros(self.map_size))
+
+    def update_reboot_powers_matrix(self, ope):
+        if not np.isnan(ope[self.power_name]):
+            i = self.powers.index(ope[self.power_name])
+            self._update_matrix(ope, self.reboot_powers_matrix[i])
+
+    def get_reboot_powers_matrix(self):
+        return self.reboot_powers_matrix
+
     def clear_matrix(self):
         self.reboot_matrix = np.zeros(self.map_size)
         self.fault_matrix = np.zeros(self.map_size)
         self.done_matrix = np.zeros(self.map_size)
+        self.response_bad_formated_matrix = np.zeros(self.map_size)
+        self.clear_reboot_powers_matrix()
 
     def _update_matrix(self, ope, mat):
         """Update the matrix with the coordinates of the operation.
@@ -159,6 +174,17 @@ class CartoAnalyzer(Analyzer):
                 return
             ope_coord.append(int(ope[coord]))
         mat[tuple(ope_coord)] += 1
+
+    def update_response_bad_formated_matrix(self, ope):
+        """Update the response bad formated matrix.
+
+        Arguments:
+
+        ope - the operation, which is a line from the dataframe, containing all
+        the information about this step of the experiment.
+
+        """
+        self._update_matrix(ope, self.response_bad_formated_matrix)
 
     def _update_done_matrix(self, ope):
         """Update the done matrix.
@@ -218,6 +244,7 @@ class CartoAnalyzer(Analyzer):
         """
         super()._is_reboot_analysis(ope)
         self._update_reboot_matrix(ope)
+        self.update_reboot_powers_matrix(ope)
 
     def _is_faulted_analysis(self, ope):
         """Do the analysis routine in the case the operation has led to a fault.
@@ -290,6 +317,44 @@ class CartoAnalyzer(Analyzer):
         self._check_analysis_done()
         return self.done_matrix
 
+    def get_response_bad_formated_matrix(self):
+        """Return the response bad formated matrix.
+
+        """
+        self._check_analysis_done()
+        return self.response_bad_formated_matrix
+
+    def get_matrices(self):
+        ret = [
+            {
+                "title": "Reboots matrix",
+                "data": self.reboot_matrix,
+                "label": "Number of reboots per positions"
+            },
+            {
+                "title": "Done matrix",
+                "data": self.done_matrix,
+                "label": "Number of operations done per positions"
+            },
+            {
+                "title": "Faults matrix",
+                "data": self.fault_matrix,
+                "label": "Number of faults per positions"
+            },
+            {
+                "title": "Response bad formated matrix",
+                "data": self.response_bad_formated_matrix,
+                "label": "Number of responses bad formated per positions"
+            },
+        ]
+        for i, power in enumerate(self.powers):
+            ret.append({
+                "title": "Reboots matrix at {}V".format(power),
+                "data": self.reboot_powers_matrix[i],
+                "label": "Number of reboot per position"
+            })
+        return ret
+
     def run_analysis(self):
         self.clear_matrix()
         super().run_analysis()
@@ -309,8 +374,12 @@ class CartoAnalyzer(Analyzer):
         }
         return ret
 
-    def get_results(self):
+    def get_matrix_results(self):
         results = super().get_results()
-        results.add_result(self.get_coordinates_correspondance_result(0))
-        results.add_result(self.get_coordinates_correspondance_result(1))
+        results.append(self.get_coordinates_correspondance_result(0))
+        results.append(self.get_coordinates_correspondance_result(1))
         return results
+
+    def is_response_bad_formated_analysis(self, ope):
+        super().is_response_bad_formated_analysis(ope)
+        self.update_response_bad_formated_matrix(ope)

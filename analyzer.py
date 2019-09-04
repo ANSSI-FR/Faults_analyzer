@@ -118,9 +118,6 @@ class Analyzer():
         self.exp = exp
         self.progress = progress
 
-        # Results
-        self.results = Results(self.exp)
-
         # Extract all the power and delay values from the dataframe
         self.powers = list(self.df[self.power_name].unique())
         self.delays = list(self.df[self.delay_name].unique())
@@ -167,6 +164,20 @@ class Analyzer():
         self.or_with_other_obs_origin_occurrence = [0]*self.nb_obs
         self.xor_with_other_obs_origin_occurrence = [0]*self.nb_obs
         self.sub_with_other_obs_origin_occurrence = [0]*self.nb_obs
+
+        self.other_obs_value_after_execution_destination = [0]*self.nb_obs
+        self.other_obs_value_destination = [0]*self.nb_obs
+        self.other_obs_complementary_value_destination = [0]*self.nb_obs
+        self.add_with_other_obs_destination = [0]*self.nb_obs
+        self.and_with_other_obs_destination = [0]*self.nb_obs
+        self.or_with_other_obs_destination = [0]*self.nb_obs
+        self.xor_with_other_obs_destination = [0]*self.nb_obs
+        self.sub_with_other_obs_destination = [0]*self.nb_obs
+
+        self.fault_model_unknown_destination = [0]*self.nb_obs
+        self.bit_set_destination = [0]*self.nb_obs
+        self.bit_reset_destination = [0]*self.nb_obs
+        self.bit_flip_destination = [0]*self.nb_obs
 
     def _get_faulted_obs(self, ope):
         """Return the faulted observed to test with their faulted value from an
@@ -235,7 +246,6 @@ class Analyzer():
         if self._is_done(ope):
             values = self._get_values_from_log(ope)
             if not len(values) is self.nb_obs:
-                self.nb_responses_bad_format += 1
                 return True
             return False
 
@@ -390,7 +400,7 @@ class Analyzer():
                 if v == faulted_value:
                     self.faulted_values_occurrence[i] += 1
 
-    def _update_bit_set(self, faulted_value):
+    def _update_bit_set(self, faulted_obs, faulted_value):
         """Update the bit set fault model. Attention ! This function only consider a
         bit set on the WHOLE word.
 
@@ -399,13 +409,14 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
+        self.bit_set_destination[faulted_obs] += 1
         max_value = (1 << self.nb_bits) - 1
         if s2u(faulted_value, self.nb_bits) == max_value:
             self.bit_set += 1
             return True
         return False
 
-    def _update_bit_reset(self, faulted_value):
+    def _update_bit_reset(self, faulted_obs, faulted_value):
         """Update the bit reset fault model. Attention ! This function only consider a
         bit reset on the WHOLE word.
 
@@ -414,6 +425,7 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
+        self.bit_reset_destination[faulted_obs] += 1
         if s2u(faulted_value, self.nb_bits) == 0:
             self.bit_reset += 1
             return True
@@ -430,6 +442,7 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
+        self.bit_flip_destination[faulted_obs] += 1
         if s2u(faulted_value, self.nb_bits) == a2_comp(self.default_values[faulted_obs], self.nb_bits):
             self.bit_flip += 1
             return True
@@ -446,6 +459,7 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
+        self.other_obs_value_destination[faulted_obs] += 1
         for i, val in enumerate(self.default_values):
             if not i is faulted_obs:
                 if s2u(faulted_value, self.nb_bits) == s2u(int(val), self.nb_bits):
@@ -464,6 +478,7 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
+        self.other_obs_value_after_execution_destination[faulted_obs] += 1
         for i, val in enumerate(self.values_after_current_execution):
             if not i is faulted_obs:
                 if s2u(faulted_value, self.nb_bits) == s2u(int(val), self.nb_bits):
@@ -483,6 +498,7 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
+        self.other_obs_complementary_value_destination[faulted_obs] += 1
         for i, val in enumerate(self.default_values):
             if not i is faulted_obs:
                 if s2u(faulted_value, self.nb_bits) == a2_comp(val, self.nb_bits):
@@ -502,6 +518,7 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
+        self.add_with_other_obs_destination[faulted_obs] += 1
         for i, val in enumerate(self.default_values):
             if s2u(faulted_value, self.nb_bits) == s2u(self.default_values[faulted_obs] + val, self.nb_bits):
                 if i != faulted_obs:
@@ -521,6 +538,7 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
+        self.and_with_other_obs_destination[faulted_obs] += 1
         for i, val in enumerate(self.default_values):
             if s2u(faulted_value, self.nb_bits) == s2u(self.default_values[faulted_obs] & val, self.nb_bits):
                 if i != faulted_obs:
@@ -540,6 +558,7 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
+        self.or_with_other_obs_destination[faulted_obs] += 1
         for i, val in enumerate(self.default_values):
             if s2u(faulted_value, self.nb_bits) == s2u(self.default_values[faulted_obs] | val, self.nb_bits):
                 if i != faulted_obs:
@@ -559,6 +578,7 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
+        self.xor_with_other_obs_destination[faulted_obs] += 1
         for i, val in enumerate(self.default_values):
             if s2u(faulted_value, self.nb_bits) == s2u(self.default_values[faulted_obs] ^ val, self.nb_bits):
                 if i != faulted_obs:
@@ -578,6 +598,7 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
+        self.sub_with_other_obs_destination[faulted_obs] += 1
         for i, val in enumerate(self.default_values):
             if s2u(faulted_value, self.nb_bits) == s2u(self.default_values[faulted_obs] - val, self.nb_bits):
                 if i != faulted_obs:
@@ -614,9 +635,9 @@ class Analyzer():
         faulted_obs = faulted[0]
         faulted_value = faulted[1]
         fault_model_known = False
-        fault_model_known |= self._update_bit_set(faulted_value)
+        fault_model_known |= self._update_bit_set(faulted_obs, faulted_value)
         if not fault_model_known:
-            fault_model_known |= self._update_bit_reset(faulted_value)
+            fault_model_known |= self._update_bit_reset(faulted_obs, faulted_value)
         if not fault_model_known:
             fault_model_known |= self._update_bit_flip(faulted_obs, faulted_value)
         if not fault_model_known:
@@ -624,11 +645,11 @@ class Analyzer():
         if not fault_model_known:
             fault_model_known |= self._update_other_obs_complementary_value(faulted_obs, faulted_value)
         if not fault_model_known:
+            fault_model_known |= self._update_or_with_other_obs(faulted_obs, faulted_value)
+        if not fault_model_known:
             fault_model_known |= self._update_add_with_other_obs(faulted_obs, faulted_value)
         if not fault_model_known:
             fault_model_known |= self._update_and_with_other_obs(faulted_obs, faulted_value)
-        if not fault_model_known:
-            fault_model_known |= self._update_or_with_other_obs(faulted_obs, faulted_value)
         if not fault_model_known:
             fault_model_known |= self._update_xor_with_other_obs(faulted_obs, faulted_value)
         if not fault_model_known:
@@ -639,6 +660,7 @@ class Analyzer():
             fault_model_known |= self._update_executed_instruction(faulted_value)
         if not fault_model_known:
             self.fault_model_unknown += 1
+            self.fault_model_unknown_destination[faulted_obs] += 1
 
     def _update_faulted_obs_and_values(self, ope):
         """Update the number of faulted observed, the faulted observed, the faulted
@@ -672,6 +694,18 @@ class Analyzer():
         self._update_result(ope, self.delays, self.fault_delays, self.delay_name)
         self._update_faulted_obs_and_values(ope)
 
+    def is_response_bad_formated_analysis(self, ope):
+        """Do the analysis routine in the case the operation has a bad formated
+        response.
+
+        Arguments:
+
+        ope - the operation, which is a line from the dataframe, containing all
+        the information about this step of the experiment.
+
+        """
+        self.nb_responses_bad_format += 1
+
     def _analysis(self, ope):
         """Run the analysis on a given operation. For adding analysis in a daughter
         class, define this function calling super()._analysis().
@@ -691,6 +725,8 @@ class Analyzer():
         if not self._is_response_bad_formated(ope):
             if self._is_faulted(ope):
                 self._is_faulted_analysis(ope)
+        else:
+            self.is_response_bad_formated_analysis(ope)
 
     def _set_fault_models_occurrence(self):
         """Create the fault model occurrence list.
@@ -939,90 +975,197 @@ class Analyzer():
         self._check_analysis_done()
         return self.other_obs_value_after_execution_origin_occurrence
 
-    def _get_other_obs_values_after_execution_result(self):
+    def _get_other_obs_values_after_execution_information(self):
         """Return the dictionary containing the occurrence of origin of the faulted
         value in the case of the other observed values after execution fault
         model.
 
         """
-        ret = {
-            "title": "Origin of the faulted value after execution",
-            "labels": ["Observed", "Occurrence (%)"],
-            "data": [self.obs_names,
-                     norm_percent(self.other_obs_value_after_execution_origin_occurrence)]
-        }
+        ret = [
+            {
+                "title": "Origin of the faulted value after execution",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.other_obs_value_after_execution_origin_occurrence)]
+            },
+            {
+                "title": "Destination occurrence for other obs value after execution",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.other_obs_value_after_execution_destination)]
+            }
+        ]
         return ret
 
-    def _get_other_obs_values_result(self):
+    def _get_other_obs_values_information(self):
         """Return the dictionary containing the occurrence of origin of the faulted
         value in the case of the other observed values fault
         model.
 
         """
-        ret = {
-            "title": "Origin of the faulted value",
-            "labels": ["Observed", "Occurrence (%)"],
-            "data": [self.obs_names,
-                     norm_percent(self.other_obs_value_origin_occurrence)]
-        }
+        ret = [
+            {
+                "title": "Origin of the faulted value",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.other_obs_value_origin_occurrence)]
+            },
+            {
+                "title": "Destination occurrence for other obs value",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.other_obs_value_destination)]
+            }
+        ]
         return ret
 
-    def _get_other_obs_complementary_value_result(self):
-        ret = {
-            "title": "Origin of the faulted complementary value",
-            "labels": ["Observed", "Occurrence (%)"],
-            "data": [self.obs_names,
-                     norm_percent(self.other_obs_complementary_value_origin_occurrence)]
-        }
+    def _get_other_obs_complementary_value_information(self):
+        ret = [
+            {
+                "title": "Origin of the faulted complementary value",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.other_obs_complementary_value_origin_occurrence)]
+            },
+            {
+                "title": "Destination occurrence for other obs complementary value",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.other_obs_complementary_value_destination)]
+            }
+        ]
         return ret
 
-    def _get_add_with_other_obs_result(self):
-        ret = {
-            "title": "Origin of the added value",
-            "labels": ["Observed", "Occurrence (%)"],
-            "data": [self.obs_names,
-                     norm_percent(self.add_with_other_obs_origin_occurrence)]
-        }
+    def _get_add_with_other_obs_information(self):
+        ret = [
+            {
+                "title": "Origin of the added value",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.add_with_other_obs_origin_occurrence)]
+            },
+            {
+                "title": "Destination occurrence for add with other obs",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.add_with_other_obs_destination)]
+            }
+        ]
         return ret
 
-    def _get_and_with_other_obs_result(self):
-        ret = {
-            "title": "Origin of the ANDed value",
-            "labels": ["Observed", "Occurrence (%)"],
-            "data": [self.obs_names,
-                     norm_percent(self.and_with_other_obs_origin_occurrence)]
-        }
+    def _get_and_with_other_obs_information(self):
+        ret = [
+            {
+                "title": "Origin of the ANDed value",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.and_with_other_obs_origin_occurrence)]
+            },
+            {
+                "title": "Destination occurrence for and with other obs",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.and_with_other_obs_destination)]
+            }
+        ]
         return ret
 
-    def _get_or_with_other_obs_result(self):
-        ret = {
-            "title": "Origin of the ORed value",
-            "labels": ["Observed", "Occurrence (%)"],
-            "data": [self.obs_names,
-                     norm_percent(self.or_with_other_obs_origin_occurrence)]
-        }
+    def _get_or_with_other_obs_information(self):
+        ret = [
+            {
+                "title": "Origin of the ORed value",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.or_with_other_obs_origin_occurrence)]
+            },
+            {
+                "title": "Destination occurrence for or with other obs",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.or_with_other_obs_destination)]
+            }
+        ]
         return ret
 
-    def _get_xor_with_other_obs_result(self):
-        ret = {
-            "title": "Origin of the XORed value",
-            "labels": ["Observed", "Occurrence (%)"],
-            "data": [self.obs_names,
-                     norm_percent(self.xor_with_other_obs_origin_occurrence)]
-        }
+    def _get_xor_with_other_obs_information(self):
+        ret = [
+            {
+                "title": "Origin of the XORed value",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.xor_with_other_obs_origin_occurrence)]
+            },
+            {
+                "title": "Destination occurrence for xor with other obs",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.xor_with_other_obs_destination)]
+            }
+        ]
         return ret
 
-    def _get_sub_with_other_obs_result(self):
-        
-        ret = {
-            "title": "Origin of the subtracted value",
-            "labels": ["Observed", "Occurrence (%)"],
-            "data": [self.obs_names,
-                     norm_percent(self.sub_with_other_obs_origin_occurrence)]
-        }
+    def _get_sub_with_other_obs_information(self):
+        ret = [
+            {
+                "title": "Origin of the subtracted value",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.sub_with_other_obs_origin_occurrence)]
+            },
+            {
+                "title": "Destination occurrence for sub with other obs",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.sub_with_other_obs_destination)]
+            }
+        ]
         return ret
 
-    def _get_fault_model_result(self, fault_model):
+    def get_bit_set_information(self):
+        ret = [
+            {
+                "title": "Destination occurrence for bit set",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.bit_set_destination)]
+            }
+        ]
+        return ret
+
+    def get_bit_reset_information(self):
+        ret = [
+            {
+                "title": "Destination occurrence for bit reset",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.bit_reset_destination)]
+            }
+        ]
+        return ret
+
+    def get_bit_flip_destination(self):
+        ret = [
+            {
+                "title": "Destination occurrence for bit flip",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.bit_flip_destination)]
+            }
+        ]
+        return ret
+
+    def get_fault_model_unknown_information(self):
+        ret = [
+            {
+                "title": "Destination occurrence for fault model unknown",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.fault_model_unknown_destination)]
+            }
+        ]
+        return ret
+
+    def _get_fault_model_information(self, fault_model):
         """Return the dictionary containing the results of the given fault model.
 
         Arguments:
@@ -1031,21 +1174,29 @@ class Analyzer():
 
         """
         if fault_model == "Other obs value after execution":
-            return self._get_other_obs_values_after_execution_result()
+            return self._get_other_obs_values_after_execution_information()
         elif fault_model == "Other obs value":
-            return self._get_other_obs_values_result()
+            return self._get_other_obs_values_information()
         elif fault_model == "Other obs complementary value":
-            return self._get_other_obs_complementary_value_result()
+            return self._get_other_obs_complementary_value_information()
         elif fault_model == "Add with other obs":
-            return self._get_add_with_other_obs_result()
+            return self._get_add_with_other_obs_information()
         elif fault_model == "And with other obs":
-            return self._get_and_with_other_obs_result()
+            return self._get_and_with_other_obs_information()
         elif fault_model == "Or with other obs":
-            return self._get_or_with_other_obs_result()
+            return self._get_or_with_other_obs_information()
         elif fault_model == "Xor with other obs":
-            return self._get_xor_with_other_obs_result()
+            return self._get_xor_with_other_obs_information()
         elif fault_model == "Sub with other obs":
-            return self._get_sub_with_other_obs_result()
+            return self._get_sub_with_other_obs_information()
+        elif fault_model == "Bit set":
+            return self.get_bit_set_information()
+        elif fault_model == "Bit reset":
+            return self.get_bit_reset_information()
+        elif fault_model == "Bit flip":
+            return self.get_bit_flip_information()
+        elif fault_model == "Fault model unknown":
+            return self.get_fault_model_unknown_information()
         else:
             self.logger.warning("Failed to get the results for the fault model : {}".format(fault_model))
 
@@ -1070,9 +1221,9 @@ class Analyzer():
         """
         for fault_model in self.fault_models:
             if self._get_fault_model_occurrence(fault_model) > 0:
-                fault_model_result = self._get_fault_model_result(fault_model)
-                if fault_model_result != None:
-                    result.append(fault_model_result)
+                fault_model_information = self._get_fault_model_information(fault_model)
+                if fault_model_information != None:
+                    result += fault_model_information
         return result
 
     def get_results(self):
@@ -1080,7 +1231,7 @@ class Analyzer():
 
         """
         self._check_analysis_done()
-        result = [
+        results = [
             {
                 "title": "General statistics",
                 "labels": ["Statistic", "Value"],
@@ -1125,9 +1276,8 @@ class Analyzer():
                 "data": self.get_fault_models()
             }
         ]
-        result = self._add_fault_model_information(result)
-        self.results.set_results(result)
-        return self.results
+        results = self._add_fault_model_information(results)
+        return results
 
     def get_effects_distribution(self):
         result = {

@@ -1,4 +1,5 @@
 from manip import ManipInfoMaker, Manip, format_manip_info
+from utils import str_to_index_list
 
 # TODO: inherit from the CmdInterface class
 
@@ -32,7 +33,9 @@ class ManipsManager():
 
         p, print : print the manips
 
-        d, e, q, done, exit, quit : leave the interface
+        d, done : leave the interface
+
+        e, exit : exit the program
 
         h, help : print this help
 
@@ -42,9 +45,13 @@ class ManipsManager():
         print(help_str)
 
     def keep_manip(self, index):
-        manip_to_keep = self.manips[int(index)]
+        manips_to_keep_index = str_to_index_list(index)
+        manips_to_keep = []
+        for index in manips_to_keep_index:
+            manips_to_keep.append(self.manips[int(index)])
         self.manips.clear()
-        self.manips.append(manip_to_keep)
+        for manip in manips_to_keep:
+            self.manips.append(manip)
 
     def eval_cmd(self, cmd):
         parsed_cmd = cmd.split(" ")
@@ -57,8 +64,11 @@ class ManipsManager():
                 self.remove_manip(parsed_cmd[1])
         elif parsed_cmd[0] in ["p", "print"]:
             self.print_manips()
-        elif parsed_cmd[0] in ["d", "e", "q", "done", "exit", "quit"]:
+        elif parsed_cmd[0] in ["d", "done"]:
             self.done = True
+        elif parsed_cmd[0] in ["e", "exit"]:
+            print("Exiting the program")
+            exit(0)
         elif parsed_cmd[0] in ["h", "help"]:
             self.print_help()
         elif parsed_cmd[0] in ["k", "keep"]:

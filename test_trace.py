@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import matplotlib.pyplot as plt
+
 from results import merge_results
 from analyzer import Analyzer
 from formater import Formater
@@ -40,7 +42,25 @@ def create_to_plot(anal):
             "data": fault_matrix,
             "type": PlotterType.MATRIX,
             "title": "Faults"
-        }
+        },
+        {
+            "data": fault_matrix,
+            "type": PlotterType.MATRIXSCATTER,
+            "revert_y_axis": True,
+            "image": "chips/bcm2837_square.jpg",
+            "scale_to_image": True,
+            "x_ticklabels": [str(i) for i in range(15)],
+            "x_ticklabels_position": [i*26.643 for i in range(15)],
+            "y_ticklabels": [str(i) for i in range(15)],
+            "y_ticklabels_position": [i*26.643 for i in range(15)],
+            "x_label": "Position (mm)",
+            "y_label": "Position (mm)",
+            "colorbar_label": "Number of faults",
+            "ticklabels_fontsize": 16,
+            "x_label_fontsize": 16,
+            "y_label_fontsize": 16,
+            "colorbar_fontsize": 16
+        },
     ]
     return to_plot
 
@@ -51,7 +71,7 @@ params = manip.get_params()
 anal = CartoAnalyzer(**params)
 
 to_plot = create_to_plot(anal)
-pl = Plotter(to_plot)
+pl = Plotter(to_plot, cmap=plt.cm.YlOrRd)
 while 1:
     df = manip.get_dataframe()
     anal.set_dataframe(df)

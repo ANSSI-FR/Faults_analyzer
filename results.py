@@ -1,80 +1,34 @@
 import logging
 
-from formater import Formater
-from utils import str_to_index_list
-
-def str_to_binary_table(str_in, nb_columns):
-    if str_in in ["a", "all"]:
-        return [True]*nb_columns
-    index_list = str_to_index_list(str_in)
-    ret = [False]*nb_columns
-    for index in index_list:
-        ret[index] = True
-    return ret
-
-def get_merged_labels(results_list, result_to_merge, columns_to_merge,
-                      columns_in_common):
-    ret = []
-    for i_res, results in enumerate(results_list):
-        labels = results.get_result(result_to_merge)["labels"]
-        for i, label in enumerate(labels):
-            if columns_to_merge[i]:
-                if columns_in_common[i]:
-                    if i_res == 0:
-                        ret.append(label)
-                else:
-                    to_append = "{} - {}".format(label, results.exp)
-                    ret.append(to_append)
-    return ret
-
-def get_merged_data(results_list, result_to_merge, columns_to_merge,
-                    columns_in_common):
-    ret = []
-    for i_res, results in enumerate(results_list):
-        data = results.get_result(result_to_merge)["data"]
-        for i, d in enumerate(data):
-            if columns_to_merge[i]:
-                if columns_in_common[i]:
-                    if i_res == 0:
-                        ret.append(d)
-                else:
-                    ret.append(d)
-    return ret
-
-def get_merged_exp(results_list):
-    ret = "Merged results of ["
-    for results in results_list:
-        ret += "{}, ".format(results.exp)
-    ret += "]"
-    return ret
-
-def index_to_result(results_list, result_to_merge):
-    if type(result_to_merge) is str:
-        return result_to_merge
-    else:
-        return results_list[0].get_result_title(result_to_merge)
+from result import Result
 
 def merge_results(results_list, result_to_merge, columns_to_merge,
                   columns_in_common):
-    result_to_merge = index_to_result(results_list, result_to_merge)
+    merged_labels, merged_data = get_merged_labels_and_data(results_list,
+                                                            result_to_merge,
+                                                            columns_to_merge,
+                                                            columns_in_common)
+    merged_result_title = "Merged " + results_list[0].get_result(result_to_merge).title
+    return Result(merged_result_title, merged_data, merged_labels)
 
-    merged_title = result_to_merge
-    merged_labels = get_merged_labels(results_list, result_to_merge,
-                                      columns_to_merge, columns_in_common)
-    merged_data = get_merged_data(results_list, result_to_merge,
-                                  columns_to_merge, columns_in_common)
-    merged_result = {
-        "title": merged_title,
-        "labels": merged_labels,
-        "data": merged_data
-    }
-
-    merged_exp = get_merged_exp(results_list)
-
-    ret = Results(merged_exp)
-    ret.add_result(merged_result)
-
-    return ret
+def get_merged_labels_and_data(results_list, result_to_merge, columns_to_merge,
+                               columns_in_common):
+    merged_data = []
+    merged_labels = []
+    for column_to_merge in columns_to_merge:
+        if column_to_merge in columns_in_common:
+            label = results_list[0].get_result(result_to_merge).labels[column_to_merge]
+            data = results_list[0].get_result(result_to_merge).data[column_to_merge]
+            merged_labels.append(label)
+            merged_data.append(data)
+        else:
+            for results in results_list:
+                label = "{} {}".format(results.get_path(),
+                                             results.get_result(result_to_merge).labels[column_to_merge])
+                data = results.get_result(result_to_merge).data[column_to_merge]
+                merged_labels.append(label)
+                merged_data.append(data)
+    return merged_labels, merged_data
 
 class Results():
 
@@ -82,13 +36,38 @@ class Results():
 
     """
 
-    exp = None
+    base_dir = ""
+    device = ""
+    manip = ""
+    result_dir = ""
     results = []
     nb_results = 0
 
-    def __init__(self, exp, results=[]):
-        self.exp = exp
-        self.set_results(results)
+    def __init__(self, base_dir, device, manip, result_dir, results):
+        self.base_dir = base_dir
+        self.device = device
+        self.manip = manip
+        self.result_dir = result_dir
+        self.results = results
+        self.nb_results = len(self.results)
+
+    def get_path(self):
+        return "{}:{}:{}".format(self.device, self.manip, self.result_dir)
+
+    def __str__(self):
+        return self.get_str()
+
+    def get_str(self):
+        ret = "Results from {}\n".format(self.get_path())
+        for res in self.results:
+            ret += "{}\n".format(res)
+        return ret
+
+    def get_html_str(self):
+        ret = "<h1>Results from {}\n".format(self.get_path())
+        for res in self.results:
+            ret += res.get_html_str() + "\n"
+        return ret
 
     def get_results(self):
         return self.results
@@ -96,22 +75,20 @@ class Results():
     def set_results(self, results):
         self.results = results
         self.nb_results = len(self.results)
-        self.form = Formater(self.results)
 
     def add_result(self, result):
         self.results.append(result)
         self.nb_results += 1
-        self.form = Formater(self.results)
 
     def get_result_title(self, index):
-        return self.results[index]["title"]
-    
-    def get_result(self, result):
+        return self.results[index].title
+
+    def get_result_from_title(self, result):
         for res in self.results:
-            if res["title"] == result:
+            if res.title == result:
                 return res
 
-    def get_result_from_index(self, index):
+    def get_result(self, index):
         return self.results[index]
 
     def get_result_index(self, result):
@@ -119,15 +96,15 @@ class Results():
             return result
         elif type(result) == str:
             for i in range(self.nb_results):
-                if self.results[i]["title"] == result:
+                if self.results[i].title == result:
                     return i
         else:
             logging.error("Cannot find index for result '{}'".format(result))
-    
+
     def get_results_titles(self):
         ret = []
         for res in self.results:
-            ret.append(res["title"])
+            ret.append(res.title)
         return ret
 
     def get_results_titles_str(self):
@@ -137,46 +114,31 @@ class Results():
             ret += "[{}] {}\n".format(i, title)
         return ret
 
-    def get_results_table_str(self):
-        self.form.set_all_to_print(True)
-        return self.form.get_printable_str()
+######### TEST ###########
+if __name__ == "__main__":
+    results_dict = [
+        {
+            "title": "Test title",
+            "data": [["one", "two", "three", "four", "five"], [4,5,6,36,9], [45,8,7,69,5]],
+            "labels": ["name", "number of a", "number of b"]
+        },
+        {
+            "title": "Test title 2",
+            "data": [["arc", "boat", "camp", "damage", "fire"], [4,5,6,36,9], [45,8,7,69,5]],
+            "labels": ["name", "number of accident", "number of death"]
+        },
+    ]
 
-    def get_result_table_str(self, result):
-        result_index = self.get_result_index(result)
-        self.form.set_all_to_print(False)
-        self.form.toggle_to_print(result_index)
-        return self.form.get_printable_str()
+    results_list = []
+    for res in results_dict:
+        results_list.append(Result(**res))
 
-    def toggle_result_to_print(self, result):
-        result_index = self.get_result_index(result)
-        self.form.toggle_to_print(result_index)
+    results = Results("test_base_dir", "test_device", "test_manip",
+                      "test_result_dir", results_list)
+    results_2 = Results("test_base_dir", "test_device", "test_manip_2",
+                        "test_result_dir", results_list)
+    print(results)
+    print(results.get_html_str())
+    print(results.get_results_titles_str())
 
-    def get_printable_str(self):
-        return self.form.get_printable_str()
-
-    def set_to_plot(self, result, plot_type, data_to_plot, data_labels):
-        result_index = self.get_result_index(result)
-        self.form.set_to_plot(result_index, plot_type, data_to_plot,
-                              data_labels)
-
-    def get_label_index(self, result, label):
-        if type(label) == int:
-            return label
-        elif type(label) == list:
-            return label
-        elif type(label) == str:
-            result_index = self.get_result_index(result)
-            labels = self.results[result_index]["labels"]
-            for i in range(len(labels)):
-                if labels[i] == label:
-                    return i
-        else:
-            logging.error("Cannot find index for label '{}'".format(label))
-
-    def get_plotter(self, result, plot_type, data_to_plot, data_labels):
-        result_index = self.get_result_index(result)
-        label_index = self.get_label_index(result, data_labels)
-        data_index = self.get_label_index(result, data_to_plot)
-        self.form.remove_all_to_plot()
-        self.form.set_to_plot(result_index, plot_type, data_index, label_index)
-        return self.form.get_plotter()
+    print(merge_results([results, results_2], 0, [0,1], [0]))
