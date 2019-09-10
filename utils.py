@@ -1,21 +1,58 @@
-def str_to_index_list(index_str):
-    index_list = []
+def in_range(table, index):
+    if index > len(table):
+        print("Error: index out of range")
+        return False
+    if index < 0:
+        print("Error: negative index")
+        return False
+    return True
+
+def intable(int_str):
+    try:
+        int(int_str)
+        return True
+    except:
+        return False
+
+def str2index_convertible(index_str):
     if "," in index_str:
         index_str = index_str.split(",")
-        for index in index_str:
-            index_list.append(int(index))
+        for i in index_str:
+            if not intable(i):
+                return False
     elif "-" in index_str:
         index_str = index_str.split("-")
-        if len(index_str) == 2:
-            start = int(index_str[0])
-            end = int(index_str[1])
-            for index in range(start, end+1):
-                index_list.append(int(index))
-        else:
-            print("Error: wrong size for index list")
+        if len(index_str) != 2:
+            return False
+        if (not intable(index_str[0])) or not (intable(index_str[1])):
+            return False
+        if index_str[0] > index_str[1]:
+            return False
     else:
-        index_list = [int(index_str)]
-    return index_list
+        if not intable(index_str):
+            return False
+    return True
+
+def str_to_index_list(index_str):
+    if str2index_convertible(index_str):
+        index_list = []
+        if "," in index_str:
+            index_str = index_str.split(",")
+            for index in index_str:
+                index_list.append(int(index))
+        elif "-" in index_str:
+            index_str = index_str.split("-")
+            if len(index_str) == 2:
+                start = int(index_str[0])
+                end = int(index_str[1])
+                for index in range(start, end+1):
+                    index_list.append(int(index))
+        else:
+            index_list = [int(index_str)]
+        return index_list
+    else:
+        print("Error: wrong index list formatting")
+        return None
 
 def print_list(l):
     for elem in l:

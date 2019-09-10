@@ -11,66 +11,37 @@ from results import *
 from result import get_common_label_from_labels
 
 class ResultsManager(CmdInterface):
-
-    local_help_msg = """
-    p, print (result_index) (table_index) : print the available results
-        if result_index is given: print the available tables in the corresponding result
-        if result_index and table_index are given: print the corresponding table in the corresponding result
-            result_index can be a coma separated list (for instance "1,2,4") or a range (for instance "2-8") or "a" or "all" to print every table
-
-    m, merge <results_index_list> <table_index> <columns_to_merge> <columns_in_common> : create a new result which contain the merged table from the available results
-        results_index_list is the index of the results to merge from
-        table_index is the index of the table to merge
-        columns_to_merge is the columns to merge, it can be a coma separated list, a range, "a" or "all"
-        columns_in_common is the columns in common, i.e. to include in the new result but not to duplicate, it can be a coma separated list, a range, "a" or "all"
-
-    pl, plot <result_index> <table_index> <plot_type> <data> <labels> : plot the data from the table of the result with the corresponding type using the labels.
-
-    s, save <result_index> <table_index> <filename> (format) : save the result in the file named filename. An optional format can be given among "txt", "html" and "latex" (default is "txt").
-    """
-    help_msg = CmdInterface.help_msg + local_help_msg
-
-    def __init__(self, results_list, cmap=plt.cm.YlOrRd, latex=False):
+    def __init__(self, results_list=[], cmap=plt.cm.YlOrRd, latex=False):
+        super().__init__()
         self.results_list = results_list
-        self.results_str = ""
-        self.done = False
         self.cmap = cmap
         self.latex = latex
+
+    def get_results_index(self, results):
+        return self.results_list.index(results)
+
+    def add_results(self, results):
+        self.results_list.append(results)
 
     def get_results_lists_titles(self):
         ret = ""
         for i, results in enumerate(self.results_list):
-            ret += "[{}] {} {} {}\n".format(i, results.device, results.manip,
-                                            results.result_dir)
+            ret += "[{}] {}\n".format(i, results.id_name)
         return ret
 
     def get_result_tables_titles(self, results_index):
         return self.results_list[results_index].get_results_titles_str()
 
-    def format_index_list(self, index_list):
-        if type(index_list) is list:
-            return index_list
-        elif type(index_list) is str:
-            return str_to_index_list(index_list)
+    get_results_titles = get_result_tables_titles
 
-    def add_set_result_table_to_str(self, results_index, result_table_index_list):
-        result_table_index_list = self.format_index_list(result_table_index_list)
-        for result_table_index in result_table_index_list:
-            self.add_result_table_to_str(results_index, result_table_index)
+    def get_all_results_str(self, results_index):
+        return str(self.results_list[results_index])
 
-    def add_result_table_to_str(self, results_index, result_table_index):
-        self.results_str += self.results_list[results_index].get_result_table_str(result_table_index)
-        self.results_str += "\n"
-
-    def add_results_table_to_str(self, results_index):
-        self.results_str += self.results_list[results_index].get_results_table_str()
-        self.results_str += "\n"
-
-    def clear_results_str(self):
-        self.results_str = ""
-
-    def get_results_str(self):
-        return self.results_str
+    def get_results_str(self, results_index, result_index_list):
+        ret = ""
+        for i in result_index_list:
+            ret += str(self.results_list[results_index].get_result(i)) + "\n"
+        return ret
 
     def eval_print_cmd(self, cmd):
         if len(cmd) == 1:
@@ -81,12 +52,11 @@ class ResultsManager(CmdInterface):
         elif len(cmd) == 3:
             result_index = int(cmd[1])
             table_index = cmd[2]
-            self.clear_results_str()
             if table_index in ["a", "all"]:
                 print(self.results_list[result_index])
             else:
                 index_list = str_to_index_list(table_index)
-                print(self.results_list[result_index].get_path())
+                print(self.results_list[result_index].id_name)
                 for i in index_list:
                     print(self.results_list[result_index].get_result(i))
 
@@ -114,38 +84,9 @@ class ResultsManager(CmdInterface):
         columns_in_common = str_to_index_list(cmd[4])
         result = merge_results(reduced_results_list, table_to_merge,
                                columns_to_merge, columns_in_common)
-        for results in reduced_results_list:
-            results.add_result(result)
+        results = Results([result], "Merged results")
+        self.results_list.append(results)
         print("Merge done.")
-
-    def convert_arg(self, arg):
-        try:
-            return float(arg)
-        except:
-            return arg
-
-    def get_plot_style_from_cmd(self, cmd, start_index):
-        plot_style = {}
-        for i in range(start_index, len(cmd)):
-            arg = cmd[i].split("=")
-            plot_style.update({arg[0]: self.convert_arg(arg[1])})
-        return plot_style
-
-    def get_plot_params(self, cmd):
-        plot_type = cmd[3]
-        if plot_type in [PlotterType.MATRIX, PlotterType.MATRIXSCATTER,
-                         "matrix", "matrixscatter"]:
-            params = {"type": plot_type}
-            start_index = 4
-        else:
-            params = {
-                "type": plot_type,
-                "data_to_plot": str_to_index_list(cmd[4]),
-                "labels": int(cmd[5])
-            }
-            start_index = 6
-        params.update({"plot_style": self.get_plot_style_from_cmd(cmd, start_index)})
-        return params
 
     def get_matrix_to_plot_for_style(self, result):
         if hasattr(result, "data") and hasattr(result, "label"):
@@ -263,23 +204,9 @@ class ResultsManager(CmdInterface):
         if cmd[3] in plot_styles.styles:
             style = plot_styles.styles[cmd[3]]
             to_plot = self.get_to_plot_from_style(results_index, table_index, style, cmd)
-        else:
-            params = self.get_plot_params(cmd)
-            to_plot = self.results_list[results_index].get_result(table_index).get_to_plot(params)
         if to_plot != None:
             pl = Plotter([to_plot], cmap=self.cmap, latex=self.latex)
             pl.show()
-
-    def check_nb_args(self, cmd, maxi=None, mini=1):
-        # TODO: mettre dans la classe mère
-        if len(cmd) < mini:
-            print("Error: wrong number of arguments")
-            return False
-        if maxi != None:
-            if len(cmd) > maxi:
-                print("Error: wrong number of arguments")
-                return False
-        return True
 
     def get_save_style(self, cmd):
         style = "txt"
@@ -307,12 +234,6 @@ class ResultsManager(CmdInterface):
         f.write(self.get_to_write(results_index, table_index, style) + "\n")
         f.close()
         print("Results saved in {}.".format(filename))
-
-    def sanitize_cmd(self, cmd):
-        #TODO: classe mere
-        while "" in cmd:
-            cmd.remove("")
-        return cmd
 
     def eval_cmd(self, cmd):
         super().eval_cmd(cmd)

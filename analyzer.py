@@ -1,11 +1,8 @@
 import logging
 import daiquiri
-import numpy as np
 
 from bin_utils import *
-from utils import *
-
-from results import Results
+from utils import print_progress_bar, norm_percent, format_table
 
 class Analyzer():
     """Class doing the analysis of fault attacks experiments.
@@ -37,7 +34,6 @@ class Analyzer():
         return daiquiri.getLogger()
     
     def __init__(self,
-                 exp,
                  dataframe,
                  obs_names,
                  default_values,
@@ -115,7 +111,6 @@ class Analyzer():
         self.nb_bits = nb_bits
         self.df = dataframe
         self.executed_instructions = executed_instructions
-        self.exp = exp
         self.progress = progress
 
         # Extract all the power and delay values from the dataframe

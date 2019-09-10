@@ -1,85 +1,54 @@
-from manip import ManipInfoMaker, Manip, format_manip_info
-from utils import str_to_index_list
-
-# TODO: inherit from the CmdInterface class
+from utils import in_range
+from manip import Manip
 
 class ManipsManager():
-
-    manips = []
-
-    def __init__(self, base_dir, manips=[]):
+    def __init__(self, manips):
+        super().__init__()
         self.manips = manips
-        self.base_dir = base_dir
-        self.done = False
+        self.selected_manips = []
 
-    def add_manip(self):
-        mim = ManipInfoMaker(self.base_dir)
-        manip = mim.make_manip_info()
-        self.manips.append(Manip(**manip))
+    def get_str(self, manip, index):
+        format_str = "{:" + str(len(str(len(self.manips)))+3) + "}"
+        ret = format_str.format("[{}]".format(index))
+        if manip.analyzed:
+            ret += "(A)"
+        elif manip in self.selected_manips:
+            ret += "(S)"
+        else:
+            ret += "( )"
+        ret += " {}".format(manip)
+        return ret
 
-    def print_manips(self):
+    def add_manip(self, result_file, analysis_params, id_name):
+        self.manips.append(Manip(result_file, analysis_params, id_name))
+
+    def get_manips_str(self):
+        to_print = ""
         for i, manip in enumerate(self.manips):
-            to_print = "[{}]\n{}".format(i, manip)
-            print(to_print)
+            to_print += self.get_str(manip, i) +"\n"
+        return to_print
 
-    def remove_manip(self, manip):
-        self.manips.pop(int(manip))
+    def select_manips(self, index_list):
+        if in_range(self.manips, max(index_list)):
+            for i in index_list:
+                if not self.manips[i] in self.selected_manips:
+                    self.selected_manips.append(self.manips[i])
 
-    def print_help(self):
-        help_str = """Commands:
-        a, add : add a new manip via the manip maker
+    def remove_manips(self, index_list):
+        if in_range(self.manips, max(index_list)):
+            for i in index_list:
+                if self.manips[i] in self.selected_manips:
+                    selected_index = self.selected_manips.index(self.manips[i])
+                    self.selected_manips.pop(selected_index)
 
-        r, remove <index> : remove the corresponding manip
+    def get_selected_manips(self):
+        return self.selected_manips
 
-        p, print : print the manips
+    def get_manip_index(self, manip):
+        return self.manips.index(manip)
 
-        d, done : leave the interface
+    def select_all_manips(self):
+        self.selected_manips = self.manips
 
-        e, exit : exit the program
-
-        h, help : print this help
-
-        k, keep <index> : remove all manip but the one corresponding to the
-        index
-        """
-        print(help_str)
-
-    def keep_manip(self, index):
-        manips_to_keep_index = str_to_index_list(index)
-        manips_to_keep = []
-        for index in manips_to_keep_index:
-            manips_to_keep.append(self.manips[int(index)])
-        self.manips.clear()
-        for manip in manips_to_keep:
-            self.manips.append(manip)
-
-    def eval_cmd(self, cmd):
-        parsed_cmd = cmd.split(" ")
-        if parsed_cmd[0] in ["a", "add"]:
-            self.add_manip()
-        elif parsed_cmd[0] in ["r", "remove"]:
-            if len(parsed_cmd) != 2:
-                print("Error: wrong number of arguments (expected 2, got {})".format(len(parsed_cmd)-1))
-            else:
-                self.remove_manip(parsed_cmd[1])
-        elif parsed_cmd[0] in ["p", "print"]:
-            self.print_manips()
-        elif parsed_cmd[0] in ["d", "done"]:
-            self.done = True
-        elif parsed_cmd[0] in ["e", "exit"]:
-            print("Exiting the program")
-            exit(0)
-        elif parsed_cmd[0] in ["h", "help"]:
-            self.print_help()
-        elif parsed_cmd[0] in ["k", "keep"]:
-            if len(parsed_cmd) != 2:
-                print("Error: wrong number of arguments (expected 2, got {})".format(len(parsed_cmd)-1))
-            else:
-                self.keep_manip(parsed_cmd[1])
-
-    def manage_manips(self):
-        print("Welcome in the manip manager !")
-        self.print_help()
-        while not self.done:
-            cmd = input("> ")
-            self.eval_cmd(cmd)
+    def remove_all_manips(self):
+        self.selected_manips = []

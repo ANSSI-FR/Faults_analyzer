@@ -23,6 +23,21 @@ class CmdInterface():
         elif cmd in ["h", "help"]:
             print(self.help_msg)
 
+    def check_nb_args(self, cmd, maxi=None, mini=1):
+        if len(cmd) < mini:
+            print("Error: wrong number of arguments")
+            return False
+        if maxi != None:
+            if len(cmd) > maxi:
+                print("Error: wrong number of arguments")
+                return False
+        return True
+
+    def sanitize_cmd(self, cmd):
+        while "" in cmd:
+            cmd.remove("")
+        return cmd
+
     def start_interface(self):
         print(self.welcome_msg)
         print(self.help_msg)
