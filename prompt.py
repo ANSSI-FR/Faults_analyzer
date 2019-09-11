@@ -4,6 +4,7 @@ from utils import str_to_index_list, intable
 from analyzer import Analyzer
 from results import Results, merge_results
 from results_manager import ResultsManager
+from carto_analyzer import CartoAnalyzer
 
 def check_nb_args(cmd, maxi=None, mini=1):
     if len(cmd) < mini:
@@ -108,7 +109,10 @@ class Prompt(Cmd):
         for manip in manips_to_analyze:
             if not manip.analyzed:
                 params = manip.get_params()
-                anal = Analyzer(progress=True, **params)
+                if manip.carto:
+                    anal = CartoAnalyzer(progress=True, **params)
+                else:
+                    anal = Analyzer(progress=True, **params)
                 results = Results(anal.get_results(), manip.id_name)
                 self.rm.add_results(results)
                 manip.analyzed = True

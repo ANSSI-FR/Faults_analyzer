@@ -11,7 +11,7 @@ from result import get_common_label_from_labels
 from results import Results
 
 class ResultsManager():
-    def __init__(self, results_list=[], cmap=plt.cm.YlOrRd, latex=False, result_dir=""):
+    def __init__(self, results_list=[], cmap=plt.cm.YlOrRd, latex=False, result_dir="."):
         super().__init__()
         self.results_list = results_list
         self.cmap = cmap
@@ -45,7 +45,7 @@ class ResultsManager():
             self.results_list[results_index].save(filename)
 
     def load(self, filename):
-        fp = open(result_dir + "/" + filename, "r")
+        fp = open(self.result_dir + "/" + filename, "r")
         results_dict = json.loads(fp.read())
         self.results_list.append(Results(**results_dict))
 

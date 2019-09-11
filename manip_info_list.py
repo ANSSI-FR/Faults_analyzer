@@ -105,153 +105,175 @@ carto_info_list = [
         "device": "intel_core_i3",
         "manip_name": "or_rbxrbx_carto_die_20x40",
         "result_name": "intel_core_i3_or_rbxrbx_carto_die_20x40_20190719_1210",
-        "params_file": "analyzer_params/test_carto_params.py"
+        "params_file": "analyzer_params/test_carto_params.py",
+        "id_name": "Intel Core i3 Linux [orr rbx,rbx] iv1 EM carto die 20x40"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3",
         "manip_name": "regtest_movallreg",
         "result_name": "EM_carto_40x40",
-        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py"
+        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py",
+        "id_name": "BCM2837 Linux [mov allreg] iv1 EM carto 40x40"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3_INRIA",
         "manip_name": "loop_linux",
         "result_name": "EM_carto_40x40",
-        "params_file": "analyzer_params/raspi3_INRIA_loop_linux_EM_carto_params.py"
+        "params_file": "analyzer_params/raspi3_INRIA_loop_linux_EM_carto_params.py",
+        "id_name": "BCM2837 Linux [loop] EM carto 40x40"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3_INRIA",
         "manip_name": "loop_baremetal",
         "result_name": "EM_carto_40x40",
-        "params_file": "analyzer_params/raspi3_INRIA_loop_linux_EM_carto_params.py"
+        "params_file": "analyzer_params/raspi3_INRIA_loop_linux_EM_carto_params.py",
+        "id_name": "BCM2837 baremetal [loop] EM carto 40x40"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3_INRIA",
         "manip_name": "loop_baremetal",
         "result_name": "EM_carto_40x40_2",
-        "params_file": "analyzer_params/raspi3_INRIA_loop_linux_EM_carto_params.py"
+        "params_file": "analyzer_params/raspi3_INRIA_loop_linux_EM_carto_params.py",
+        "id_name": "BCM2837 baremetal [loop] EM carto 40x40 2"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3",
         "manip_name": "regtest_addr0r1_carto_20x20",
         "result_name": "EM_carto_20x20",
-        "params_file": "analyzer_params/raspi3_regtest_addr0r1_params.py"
+        "params_file": "analyzer_params/raspi3_regtest_addr0r1_params.py",
+        "id_name": "BCM2837 Linux [add r0,r1] iv1 EM carto 20x20"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3",
         "manip_name": "regtest_andallreg_carto_20x20",
         "result_name": "rasp_regtest_andallreg",
-        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py"
+        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py",
+        "id_name": "BCM2837 Linux [and allreg] iv1 EM carto 20x20"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3",
         "manip_name": "regtest_cmp",
         "result_name": "EM_carto_20x20",
-        "params_file": "analyzer_params/raspi3_regtest_cmp_carto_params.py"
+        "params_file": "analyzer_params/raspi3_regtest_cmp_carto_params.py",
+        "id_name": "BCM2837 Linux [cmp] iv1 EM carto 20x20"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3",
         "manip_name": "regtest_movallreg",
         "result_name": "EM_carto_20x40",
-        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py"
+        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py",
+        "id_name": "BCM2837 Linux [mov allreg] iv1 EM carto 20x40"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3",
         "manip_name": "regtest_movallreg",
         "result_name": "EM_carto_20x20",
-        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py"
+        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py",
+        "id_name": "BCM2837 Linux [mov allreg] iv1 EM carto 20x20"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3",
         "manip_name": "regtest_movallreg",
         "result_name": "EM_carto_20x20_2",
-        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py"
+        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py",
+        "id_name": "BCM2837 Linux [mov allreg] iv1 EM carto 20x20 2"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3",
         "manip_name": "regtest_movaltr0r3",
         "result_name": "EM_carto_20x20",
-        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py"
+        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py",
+        "id_name": "BCM2837 Linux [mov altr0r3] iv1 EM carto 20x20"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3",
         "manip_name": "regtest_movaltr2r7",
         "result_name": "EM_carto_20x20",
-        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py"
+        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py",
+        "id_name": "BCM2837 Linux [mov altr2r7] iv1 EM carto 20x20"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3",
         "manip_name": "regtest_movfolr5r8",
         "result_name": "EM_carto_20x20",
-        "params_file": "analyzer_params/raspi3_regtest_movfolr5r8_carto_params.py"
+        "params_file": "analyzer_params/raspi3_regtest_movfolr5r8_carto_params.py",
+        "id_name": "BCM2837 Linux [mov folr5r8] iv1 EM carto 20x20"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3",
         "manip_name": "regtest_movr0r0",
         "result_name": "EM_carto_20x20",
-        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py"
+        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py",
+        "id_name": "BCM2837 Linux [mov r0,r0] iv1 EM carto 20x20"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3",
         "manip_name": "regtest_movr3r3",
         "result_name": "EM_carto_20x20",
-        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py"
+        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py",
+        "id_name": "BCM2837 Linux [mov r3,r3] iv1 EM carto 20x20"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3",
         "manip_name": "regtest_orallreg",
         "result_name": "EM_carto_topleft_20x20",
-        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py"
+        "params_file": "analyzer_params/raspi3_regtest_movallreg_carto_params.py",
+        "id_name": "BCM2837 Linux [or allreg] iv1 EM carto_topleft 20x20"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3",
         "manip_name": "regtest_orallreg",
         "result_name": "EM_carto_topleft_20x20_2",
-        "params_file": "analyzer_params/raspi3_regtest_orallreg_carto_params.py"
+        "params_file": "analyzer_params/raspi3_regtest_orallreg_carto_params.py",
+        "id_name": "BCM2837 Linux [or allreg] iv1 EM carto_topleft 20x20 2"
     },
     {
         "base_dir": base_dir,
         "device": "raspi3_INRIA",
         "manip_name": "orx3x3",
         "result_name": "EM_carto_50x50_20190807_1159",
-        "params_file": "analyzer_params/raspi3_INRIA_orx3x3_EM_carto.py"
+        "params_file": "analyzer_params/raspi3_INRIA_orx3x3_EM_carto.py",
+        "id_name": "BCM2837 baremetal [orr x3,x3] iv1 EM carto 50x50"
     },
     {
         "base_dir": base_dir,
         "device": "intel_core_i3",
         "manip_name": "mov_rbxrbx_carto_full_40x40",
         "result_name": "intel_core_i3_map_40x40",
-        "params_file": "analyzer_params/test_carto_params.py"
+        "params_file": "analyzer_params/test_carto_params.py",
+        "id_name": "Intel Core i3 [mov rbx,rbx] iv1 EM carto_full 40x40"
     },
     {
         "base_dir": base_dir,
         "device": "intel_core_i3",
         "manip_name": "mov_rbxrbx_carto_die_40x40",
         "result_name": "intel_core_i3_mov_rbxrbx_carto_die_40x40_20190624_1229",
-        "params_file": "analyzer_params/test_carto_params.py"
+        "params_file": "analyzer_params/test_carto_params.py",
+        "id_name": "Intel Core i3 [mov rbx,rbx] iv1 EM carto_die 40x40"
     },
     {
         "base_dir": base_dir,
         "device": "intel_core_i3",
         "manip_name": "mov_rbxrbx_carto_cores_20x20",
         "result_name": "intel_core_i3_map_cores_20x20",
-        "params_file": "analyzer_params/test_carto_params.py"
+        "params_file": "analyzer_params/test_carto_params.py",
+        "id_name": "Intel Core i3 [mov rbx,rbx] iv1 EM carto_cores 20x20"
     }
 ]

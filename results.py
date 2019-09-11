@@ -1,5 +1,6 @@
 import logging
 import json
+import numpy as np
 from prettytable import PrettyTable
 from utils import numpy_to_native_list
 
@@ -78,7 +79,7 @@ class Result():
         ret += "{" + self.title + "}"
         return ret
 
-    def get_dict(self):
+    def get_JSON_dict(self):
         ret = {
             "title": self.title,
             "data": [numpy_to_native_list(d) for d in self.data],
@@ -86,6 +87,33 @@ class Result():
         }
         return ret
 
+class CartoResult():
+    def __init__(self, title, data, label):
+        self.title = title
+        self.data = data
+        self.label = label
+
+    def get_str(self):
+        ret = self.title + "\n"
+        ret += str(self.data)
+        return ret
+
+    def __str__(self):
+        return self.get_str()
+
+    def get_html_str(self):
+        print("Error: not implemented")
+
+    def get_latex_str(self):
+        print("Error: not implemented")
+
+    def get_JSON_dict(self):
+        ret = {
+            "title": self.title,
+            "data": [numpy_to_native_list(d) for d in self.data],
+            "label": self.label
+        }
+        return ret
 
 class Results():
 
@@ -96,13 +124,16 @@ class Results():
         self.results = []
         self.id_name = id_name
         for result_dict in results:
-            self.results.append(Result(**result_dict))
+            if "label" in result_dict:
+                self.results.append(CartoResult(**result_dict))
+            else:
+                self.results.append(Result(**result_dict))
         self.nb_results = len(self.results)
 
     def save(self, filename):
         to_save = {
             "id_name": self.id_name,
-            "results": [result.get_dict() for result in self.results]
+            "results": [result.get_JSON_dict() for result in self.results]
         }
         fp = open(filename, "w")
         json.dump(to_save, fp)

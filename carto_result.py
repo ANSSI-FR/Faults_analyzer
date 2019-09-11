@@ -16,30 +16,6 @@ class CartoResult():
         ret += str(self.data)
         return ret
 
-    def get_to_plot(self, to_plot_params):
-        to_plot = {}
-        if (to_plot_params["type"] == PlotterType.MATRIX) or (to_plot_params["type"] == "matrix"):
-            to_plot = self.result_to_matrix(to_plot_params)
-        if (to_plot_params["type"] == PlotterType.MATRIXSCATTER) or (to_plot_params["type"] == "matrixscatter"):
-            to_plot = self.result_to_matrixscatter(to_plot_params)
-        if "plot_style" in to_plot_params:
-            to_plot.update(to_plot_params["plot_style"])
-        return to_plot
-
-    def result_to_matrix(self, to_plot_params):
-        to_plot = {
-            "data": self.data,
-            "type": PlotterType.MATRIX,
-        }
-        return to_plot
-
-    def result_to_matrixscatter(self, to_plot_params):
-        to_plot = {
-            "data": self.data,
-            "type": PlotterType.MATRIXSCATTER,
-        }
-        return to_plot
-
 ######### TEST ###########
 import numpy as np
 from plotter import Plotter

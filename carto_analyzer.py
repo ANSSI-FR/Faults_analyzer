@@ -374,10 +374,11 @@ class CartoAnalyzer(Analyzer):
         }
         return ret
 
-    def get_matrix_results(self):
+    def get_results(self):
         results = super().get_results()
         results.append(self.get_coordinates_correspondance_result(0))
         results.append(self.get_coordinates_correspondance_result(1))
+        results += self.get_matrices()
         return results
 
     def is_response_bad_formated_analysis(self, ope):
