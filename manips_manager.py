@@ -7,6 +7,11 @@ class ManipsManager():
         self.manips = manips
         self.selected_manips = []
 
+    def get_manip_from_id_name(self, id_name):
+        for manip in self.manips:
+            if manip.id_name == id_name:
+                return manip
+
     def get_str(self, manip, index):
         format_str = "{:" + str(len(str(len(self.manips)))+3) + "}"
         ret = format_str.format("[{}]".format(index))

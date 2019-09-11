@@ -1,3 +1,15 @@
+def safe_numpy_to_native(num):
+    try:
+        return num.item()
+    except:
+        return num
+
+def numpy_to_native_list(np_list):
+    ret = []
+    for val in np_list:
+        ret.append(safe_numpy_to_native(val))
+    return ret
+
 def in_range(table, index):
     if index > len(table):
         print("Error: index out of range")

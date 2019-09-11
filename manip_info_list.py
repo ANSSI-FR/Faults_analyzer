@@ -71,7 +71,7 @@ manip_info_list = [
         "manip_name": "orx3x3",
         "result_name": "EM_carto_fix_IV2_20190819_1110",
         "params_file": "analyzer_params/raspi3_INRIA_orx3x3_IV2_EM.py",
-        "id_name": "BCM2837 bare-metal [orr x3,x3] iv2 EM"
+        "id_name": "BCM2837 bare-metal [orr x3,x3] iv2 EM 2"
     },
     {
         "base_dir": base_dir,

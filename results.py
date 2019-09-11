@@ -1,6 +1,7 @@
 import logging
-
+import json
 from prettytable import PrettyTable
+from utils import numpy_to_native_list
 
 def merge_results(results_list, result_to_merge, columns_to_merge,
                   columns_in_common):
@@ -77,6 +78,14 @@ class Result():
         ret += "{" + self.title + "}"
         return ret
 
+    def get_dict(self):
+        ret = {
+            "title": self.title,
+            "data": [numpy_to_native_list(d) for d in self.data],
+            "labels": self.labels
+        }
+        return ret
+
 
 class Results():
 
@@ -89,6 +98,15 @@ class Results():
         for result_dict in results:
             self.results.append(Result(**result_dict))
         self.nb_results = len(self.results)
+
+    def save(self, filename):
+        to_save = {
+            "id_name": self.id_name,
+            "results": [result.get_dict() for result in self.results]
+        }
+        fp = open(filename, "w")
+        json.dump(to_save, fp)
+        fp.close()
 
     def __str__(self):
         return self.get_str()

@@ -25,8 +25,15 @@ class Prompt(Cmd):
         super().__init__()
         self.mm = ManipsManager(manips)
         self.rm = ResultsManager()
-        self.manips_results_relation = [None]*len(manips)
         self.merged_results = None
+
+    def get_manip_results(self, manip_index):
+        id_name = self.mm.manips[manip_index].id_name
+        return self.rm.get_results_from_id_name(id_name)
+
+    def get_manip_results_index(self, manip_index):
+        id_name = self.mm.manips[manip_index].id_name
+        return self.rm.get_results_index_from_id_name(id_name)
 
     def default(self, inp):
         inp_split = inp.split(" ")
@@ -50,7 +57,7 @@ class Prompt(Cmd):
     def get_results_from_manips_index_list(self, index_list):
         results_list = []
         for manip_index in index_list:
-            results_index = self.manips_results_relation[manip_index]
+            results_index = self.get_manip_results_index(manip_index)
             results_list.append(self.rm.results_list[results_index])
         return results_list
 
@@ -65,15 +72,36 @@ class Prompt(Cmd):
                                           columns_to_merge, columns_in_common)
             if self.merged_results == None:
                 merged_results = Results([merged_result], "Merged results")
-                self.rm.results_list.append(merged_results)
+                self.rm.add_results(merged_results)
                 self.mm.add_manip("",{},"Merged results")
-                self.manips_results_relation += [self.rm.get_results_index(merged_results)]
             else:
                 self.merged_results.add_result(**merged_result)
 
     def do_merge(self, inp):
         inp = inp.rstrip().split(" ")
         self.merge(inp)
+
+    def save(self, args):
+        if check_nb_args(args, maxi=2, mini=2):
+            manip_index = int(args[0])
+            filename = args[1]
+            results_index = self.get_manip_results_index(manip_index)
+            self.rm.save(results_index, filename)
+
+    def do_save(self, inp):
+        inp = inp.rstrip().split(" ")
+        self.save(inp)
+
+    def load(self, args):
+        if check_nb_args(args, maxi=1, mini=1):
+            filename = args[0]
+            self.rm.load(filename)
+            id_name = self.rm.results_list[-1].id_name
+            self.mm.get_manip_from_id_name(id_name).analyzed = True
+
+    def do_load(self, inp):
+        inp = inp.rstrip().split(" ")
+        self.load(inp)
 
     def do_analyze(self, inp):
         manips_to_analyze = self.mm.get_selected_manips()
@@ -84,48 +112,46 @@ class Prompt(Cmd):
                 results = Results(anal.get_results(), manip.id_name)
                 self.rm.add_results(results)
                 manip.analyzed = True
-                manip_index = self.mm.get_manip_index(manip)
-                res_index = self.rm.get_results_index(results)
-                self.manips_results_relation[manip_index] = res_index
 
     def do_exit(self, inp):
         print(self.exit_msg)
         return True
 
-    def check_arg_and_get_results_titles(self, manip_index):
+    def check_arg_and_get_result_titles(self, manip_index):
         if intable(manip_index):
             manip_index = int(manip_index)
-            return self.get_results_titles(manip_index)
+            return self.get_result_titles(manip_index)
         else:
             print("Error: wrong argument")
 
-    def get_results_titles(self, manip_index):
-        results_index = self.manips_results_relation[manip_index]
+    def get_result_titles(self, manip_index):
+        results_index = self.get_manip_results_index(manip_index)
         if results_index == None:
             print("Error: analysis not done")
             return
-        return self.rm.get_results_titles(results_index)
+        return self.rm.get_result_titles(results_index)
 
-    def check_args_and_get_results(self, manip_index, result_index_list):
+    def check_args_and_get_result(self, manip_index, result_index_list):
         if intable(manip_index):
             manip_index = int(manip_index)
-            results_index = self.manips_results_relation[manip_index]
-            print(manip_index)
-            print(results_index)
+            results_index = self.get_manip_results_index(manip_index)
+            if results_index == None:
+                print("Error: analysis not done")
+                return
             if result_index_list in ["a", "all"]:
-                return self.rm.get_all_results_str(results_index)
+                return self.rm.get_all_result_str(results_index)
             else:
                 result_index_list = str_to_index_list(result_index_list)
                 if not result_index_list == None:
-                    return self.rm.get_results_str(results_index, result_index_list)
+                    return self.rm.get_result_str(results_index, result_index_list)
 
     def get_to_print(self, args):
         if len(args) == 0:
             return self.mm.get_manips_str()
         elif len(args) == 1:
-            return self.check_arg_and_get_results_titles(args[0])
+            return self.check_arg_and_get_result_titles(args[0])
         elif len(args) == 2:
-            return self.check_args_and_get_results(args[0], args[1])
+            return self.check_args_and_get_result(args[0], args[1])
         else:
             return "Error: wrong number of arguments"
 
