@@ -1,21 +1,5 @@
 from prettytable import PrettyTable
 
-def get_common_label_from_labels(labels):
-    split_labels = []
-    ret = ""
-    for label in labels:
-        split_labels.append(label.split(" "))
-    for word in split_labels[0]:
-        in_all = True
-        for split_label in split_labels:
-            if not word in split_label:
-                in_all = False
-        if in_all:
-            for i, label in enumerate(labels):
-                labels[i] = label.replace(word, "")
-            ret += word + " "
-    return ret
-
 class Result():
 
     title = ""

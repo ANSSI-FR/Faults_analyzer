@@ -1,6 +1,6 @@
 from plotter import PlotterType
 
-temp = {
+tmp_style = {
 }
 
 styles = {

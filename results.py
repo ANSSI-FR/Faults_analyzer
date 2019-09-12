@@ -1,6 +1,4 @@
-import logging
 import json
-import numpy as np
 from prettytable import PrettyTable
 from utils import numpy_to_native_list
 
@@ -185,7 +183,7 @@ class Results():
                 if self.results[i].title == result:
                     return i
         else:
-            logging.error("Cannot find index for result '{}'".format(result))
+            print("Error: cannot find index for result '{}'".format(result))
 
     def get_results_titles(self):
         ret = []

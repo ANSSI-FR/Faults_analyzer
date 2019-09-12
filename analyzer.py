@@ -1,6 +1,3 @@
-import logging
-import daiquiri
-
 from bin_utils import *
 from utils import print_progress_bar, norm_percent, format_table
 
@@ -25,13 +22,6 @@ class Analyzer():
                     "Sub with other obs",
                     "Other obs value after execution",
                     "Executed instruction"]
-
-    def _init_logger(self, log_level):
-        """Initialize the logger the corresponding level.
-
-        """
-        daiquiri.setup(log_level)
-        return daiquiri.getLogger()
     
     def __init__(self,
                  dataframe,
@@ -48,7 +38,6 @@ class Analyzer():
                  data_format,
                  nb_bits,
                  executed_instructions,
-                 log_level=logging.WARNING,
                  progress=False):
         """Constructor of the class. Initialize all the needed parameters.
 
@@ -92,8 +81,6 @@ class Analyzer():
         progress - a flag that set if the progress bar must be printed
 
         """
-        # Logger initialization
-        self.logger = self._init_logger(log_level)
 
         # Analysis parameters initialization
         self.obs_names = obs_names
@@ -1269,8 +1256,9 @@ class Analyzer():
                 "title": "Fault model statistics",
                 "labels": ["Fault model", "Occurrence (%)"],
                 "data": self.get_fault_models()
-            }
+            },
         ]
+        results.append(self.get_effects_distribution())
         results = self._add_fault_model_information(results)
         return results
 

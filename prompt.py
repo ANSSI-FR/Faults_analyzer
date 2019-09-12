@@ -29,12 +29,14 @@ class Prompt(Cmd):
         self.merged_results = None
 
     def get_manip_results(self, manip_index):
-        id_name = self.mm.manips[manip_index].id_name
-        return self.rm.get_results_from_id_name(id_name)
+        if self.mm.manips[manip_index].analyzed:
+            id_name = self.mm.manips[manip_index].id_name
+            return self.rm.get_results_from_id_name(id_name)
 
     def get_manip_results_index(self, manip_index):
-        id_name = self.mm.manips[manip_index].id_name
-        return self.rm.get_results_index_from_id_name(id_name)
+        if self.mm.manips[manip_index].analyzed:
+            id_name = self.mm.manips[manip_index].id_name
+            return self.rm.get_results_index_from_id_name(id_name)
 
     def default(self, inp):
         inp_split = inp.split(" ")
@@ -81,6 +83,26 @@ class Prompt(Cmd):
     def do_merge(self, inp):
         inp = inp.rstrip().split(" ")
         self.merge(inp)
+
+    def plot(self, args):
+        if check_nb_args(args, maxi=5, mini=3):
+            manip_index = int(args[0])
+            results_index = self.get_manip_results_index(manip_index)
+            result_index = int(args[1])
+            style_name = args[2]
+            if len(args) == 5:
+                data_to_plot_index_list = str_to_index_list(args[3])
+                data_labels = int(args[4])
+                self.rm.plot_result(results_index, result_index, style_name,
+                                    data_to_plot_index_list, data_labels)
+            elif len(args) == 4:
+                print("Error: data labels index is missing")
+            else:
+                self.rm.plot_result(results_index, result_index, style_name)
+
+    def do_plot(self, inp):
+        inp = inp.rstrip().split(" ")
+        self.plot(inp)
 
     def save(self, args):
         if check_nb_args(args, maxi=2, mini=2):
