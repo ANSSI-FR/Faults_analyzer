@@ -1,7 +1,6 @@
 import json
 
 from results import Results
-from plot_manager import PlotManager
 
 class ResultsManager():
     def __init__(self, results_list=[], result_dir="."):
@@ -48,9 +47,3 @@ class ResultsManager():
     def get_results_index_from_id_name(self, id_name):
         results = self.get_results_from_id_name(id_name)
         return self.results_list.index(results)
-
-    def plot_result(self, results_index, result_index, style_name,
-                    data_to_plot_index_list=None, data_labels_index=None):
-        result = self.results_list[results_index].get_result(result_index)
-        pm = PlotManager(result)
-        pm.plot(style_name, data_to_plot_index_list, data_labels_index)

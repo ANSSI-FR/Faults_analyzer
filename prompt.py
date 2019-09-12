@@ -5,6 +5,7 @@ from analyzer import Analyzer
 from results import Results, merge_results
 from results_manager import ResultsManager
 from carto_analyzer import CartoAnalyzer
+from plot_manager import PlotManager
 
 def check_nb_args(cmd, maxi=None, mini=1):
     if len(cmd) < mini:
@@ -84,6 +85,12 @@ class Prompt(Cmd):
         inp = inp.rstrip().split(" ")
         self.merge(inp)
 
+    def plot_result(self, results_index, result_index, style_name,
+                    data_to_plot_index_list=None, data_labels_index=None):
+        result = self.rm.results_list[results_index].get_result(result_index)
+        pm = PlotManager(result)
+        pm.plot(style_name, data_to_plot_index_list, data_labels_index)
+
     def plot(self, args):
         if check_nb_args(args, maxi=5, mini=3):
             manip_index = int(args[0])
@@ -93,12 +100,12 @@ class Prompt(Cmd):
             if len(args) == 5:
                 data_to_plot_index_list = str_to_index_list(args[3])
                 data_labels = int(args[4])
-                self.rm.plot_result(results_index, result_index, style_name,
+                self.plot_result(results_index, result_index, style_name,
                                     data_to_plot_index_list, data_labels)
             elif len(args) == 4:
                 print("Error: data labels index is missing")
             else:
-                self.rm.plot_result(results_index, result_index, style_name)
+                self.plot_result(results_index, result_index, style_name)
 
     def do_plot(self, inp):
         inp = inp.rstrip().split(" ")
