@@ -7,6 +7,11 @@ from results_manager import ResultsManager
 from carto_analyzer import CartoAnalyzer
 from plot_manager import PlotManager
 
+"""@package fault_analyzer
+
+Test
+"""
+
 def check_nb_args(cmd, maxi=None, mini=1):
     if len(cmd) < mini:
         print("Error: wrong number of arguments")
@@ -74,12 +79,13 @@ class Prompt(Cmd):
             columns_in_common = str_to_index_list(args[3])
             merged_result = merge_results(results_list, result_to_merge,
                                           columns_to_merge, columns_in_common)
-            if self.merged_results == None:
+            if not self.mm.exist("Merged results"): # First merge
                 merged_results = Results([merged_result], "Merged results")
                 self.rm.add_results(merged_results)
                 self.mm.add_manip("",{},"Merged results")
+                self.mm.get_manip_from_id_name("Merged results").analyzed = True
             else:
-                self.merged_results.add_result(**merged_result)
+                self.rm.get_results_from_id_name("Merged results").add_result(**merged_result)
 
     def do_merge(self, inp):
         inp = inp.rstrip().split(" ")

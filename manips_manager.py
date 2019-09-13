@@ -7,6 +7,12 @@ class ManipsManager():
         self.manips = manips
         self.selected_manips = []
 
+    def exist(self, id_name):
+        for manip in self.manips:
+            if manip.id_name == id_name:
+                return True
+        return False
+
     def get_manip_from_id_name(self, id_name):
         for manip in self.manips:
             if manip.id_name == id_name:

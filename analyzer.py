@@ -21,7 +21,8 @@ class Analyzer():
                     "Xor with other obs",
                     "Sub with other obs",
                     "Other obs value after execution",
-                    "Executed instruction"]
+                    "Executed instruction",
+                    "Or with two other obs"]
     
     def __init__(self,
                  dataframe,
@@ -136,6 +137,7 @@ class Analyzer():
         self.other_obs_value_after_execution = 0
         self.nb_responses_bad_format = 0
         self.executed_instruction = 0
+        self.or_with_two_other_obs = 0
 
         # Information about the fault models initialization
         self.other_obs_value_after_execution_origin_occurrence = [0]*self.nb_obs
@@ -160,6 +162,8 @@ class Analyzer():
         self.bit_set_destination = [0]*self.nb_obs
         self.bit_reset_destination = [0]*self.nb_obs
         self.bit_flip_destination = [0]*self.nb_obs
+
+        self.fault_model_unknown_values = []
 
     def _get_faulted_obs(self, ope):
         """Return the faulted observed to test with their faulted value from an
@@ -391,10 +395,10 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
-        self.bit_set_destination[faulted_obs] += 1
         max_value = (1 << self.nb_bits) - 1
         if s2u(faulted_value, self.nb_bits) == max_value:
             self.bit_set += 1
+            self.bit_set_destination[faulted_obs] += 1
             return True
         return False
 
@@ -407,9 +411,9 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
-        self.bit_reset_destination[faulted_obs] += 1
         if s2u(faulted_value, self.nb_bits) == 0:
             self.bit_reset += 1
+            self.bit_reset_destination[faulted_obs] += 1
             return True
         return False
 
@@ -424,9 +428,9 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
-        self.bit_flip_destination[faulted_obs] += 1
         if s2u(faulted_value, self.nb_bits) == a2_comp(self.default_values[faulted_obs], self.nb_bits):
             self.bit_flip += 1
+            self.bit_flip_destination[faulted_obs] += 1
             return True
         return False
 
@@ -441,12 +445,12 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
-        self.other_obs_value_destination[faulted_obs] += 1
         for i, val in enumerate(self.default_values):
             if not i is faulted_obs:
                 if s2u(faulted_value, self.nb_bits) == s2u(int(val), self.nb_bits):
                     self.other_obs_value += 1
                     self.other_obs_value_origin_occurrence[i] += 1
+                    self.other_obs_value_destination[faulted_obs] += 1
                     return True
         return False
 
@@ -460,12 +464,12 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
-        self.other_obs_value_after_execution_destination[faulted_obs] += 1
         for i, val in enumerate(self.values_after_current_execution):
             if not i is faulted_obs:
                 if s2u(faulted_value, self.nb_bits) == s2u(int(val), self.nb_bits):
                     self.other_obs_value_after_execution += 1
                     self.other_obs_value_after_execution_origin_occurrence[i] += 1
+                    self.other_obs_value_after_execution_destination[faulted_obs] += 1
                     return True
         return False
     
@@ -480,12 +484,12 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
-        self.other_obs_complementary_value_destination[faulted_obs] += 1
         for i, val in enumerate(self.default_values):
             if not i is faulted_obs:
                 if s2u(faulted_value, self.nb_bits) == a2_comp(val, self.nb_bits):
                     self.other_obs_complementary_value += 1
                     self.other_obs_complementary_value_origin_occurrence[i] += 1
+                    self.other_obs_complementary_value_destination[faulted_obs] += 1
                     return True
         return False
 
@@ -500,12 +504,12 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
-        self.add_with_other_obs_destination[faulted_obs] += 1
         for i, val in enumerate(self.default_values):
             if s2u(faulted_value, self.nb_bits) == s2u(self.default_values[faulted_obs] + val, self.nb_bits):
                 if i != faulted_obs:
                     self.add_with_other_obs += 1
                     self.add_with_other_obs_origin_occurrence[i] += 1
+                    self.add_with_other_obs_destination[faulted_obs] += 1
                     return True
         return False
     
@@ -520,15 +524,24 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
-        self.and_with_other_obs_destination[faulted_obs] += 1
         for i, val in enumerate(self.default_values):
             if s2u(faulted_value, self.nb_bits) == s2u(self.default_values[faulted_obs] & val, self.nb_bits):
                 if i != faulted_obs:
                     self.and_with_other_obs += 1
                     self.and_with_other_obs_origin_occurrence[i] += 1
+                    self.and_with_other_obs_destination[faulted_obs] += 1
                     return True
         return False
-    
+
+    def update_or_with_two_other_obs(self, faulted_obs, faulted_value):
+        for i, val1 in enumerate(self.default_values):
+            for j, val2 in enumerate(self.default_values):
+                if s2u(faulted_value, self.nb_bits) == (s2u(val1, self.nb_bits) | s2u(val2, self.nb_bits)):
+                    if (i != faulted_obs) and (j != faulted_obs):
+                        self.or_with_two_other_obs += 1
+                        return True
+        return False
+
     def _update_or_with_other_obs(self, faulted_obs, faulted_value):
         """Update the or with other observed fault model considering the initial
         values of the observed.
@@ -540,12 +553,12 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
-        self.or_with_other_obs_destination[faulted_obs] += 1
         for i, val in enumerate(self.default_values):
             if s2u(faulted_value, self.nb_bits) == s2u(self.default_values[faulted_obs] | val, self.nb_bits):
                 if i != faulted_obs:
                     self.or_with_other_obs += 1
                     self.or_with_other_obs_origin_occurrence[i] += 1
+                    self.or_with_other_obs_destination[faulted_obs] += 1
                     return True
         return False
     
@@ -560,12 +573,12 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
-        self.xor_with_other_obs_destination[faulted_obs] += 1
         for i, val in enumerate(self.default_values):
             if s2u(faulted_value, self.nb_bits) == s2u(self.default_values[faulted_obs] ^ val, self.nb_bits):
                 if i != faulted_obs:
                     self.xor_with_other_obs += 1
                     self.xor_with_other_obs_origin_occurrence[i] += 1
+                    self.xor_with_other_obs_destination[faulted_obs] += 1
                     return True
         return False
     
@@ -580,12 +593,12 @@ class Analyzer():
         faulted_value - the value of the faulted observed.
 
         """
-        self.sub_with_other_obs_destination[faulted_obs] += 1
         for i, val in enumerate(self.default_values):
             if s2u(faulted_value, self.nb_bits) == s2u(self.default_values[faulted_obs] - val, self.nb_bits):
                 if i != faulted_obs:
                     self.sub_with_other_obs += 1
                     self.sub_with_other_obs_origin_occurrence[i] += 1
+                    self.sub_with_other_obs_destination[faulted_obs] += 1
                     return True
         return False
 
@@ -641,8 +654,12 @@ class Analyzer():
         if not fault_model_known:
             fault_model_known |= self._update_executed_instruction(faulted_value)
         if not fault_model_known:
+            fault_model_known |= self.update_or_with_two_other_obs(faulted_obs, faulted_value)
+        if not fault_model_known:
             self.fault_model_unknown += 1
             self.fault_model_unknown_destination[faulted_obs] += 1
+            if not faulted_value in self.fault_model_unknown_values:
+                self.fault_model_unknown_values.append(faulted_value)
 
     def _update_faulted_obs_and_values(self, ope):
         """Update the number of faulted observed, the faulted observed, the faulted
@@ -726,7 +743,8 @@ class Analyzer():
                                         self.xor_with_other_obs,
                                         self.sub_with_other_obs,
                                         self.other_obs_value_after_execution,
-                                        self.executed_instruction]
+                                        self.executed_instruction,
+                                        self.or_with_two_other_obs]
 
     def _ope_loop_analysis(self):
         """Main loop of the analysis. Go through every operation and launch the
@@ -1143,8 +1161,17 @@ class Analyzer():
                 "labels": ["Observed", "Occurrence (%)"],
                 "data": [self.obs_names,
                          norm_percent(self.fault_model_unknown_destination)]
+            },
+            {
+                "title": "Fault model unknown values",
+                "labels": ["Values"],
+                "data": [format_table(self.fault_model_unknown_values, self.data_format)]
             }
         ]
+        return ret
+
+    def get_or_with_two_other_obs_information(self):
+        ret = []
         return ret
 
     def _get_fault_model_information(self, fault_model):
@@ -1179,6 +1206,8 @@ class Analyzer():
             return self.get_bit_flip_information()
         elif fault_model == "Fault model unknown":
             return self.get_fault_model_unknown_information()
+        elif fault_model == "Or with two other obs":
+            return self.get_or_with_two_other_obs_information()
         else:
             self.logger.warning("Failed to get the results for the fault model : {}".format(fault_model))
 
