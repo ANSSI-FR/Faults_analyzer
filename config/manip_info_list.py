@@ -96,6 +96,14 @@ manip_info_list = [
         "result_name": "EM_carto_fix_IV2_20190906_1700",
         "params_file": "analyzer_params/raspi3_orr3r3_iv2_EM.py",
         "id_name": "BCM2837 Linux [orr r3,r3] iv2 EM"
+    },
+    {
+        "base_dir": base_dir,
+        "device": "raspi3",
+        "manip_name": "mem_r8r9_fix",
+        "result_name": "rasp_mem_20190618_1641",
+        "params_file": "analyzer_params/raspi3_memory_r8r9_EM.py",
+        "id_name": "BCM2837 Linux [mem r8,r9] EM"
     }
 ]
 

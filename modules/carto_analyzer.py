@@ -1,65 +1,16 @@
 import numpy as np
 
-from analyzer import Analyzer
+from .analyzer import Analyzer
 
 class CartoAnalyzer(Analyzer):
-    """Class doing the analysis of fault attacks experiments.
-
-    This class must be given several parameters which help to do the experiments:
-
-    dataframe - the dataframe object from the pandas library containing the
-    results of the experiments.
-
-    obs_names - the name of the observed items as named in the dataframe.
-
-    default_values - the default values of the observed.
-
-    to_test - a boolean array determining if an observed must be tested or not
-    during the analysis.
-
-    power_name - the key name for accessing the power value in the dataframe
-    lines.
-
-    delay_name - the key name for accessing the delay value in the dataframe
-    lines.
-
-    done_name - the key name for accessing if a line has been done or not.
-
-    fault_name - the key name for checking if a line has been faulted or not.
-
-    reboot_name - the key name for checking if a line has made a system reboot
-    or not.
-
-    log_name - the key name for getting the log in the dataframe line.
-
-    log_separator - the symbol used for splitting the values in the log.
-
-    data_format - the format string for displaying integer values (for example:
-    0x{:08x}).
-
-    nb_bits - the number of bits the integers must be considered encoded on.
-
-    executed_instructions - a list containing the integer value of the executed
-    instructions.
-
-    coordinates - a list containing the key names for getting the coordinates
-    over the chip.
-
-    stage_coordinates - a list containing the key names for getting the
-    position of the stage arms.
+    """Class doing the analysis of fault attacks cartography experiments. Inherit from the Analyzer class.
 
     """
 
-    def _get_map_size(self):
-        """Return the size of the map of the experiment.
+    def get_map_size(self):
+        """Extract the map size of the cartography from the dataframe.
 
-        It needs two parameters:
-
-        coordinates - a list containing the key names for getting the
-        coordinates over the chip.
-
-        dataframe - the dataframe object from the pandas library containing the
-        results of the experiments.
+        :return: a list of integer representing the size of the cartography on the X-axis and on the Y-axis.
 
         """
         map_size = []
@@ -77,41 +28,6 @@ class CartoAnalyzer(Analyzer):
 
         Arguments:
 
-        dataframe - the dataframe object from the pandas library containing the
-        results of the experiments.
-
-        obs_names - the name of the observed items as named in the dataframe.
-
-        default_values - the default values of the observed.
-
-        to_test - a boolean array determining if an observed must be tested or not
-        during the analysis.
-
-        power_name - the key name for accessing the power value in the dataframe
-        lines.
-
-        delay_name - the key name for accessing the delay value in the dataframe
-        lines.
-
-        done_name - the key name for accessing if a line has been done or not.
-
-        fault_name - the key name for checking if a line has been faulted or not.
-
-        reboot_name - the key name for checking if a line has made a system reboot
-        or not.
-
-        log_name - the key name for getting the log in the dataframe line.
-
-        log_separator - the symbol used for splitting the values in the log.
-
-        data_format - the format string for displaying integer values (for example:
-        0x{:08x}).
-
-        nb_bits - the number of bits the integers must be considered encoded on.
-
-        executed_instructions - a list containing the integer value of the executed
-        instructions.
-
         coordinates - the key names for the coordinates of the grid over the chip.
 
         stage_coordinates - the key names for the real position of the stage arms
@@ -123,7 +39,7 @@ class CartoAnalyzer(Analyzer):
         self.coordinates = coordinates
         self.stage_coord_keys = stage_coordinates
 
-        self.map_size = self._get_map_size()
+        self.map_size = self.get_map_size()
         self.grid_coordinates = []
         for i in range(len(self.map_size)):
             self.grid_coordinates.append([])
@@ -145,7 +61,7 @@ class CartoAnalyzer(Analyzer):
     def update_reboot_powers_matrix(self, ope):
         if not np.isnan(ope[self.power_name]):
             i = self.powers.index(ope[self.power_name])
-            self._update_matrix(ope, self.reboot_powers_matrix[i])
+            self.update_matrix(ope, self.reboot_powers_matrix[i])
 
     def get_reboot_powers_matrix(self):
         return self.reboot_powers_matrix
@@ -157,7 +73,7 @@ class CartoAnalyzer(Analyzer):
         self.response_bad_formated_matrix = np.zeros(self.map_size)
         self.clear_reboot_powers_matrix()
 
-    def _update_matrix(self, ope, mat):
+    def update_matrix(self, ope, mat):
         """Update the matrix with the coordinates of the operation.
 
         Arguments:
@@ -182,9 +98,9 @@ class CartoAnalyzer(Analyzer):
         the information about this step of the experiment.
 
         """
-        self._update_matrix(ope, self.response_bad_formated_matrix)
+        self.update_matrix(ope, self.response_bad_formated_matrix)
 
-    def _update_done_matrix(self, ope):
+    def update_done_matrix(self, ope):
         """Update the done matrix.
 
         Arguments:
@@ -193,9 +109,9 @@ class CartoAnalyzer(Analyzer):
         the information about this step of the experiment.
 
         """
-        self._update_matrix(ope, self.done_matrix)
+        self.update_matrix(ope, self.done_matrix)
 
-    def _update_fault_matrix(self, ope):
+    def update_fault_matrix(self, ope):
         """Update the fault matrix.
 
         Arguments:
@@ -204,9 +120,9 @@ class CartoAnalyzer(Analyzer):
         the information about this step of the experiment.
 
         """
-        self._update_matrix(ope, self.fault_matrix)
+        self.update_matrix(ope, self.fault_matrix)
 
-    def _update_reboot_matrix(self, ope):
+    def update_reboot_matrix(self, ope):
         """Update the reboot matrix.
 
         Arguments:
@@ -215,9 +131,9 @@ class CartoAnalyzer(Analyzer):
         the information about this step of the experiment.
 
         """
-        self._update_matrix(ope, self.reboot_matrix)
+        self.update_matrix(ope, self.reboot_matrix)
 
-    def _is_done_analysis(self, ope):
+    def is_done_analysis(self, ope):
         """Do the analysis routine in the case the operation is done. Override the
         method from Analyzer class.
 
@@ -227,10 +143,10 @@ class CartoAnalyzer(Analyzer):
         the information about this step of the experiment.
 
         """
-        super()._is_done_analysis(ope)
-        self._update_done_matrix(ope)
+        super().is_done_analysis(ope)
+        self.update_done_matrix(ope)
 
-    def _is_reboot_analysis(self, ope):
+    def is_reboot_analysis(self, ope):
         """Do the analysis routine in the case the operation has led to a reboot.
         Override the method from Analyzer class.
 
@@ -240,11 +156,11 @@ class CartoAnalyzer(Analyzer):
         the information about this step of the experiment.
 
         """
-        super()._is_reboot_analysis(ope)
-        self._update_reboot_matrix(ope)
+        super().is_reboot_analysis(ope)
+        self.update_reboot_matrix(ope)
         self.update_reboot_powers_matrix(ope)
 
-    def _is_faulted_analysis(self, ope):
+    def is_faulted_analysis(self, ope):
         """Do the analysis routine in the case the operation has led to a fault.
         Override the method from Analyzer class.
 
@@ -254,10 +170,10 @@ class CartoAnalyzer(Analyzer):
         the information about this step of the experiment.
 
         """
-        super()._is_faulted_analysis(ope)
-        self._update_fault_matrix(ope)
+        super().is_faulted_analysis(ope)
+        self.update_fault_matrix(ope)
     
-    def _update_coordinates_correspondance(self, ope):
+    def update_coordinates_correspondance(self, ope):
         """Update the coordinates correspondance of the operation between the grid
         coordinates and the stage coordinates.
 
@@ -272,7 +188,7 @@ class CartoAnalyzer(Analyzer):
                 self.grid_coordinates[i].append(ope[coord])
                 self.stage_coordinates[i].append(ope[self.stage_coord_keys[i]])
 
-    def _analysis(self, ope):
+    def analysis(self, ope):
         """Run the analysis on a given operation. Override the method from Analyzer
         class.
 
@@ -282,8 +198,8 @@ class CartoAnalyzer(Analyzer):
         the information about this step of the experiment.
 
         """
-        super()._analysis(ope)
-        self._update_coordinates_correspondance(ope)
+        super().analysis(ope)
+        self.update_coordinates_correspondance(ope)
 
     
     def get_coordinates_correspondance(self):
@@ -291,35 +207,35 @@ class CartoAnalyzer(Analyzer):
         stage arms.
 
         """
-        self._check_analysis_done()
+        self.check_analysis_done()
         return [self.grid_coordinates, self.stage_coordinates]
 
     def get_reboot_matrix(self):
         """Return the reboot matrix.
 
         """
-        self._check_analysis_done()
+        self.check_analysis_done()
         return self.reboot_matrix
 
     def get_fault_matrix(self):
         """Return the fault matrix.
 
         """
-        self._check_analysis_done()
+        self.check_analysis_done()
         return self.fault_matrix
 
     def get_done_matrix(self):
         """Return the done matrix.
 
         """
-        self._check_analysis_done()
+        self.check_analysis_done()
         return self.done_matrix
 
     def get_response_bad_formated_matrix(self):
         """Return the response bad formated matrix.
 
         """
-        self._check_analysis_done()
+        self.check_analysis_done()
         return self.response_bad_formated_matrix
 
     def get_matrices(self):
