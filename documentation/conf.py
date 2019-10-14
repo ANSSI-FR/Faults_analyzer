@@ -19,7 +19,7 @@ To configure this for YOUR next project - search for the pattern #CHNAGEME# in t
 import os
 import sys
 #CHNAGEME# Change this to be the correct local path.
-sys.path.append(os.path.abspath('/media/nas/projects/fault_attacks_test/lab/dev/fault_analyzer'))
+sys.path.append(os.path.abspath('/media/nas/projects/fault_attacks_test/lab/fault_analyzer'))
 
 
 # -- Some general info  about the project -----------------------------------------------------------------------------
@@ -118,8 +118,7 @@ html_static_path = ['_static']
 # Defining the static path allows me to add my own logo for the project:
 #   (make sure the theme of your choice support the use of logo.
 #CHNAGEME# Add a photo of your choice under _static folder, and link to its name here.
-html_logo = '_static/Anssi.png
-'
+html_logo = '_static/Anssi.png'
 
 # Custom sidebar templates, must be a dictionary that maps document names to template names.
 # In This project I chose to include in the sidebar:
