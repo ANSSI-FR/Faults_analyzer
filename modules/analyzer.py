@@ -270,7 +270,6 @@ class Analyzer():
                 log = log[1:]
             if log[-1] == "FlagEnd":
                 log = log[:-1]
-            print(log)
             values = [s2u(int(v, self.base_resp),self.nb_bits) for v in log]
             return values
         except Exception as e:
