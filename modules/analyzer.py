@@ -36,6 +36,7 @@ class Analyzer():
                  data_format,
                  nb_bits,
                  executed_instructions,
+                 base_resp=10,
                  progress=False):
         """Constructor of the class. Initialize all the results lists and parameters.
 
@@ -67,6 +68,8 @@ class Analyzer():
 
         :param executed_instructions: a list containing the integer value of the executed instructions
 
+        :param int base_resp: the base of the response (default=10)
+
         :param progress: a flag that set if the progress bar must be printed
 
         """
@@ -88,6 +91,7 @@ class Analyzer():
         self.df = dataframe
         self.executed_instructions = executed_instructions
         self.progress = progress
+        self.base_resp = base_resp
 
         # Extract all the power and delay values from the dataframe
         self.powers = list(self.df[self.power_name].unique())
@@ -266,7 +270,8 @@ class Analyzer():
                 log = log[1:]
             if log[-1] == "FlagEnd":
                 log = log[:-1]
-            values = [s2u(int(v),self.nb_bits) for v in log]
+            print(log)
+            values = [s2u(int(v, self.base_resp),self.nb_bits) for v in log]
             return values
         except Exception as e:
             return []

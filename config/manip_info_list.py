@@ -110,6 +110,14 @@ manip_info_list = [
 carto_info_list = [
     {
         "base_dir": base_dir,
+        "device": "raspi3",
+        "manip_name": "AES",
+        "result_name": "EM_carto_fix_AES_TV1_20191106_1641",
+        "params_file": "analyzer_params/raspi3_AES_TV1_EM_carto_params",
+        "id_name": "BCM2837 Linux [AES] TV1 EM carto die 40x40"
+    },
+    {
+        "base_dir": base_dir,
         "device": "intel_core_i3",
         "manip_name": "or_rbxrbx_carto_die_20x40",
         "result_name": "intel_core_i3_or_rbxrbx_carto_die_20x40_20190719_1210",
