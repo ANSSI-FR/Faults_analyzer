@@ -215,7 +215,7 @@ def int2byte_tab(n):
     tab = []
     n_hex = hex(n)[2:]
     for i in np.arange(0, len(n_hex), 2):
-        hex_s = n_hex[i:i+1]
+        hex_s = n_hex[i:i+2]
         tab.append(int(hex_s, 16))
     return tab
 

@@ -74,7 +74,7 @@ def str2index_convertible(index_str):
             return False
         if (not intable(index_str[0])) or not (intable(index_str[1])):
             return False
-        if index_str[0] > index_str[1]:
+        if int(index_str[0]) > int(index_str[1]):
             return False
     else:
         if not intable(index_str):

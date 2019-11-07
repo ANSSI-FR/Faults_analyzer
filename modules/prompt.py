@@ -6,6 +6,7 @@ from .results import Results, merge_results
 from .results_manager import ResultsManager
 from .carto_analyzer import CartoAnalyzer
 from .plot_manager import PlotManager
+from .aes_printer import AESPrinter
 
 def check_nb_args(cmd, maxi=None, mini=1):
     """Check if the number of arguments from a list.
@@ -386,3 +387,37 @@ class Prompt(Cmd):
         """
         inp = inp.rstrip().split(" ")
         self.remove(inp)
+
+    def do_aes(self, inp):
+        """Split the arguments from an aes command and realize the AES printing.
+
+        :param str inp: the space separated arguments.
+
+        """
+        inp = inp.rstrip().split(" ")
+        self.aes_analysis(inp)
+
+    def aes_analysis(self, args):
+        manip_index = int(args[0])
+        results = self.get_manip_results(manip_index)
+        faulted_values_result = results.get_result_from_title("Faulted values statistics")
+        faulted_values = [int(fv, 16) for fv in faulted_values_result.data[0]]
+        expected_value_result = results.get_result_from_title("Observed statistics")
+        expected_value = int(expected_value_result.data[1][0], 16)
+        ap = AESPrinter(faulted_values, expected_value)
+        if len(args) > 1:
+            if args[1] in ["p", "print"]:
+                for i, fv in enumerate(faulted_values):
+                    print("[{}] 0x{:016x}".format(i, fv))
+            if args[1] in ["h", "hex"]:
+                if len(args) > 2:
+                    index_list = str_to_index_list(args[2])
+                    ap.print_list_hex_diff(index_list)
+                else:
+                    ap.print_all_hex_diff()
+            if args[1] in ["m", "matrix"]:
+                if len(args) > 2:
+                    index_list = str_to_index_list(args[2])
+                    ap.print_list_mat_diff(index_list)
+                else:
+                    ap.print_all_mat_diff()
