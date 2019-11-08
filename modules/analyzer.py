@@ -1195,7 +1195,7 @@ class Analyzer():
             },
             {
                 "title": "Effect of the delay",
-                "labels": ["Delays (ns)", "Fault (%)", "Reboot (%)"],
+                "labels": ["Delays (s)", "Fault (%)", "Reboot (%)"],
                 "data": [self.delays,
                          norm_percent(self.fault_delays),
                          norm_percent(self.reboot_delays)]
