@@ -18,6 +18,7 @@ class Analyzer():
                     "Xor with other obs",
                     "Sub with other obs",
                     "Other obs value after execution",
+                    "Or with other obs value after execution",
                     "Executed instruction",
                     "Or with two other obs"]
 
@@ -127,6 +128,7 @@ class Analyzer():
         self.xor_with_other_obs = 0
         self.sub_with_other_obs = 0
         self.other_obs_value_after_execution = 0
+        self.or_with_other_obs_value_after_execution = 0
         self.nb_responses_bad_format = 0
         self.executed_instruction = 0
         self.or_with_two_other_obs = 0
@@ -140,6 +142,7 @@ class Analyzer():
         self.or_with_other_obs_origin_occurrence = [0]*self.nb_obs
         self.xor_with_other_obs_origin_occurrence = [0]*self.nb_obs
         self.sub_with_other_obs_origin_occurrence = [0]*self.nb_obs
+        self.or_with_other_obs_value_after_execution_origin_occurrence = [0]*self.nb_obs
 
         self.other_obs_value_after_execution_destination = [0]*self.nb_obs
         self.other_obs_value_destination = [0]*self.nb_obs
@@ -149,6 +152,7 @@ class Analyzer():
         self.or_with_other_obs_destination = [0]*self.nb_obs
         self.xor_with_other_obs_destination = [0]*self.nb_obs
         self.sub_with_other_obs_destination = [0]*self.nb_obs
+        self.or_with_other_obs_value_after_execution_destination = [0]*self.nb_obs
 
         self.fault_model_unknown_destination = [0]*self.nb_obs
         self.bit_set_destination = [0]*self.nb_obs
@@ -318,6 +322,18 @@ class Analyzer():
         """
         self.faulted_obs[faulted_obs] += 1
 
+    def add_faulted_value(self, faulted_value, ope):
+        self.faulted_values.append(faulted_value)
+        self.faulted_values_occurrence.append(1)
+
+    def update_faulted_value_information(self, index, ope):
+        """Update the faulted value information.
+
+        :param index: the faulted value index in the faulted values list
+
+        """
+        self.faulted_values_occurrence[index] += 1
+
     def update_faulted_values(self, faulted_value, ope):
         """Update the faulted values and their occurrence. If the faulted_value is not in the faulted_values list, it will be added.
 
@@ -326,12 +342,11 @@ class Analyzer():
 
         """
         if not faulted_value in self.faulted_values:
-            self.faulted_values.append(faulted_value)
-            self.faulted_values_occurrence.append(1)
+            self.add_faulted_value(faulted_value, ope)
         else:
             for i, v in enumerate(self.faulted_values):
                 if v == faulted_value:
-                    self.faulted_values_occurrence[i] += 1
+                    self.update_faulted_value_information(i ,ope)
 
     def update_bit_set(self, faulted_obs, faulted_value):
         """Update the bit set fault model. This function only consider a bit set on the WHOLE word.
@@ -414,7 +429,17 @@ class Analyzer():
                     self.other_obs_value_after_execution_destination[faulted_obs] += 1
                     return True
         return False
-    
+
+    def update_or_with_other_obs_value_after_execution(self, faulted_obs, faulted_value):
+        for i, val in enumerate(self.values_after_current_execution):
+            if i != faulted_obs:
+                if s2u(faulted_value, self.nb_bits) == s2u(self.default_values[faulted_obs] | val, self.nb_bits):
+                    self.or_with_other_obs_value_after_execution += 1
+                    self.or_with_other_obs_value_after_execution_origin_occurrence[i] += 1
+                    self.or_with_other_obs_value_after_execution_destination[faulted_obs] += 1
+                    return True
+        return False
+
     def update_other_obs_complementary_value(self, faulted_obs, faulted_value):
         """Update the other observed complementary value fault model considering the initial values of the observed.
 
@@ -584,6 +609,8 @@ class Analyzer():
         if not fault_model_known:
             fault_model_known |= self.update_other_obs_value_after_execution(faulted_obs, faulted_value)
         if not fault_model_known:
+            fault_model_known |= self.update_or_with_other_obs_value_after_execution(faulted_obs, faulted_value)
+        if not fault_model_known:
             fault_model_known |= self.update_executed_instruction(faulted_value)
         if not fault_model_known:
             fault_model_known |= self.update_or_with_two_other_obs(faulted_obs, faulted_value)
@@ -660,6 +687,7 @@ class Analyzer():
                                         self.xor_with_other_obs,
                                         self.sub_with_other_obs,
                                         self.other_obs_value_after_execution,
+                                        self.or_with_other_obs_value_after_execution,
                                         self.executed_instruction,
                                         self.or_with_two_other_obs]
 
@@ -673,6 +701,10 @@ class Analyzer():
             if self.progress:
                 i += 1
                 print_progress_bar(i, self.nb_to_do, prefix = "Analysis progress:", suffix = "Complete", length=50)
+        if self.values_after_execution == None:
+            self.values_after_execution = self.default_values
+        elif len(self.values_after_execution) == 0:
+            self.values_after_execution = self.default_values
 
     def run_analysis(self):
         """Run the analysis. This function must be called before getting any result.
@@ -1109,6 +1141,23 @@ class Analyzer():
         ]
         return ret
 
+    def get_or_with_other_obs_value_after_execution_information(self):
+        ret = [
+            {
+                "title": "Destination occurrence for OR with other obs value after execution",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.or_with_other_obs_value_after_execution_destination)]
+            },
+            {
+                "title": "Origin of the ORed value",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.or_with_other_obs_value_after_execution_origin_occurrence)]
+            }
+        ]
+        return ret
+
     def get_or_with_two_other_obs_information(self):
         """This function exists be does nothing.
 
@@ -1149,6 +1198,8 @@ class Analyzer():
             return self.get_fault_model_unknown_information()
         elif fault_model == "Or with two other obs":
             return self.get_or_with_two_other_obs_information()
+        elif fault_model == "Or with other obs value after execution":
+            return self.get_or_with_other_obs_value_after_execution_information()
         else:
             print("Failed to get the results for the fault model : {}".format(fault_model))
 
@@ -1213,12 +1264,7 @@ class Analyzer():
                          norm_percent(self.faulted_obs),
                          self.to_test]
             },
-            {
-                "title": "Faulted values statistics",
-                "labels": ["Faulted values", "Occurrence (%)"],
-                "data": [format_table(self.faulted_values, self.data_format),
-                         norm_percent(self.faulted_values_occurrence)]
-            },
+            self.get_faulted_values_statistics(),
             {
                 "title": "Fault model statistics",
                 "labels": ["Fault model", "Occurrence (%)"],
@@ -1229,6 +1275,15 @@ class Analyzer():
         results = self.add_fault_model_information(results)
         return results
 
+    def get_faulted_values_statistics(self):
+        ret = {
+            "title": "Faulted values statistics",
+            "labels": ["Faulted values", "Occurrence (%)"],
+            "data": [format_table(self.faulted_values, self.data_format),
+                     norm_percent(self.faulted_values_occurrence)]
+        }
+        return ret
+        
     def get_effects_distribution(self):
         """:return: a dictionary containing the fault effects distribution.
 

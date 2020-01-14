@@ -75,6 +75,17 @@ class ResultsManager():
                     ret += str(self.results_list[results_index].get_result(i)) + "\n"
             return ret
 
+    def get_result_var_str(self, results_index, result_index_list):
+        ret = ""
+        if results_index < len(self.results_list):
+            for i in result_index_list:
+                if i < self.results_list[results_index].nb_results:
+                    labels = self.results_list[results_index].get_result(i).labels
+                    data = self.results_list[results_index].get_result(i).data
+                    for i, label in enumerate(labels):
+                        ret += "{} = {}\n".format(label.replace(" ", "_"), data[i])
+        return ret
+
     def save(self, results_index, filename):
         """Save a Results in a file.
 

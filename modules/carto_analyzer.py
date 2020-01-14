@@ -38,6 +38,7 @@ class CartoAnalyzer(Analyzer):
 
         self.coordinates = coordinates
         self.stage_coord_keys = stage_coordinates
+        self.faulted_values_position = []
 
         self.map_size = self.get_map_size()
         self.grid_coordinates = []
@@ -298,3 +299,19 @@ class CartoAnalyzer(Analyzer):
     def is_response_bad_formated_analysis(self, ope):
         super().is_response_bad_formated_analysis(ope)
         self.update_response_bad_formated_matrix(ope)
+
+    def add_faulted_value(self, faulted_value, ope):
+        super().add_faulted_value(faulted_value, ope)
+        pos = (ope[self.coordinates[0]], ope[self.coordinates[1]])
+        self.faulted_values_position.append([pos])
+
+    def update_faulted_value_information(self, index, ope):
+        super().update_faulted_value_information(index, ope)
+        pos = (ope[self.coordinates[0]], ope[self.coordinates[1]])
+        self.faulted_values_position[index].append(pos)
+
+    def get_faulted_values_statistics(self):
+        ret = super().get_faulted_values_statistics()
+        ret["labels"].append("Position")
+        ret["data"].append(self.faulted_values_position)
+        return ret

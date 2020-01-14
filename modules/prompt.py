@@ -7,6 +7,7 @@ from .results_manager import ResultsManager
 from .carto_analyzer import CartoAnalyzer
 from .plot_manager import PlotManager
 from .aes_printer import AESPrinter
+from .aes_analyzer import AESAnalyzer
 
 def check_nb_args(cmd, maxi=None, mini=1):
     """Check if the number of arguments from a list.
@@ -84,7 +85,7 @@ class Prompt(Cmd):
         cmd = inp_split[0]
         args = inp_split[1:]
         if cmd == "a":
-            return self.do_analyze(args)
+            return self.analyze(args)
         elif cmd == "e":
             return self.do_exit(args)
         elif cmd == "p":
@@ -230,23 +231,40 @@ class Prompt(Cmd):
         inp = inp.rstrip().split(" ")
         self.load(inp)
 
-    def do_analyze(self, inp):
-        """Realize the analysis of the selected Manip.
+    def analyze(self, args):
+        """Realize the analysis of the selected Manip. If a index is given, select the corresponding Manip and analyze them.
 
-        :param str inp: an unused argument string, implemented only for compatibility purpose with Cmd.
+        :param list args: the arguments to consider for the analysis.
 
         """
-        manips_to_analyze = self.mm.selected_manips
-        for manip in manips_to_analyze:
-            if not manip.analyzed:
-                params = manip.get_params()
-                if manip.carto:
-                    anal = CartoAnalyzer(progress=True, **params)
-                else:
-                    anal = Analyzer(progress=True, **params)
-                results = Results(anal.get_results(), manip.id_name)
-                self.rm.add_results(results)
-                manip.analyzed = True
+        if check_nb_args(args, maxi=1, mini=0):
+            if len(args) == 0:
+                manips_to_analyze = self.mm.selected_manips
+                for manip in manips_to_analyze:
+                    if not manip.analyzed:
+                        params = manip.get_params()
+                        if manip.carto:
+                            anal = CartoAnalyzer(progress=True, **params)
+                        elif manip.aes:
+                            anal = AESAnalyzer(progress=True, **params)
+                        else:
+                            anal = Analyzer(progress=True, **params)
+                        results = Results(anal.get_results(), manip.id_name)
+                        self.rm.add_results(results)
+                        manip.analyzed = True
+            else:
+                self.mm.remove_all_manips()
+                self.select(args)
+                self.analyze([])
+
+    def do_analyze(self, inp):
+        """Split the arguments from a analyze command line and realize the analysis.
+
+        :param str inp: the space separated index of the Manip to analyze.
+
+        """
+        inp = inp.rstrip().split(" ")
+        self.analyze(inp)
 
     def do_exit(self, inp):
         """Exit the interface after printing the exit message.
@@ -285,7 +303,7 @@ class Prompt(Cmd):
             return
         return self.rm.get_result_titles(results_index)
 
-    def check_args_and_get_result(self, manip_index, result_index_list):
+    def check_args_and_get_result(self, manip_index, result_index_list, style="prettytable"):
         """Check if the Manip index is an int. If so get the Results of the Manip.
 
         :param str manip_index: the index of the Manip.
@@ -303,7 +321,10 @@ class Prompt(Cmd):
             else:
                 result_index_list = str_to_index_list(result_index_list)
                 if not result_index_list == None:
-                    return self.rm.get_result_str(results_index, result_index_list)
+                    if style=="prettytable":
+                        return self.rm.get_result_str(results_index, result_index_list)
+                    if style=="var":
+                        return self.rm.get_result_var_str(results_index, result_index_list)
 
     def get_to_print(self, args):
         """Get the string to print from arguments.
@@ -319,6 +340,8 @@ class Prompt(Cmd):
             return self.check_arg_and_get_result_titles(args[0])
         elif len(args) == 2:
             return self.check_args_and_get_result(args[0], args[1])
+        elif len(args) == 3:
+            return self.check_args_and_get_result(args[0], args[1], args[2])
         else:
             return "Error: wrong number of arguments"
 
@@ -398,6 +421,11 @@ class Prompt(Cmd):
         self.aes_analysis(inp)
 
     def aes_analysis(self, args):
+        """Print the faulted value in an AES state way to simplify the analysis in this case.
+
+        :param list args: the arguments to consider for the AES analysis.
+
+        """
         manip_index = int(args[0])
         results = self.get_manip_results(manip_index)
         faulted_values_result = results.get_result_from_title("Faulted values statistics")
@@ -409,15 +437,25 @@ class Prompt(Cmd):
             if args[1] in ["p", "print"]:
                 for i, fv in enumerate(faulted_values):
                     print("[{}] 0x{:016x}".format(i, fv))
-            if args[1] in ["h", "hex"]:
+            elif args[1] in ["h", "hex"]:
                 if len(args) > 2:
                     index_list = str_to_index_list(args[2])
                     ap.print_list_hex_diff(index_list)
                 else:
                     ap.print_all_hex_diff()
-            if args[1] in ["m", "matrix"]:
+            elif args[1] in ["m", "matrix"]:
                 if len(args) > 2:
                     index_list = str_to_index_list(args[2])
                     ap.print_list_mat_diff(index_list)
                 else:
                     ap.print_all_mat_diff()
+            elif args[1] in ["d", "diag", "diagonal"]:
+                if len(args) > 2:
+                    nb_faulted_diag = int(args[2])
+                    faulted_values = ap.print_diag_faulted_values(nb_faulted_diag)
+                else:
+                    print("Missing arguments: number of faulted diagonals.")
+            elif args[1] in ["dd", "diag_diff", "diagonal_difference"]:
+                if len(args) > 2:
+                    nb_faulted_diag = int(args[2])
+                    faulted_values = ap.print_diag_faulted_values_diff(nb_faulted_diag)

@@ -219,6 +219,17 @@ def int2byte_tab(n):
         tab.append(int(hex_s, 16))
     return tab
 
+def xor_list(l1, l2):
+    """Compute the logical XOR between two lists.
+
+    :param list l1: the first list to XOR.
+    :param list l2: the second list to XOR.
+
+    :returns: the XORed list.
+    :rtype: list
+
+    """
+
 def get_diff(t1, t2):
     """Compute the difference between two lists of the same size.
 

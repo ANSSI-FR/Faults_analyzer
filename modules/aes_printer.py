@@ -1,4 +1,5 @@
-from .bin_utils import int2byte_tab, hex_diff, mat_diff
+from .bin_utils import int2byte_tab, hex_diff, mat_diff, get_diff
+from .aes_analyzer import get_aes_nb_fully_faulted_diag
 
 class AESPrinter():
 
@@ -71,6 +72,28 @@ class AESPrinter():
             self.print_mat_diff(i)
             print("")
 
+    def get_diag_faulted_values(self, nb_faulted_diag):
+        ret = []
+        for fv in self.faulted_values:
+            nb_f_diag = get_aes_nb_fully_faulted_diag(fv, self.expected_value)
+            if nb_f_diag == nb_faulted_diag:
+                ret.append(fv)
+        return ret
+
+    def get_diag_faulted_values_diff(self, nb_faulted_diag):
+        faulted_values = self.get_diag_faulted_values(nb_faulted_diag)
+        return [fv ^ self.expected_value for fv in faulted_values]
+
+    def print_diag_faulted_values(self, nb_faulted_diag):
+        faulted_values = self.get_diag_faulted_values(nb_faulted_diag)
+        for fv in faulted_values:
+            print("0x{:032x}".format(fv))
+
+    def print_diag_faulted_values_diff(self, nb_faulted_diag):
+        faulted_values = self.get_diag_faulted_values_diff(nb_faulted_diag)
+        for fv in faulted_values:
+            print("0x{:032x}".format(fv))
+
 if __name__ == "__main__":
     faulted_values = [0x69c4e0d86a7b0430d864b78070b4c55a,
                       0x5dd5fa0c2f4f670d0f6634e399ad1235,
@@ -104,3 +127,4 @@ if __name__ == "__main__":
     ap = AESPrinter(faulted_values, expected_value)
     ap.print_all_hex_diff()
     ap.print_all_mat_diff()
+    print(ap.get_diag_faulted_values(1))

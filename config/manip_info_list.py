@@ -1,6 +1,41 @@
 base_dir = "/media/nas/projects/fault_attacks_test"
 
+aes_info_list = [
+    {
+        "base_dir": base_dir,
+        "device": "raspi3",
+        "manip_name": "AES",
+        "result_name": "EM_fix_AES_TV1_20191108_1709",
+        "params_file": "analyzer_params/raspi3_AES_TV1_EM_fix_params",
+        "id_name": "BCM2837 Linux [AES] TV1 EM 2"
+    },
+    {
+        "base_dir": base_dir,
+        "device": "raspi3",
+        "manip_name": "AES",
+        "result_name": "EM_fix_AES_TV1_20191108_1603",
+        "params_file": "analyzer_params/raspi3_AES_TV1_EM_fix_params",
+        "id_name": "BCM2837 Linux [AES] TV1 EM"
+    }
+]
+
 manip_info_list = [
+    {
+        "base_dir": base_dir,
+        "device": "raspi3",
+        "manip_name": "orr_r5_iv1",
+        "result_name": "EM_fix_orr_r5_iv1_20200114_1334",
+        "params_file": "analyzer_params/raspi3_orr_r5_iv1.py",
+        "id_name": "BCM2837 Linux [orr r5,r5] IV1 EM (14/01/2020)"
+    },
+    {
+        "base_dir": base_dir,
+        "device": "raspi3",
+        "manip_name": "orr_r5_iv1",
+        "result_name": "EM_fix_orr_r5_iv1_20200108_1547",
+        "params_file": "analyzer_params/raspi3_orr_r5_iv1.py",
+        "id_name": "BCM2837 Linux [orr r5,r5] IV1 EM (08/01/2020)"
+    },
     {
         "base_dir": base_dir,
         "device": "intel_core_i3",
@@ -108,6 +143,14 @@ manip_info_list = [
 ]
 
 carto_info_list = [
+    {
+        "base_dir": base_dir,
+        "device": "raspi3",
+        "manip_name": "orr_r5_iv1",
+        "result_name": "EM_carto_orr_r5_iv1_20200114_1419",
+        "params_file": "analyzer_params/raspi3_orr_r5_iv1_carto.py",
+        "id_name": "BCM2837 Linux [orr r5,r5] IV1 EM (14/01/2020)"
+    },
     {
         "base_dir": base_dir,
         "device": "raspi3",

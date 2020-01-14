@@ -2,7 +2,7 @@ NB_REGISTERS = 14
 params = {
     "obs_names": ["rax", "rbx", "rcx", "rdx", "rsi", "rdi", "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15"],
     "default_values": [((1 << (63 - i)) + (1 << i)) for i in range(NB_REGISTERS)],
-    "to_test": [False,True,False,False,False,False,True,True,False,False,True,True,True,True],
+    "to_test": [False,True,False,False,False,False,True,True,True,False,True,True,True,True],
     "power_name": "injector_P",
     "delay_name": "injector_D",
     "done_name": "plan_done",

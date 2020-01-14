@@ -99,6 +99,7 @@ class Result():
         for i, col in enumerate(self.data):
             if len(col) > 0:
                 t.add_column(self.labels[i], col)
+        t.float_format = ".4"
         return t
 
     def get_str(self):
