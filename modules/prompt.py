@@ -48,6 +48,8 @@ class Prompt(Cmd):
         """The ManipsManager used for managing the manips."""
         self.rm = ResultsManager()
         """The ResultsManager used for managing the results."""
+        self.analyze_flags = []
+        """The flags for the analyze() function."""
 
     def get_manip_results(self, manip_index):
         """Get the Results of a Manip if it has been analyzed.
@@ -237,17 +239,27 @@ class Prompt(Cmd):
         inp = inp.rstrip().split(" ")
         self.load(inp)
 
+    def check_flags_analyze(self, args):
+        if "-f" in args:
+            self.analyze_flags.append("-f")
+            args.remove("-f")
+        return args
+
+    def clean_flags_analyze(self):
+        self.analyze_flags = []
+
     def analyze(self, args):
         """Realize the analysis of the selected Manip. If a index is given, select the corresponding Manip and analyze them.
 
         :param list args: the arguments to consider for the analysis.
 
         """
+        args = self.check_flags_analyze(args)
         if check_nb_args(args, maxi=1, mini=0):
             if len(args) == 0:
                 manips_to_analyze = self.mm.selected_manips
                 for manip in manips_to_analyze:
-                    if not manip.analyzed:
+                    if (not manip.analyzed) or ("-f" in self.analyze_flags):
                         params = manip.get_params()
                         if manip.carto:
                             anal = CartoAnalyzer(progress=True, **params)
@@ -258,6 +270,9 @@ class Prompt(Cmd):
                         results = Results(anal.get_results(), manip.id_name)
                         self.rm.add_results(results)
                         manip.analyzed = True
+                        self.clean_flags_analyze()
+                    else:
+                        print("Error: manip {} already analyzed\nUse -f to force new analysis.".format(manip.id_name))
             else:
                 self.mm.remove_all_manips()
                 self.select(args)
