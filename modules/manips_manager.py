@@ -41,6 +41,7 @@ class ManipsManager():
         for manip in self.manips:
             if manip.id_name == id_name:
                 return manip
+        return None
 
     def get_str(self, manip, index):
         """Format a string of a Manip, this string gives the identification name of the Manip, its index and its state (Selected, Analyzed or Nothing).

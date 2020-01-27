@@ -220,7 +220,13 @@ class Prompt(Cmd):
             filename = args[0]
             self.rm.load(filename)
             id_name = self.rm.results_list[-1].id_name
-            self.mm.get_manip_from_id_name(id_name).analyzed = True
+            manip = self.mm.get_manip_from_id_name(id_name)
+            if manip != None:
+                manip.analyzed = True
+            else:
+                #Create new manip for storing the loaded result
+                self.mm.add_manip(None, None, id_name)
+                self.mm.get_manip_from_id_name(id_name).analyzed = True
 
     def do_load(self, inp):
         """Split the arguments from a load command line and load the corresponding Results.

@@ -114,6 +114,7 @@ class Analyzer():
         self.faulted_values = []
         self.faulted_values_occurrence = []
         self.analysis_done = False
+        self.nb_faulted_obs_per_power = [0]*len(self.powers)
 
         # Fault models initialization
         self.fault_model_unknown = 0
@@ -620,6 +621,16 @@ class Analyzer():
             if not faulted_value in self.fault_model_unknown_values:
                 self.fault_model_unknown_values.append(faulted_value)
 
+    def update_nb_faulted_obs_information(self, nb_faulted_obs, ope):
+        """Update the information about the number of faulted observed.
+
+        :param nb_faulted_obs: the number of faulted observed.
+
+        """
+        self.nb_faulted_obs += nb_faulted_obs
+        power_index = self.powers.index(ope[self.power_name])
+        self.nb_faulted_obs_per_power[power_index] += nb_faulted_obs
+
     def update_faulted_obs_and_values(self, ope):
         """Update the number of faulted observed, the faulted observed, the faulted values and the fault models.
 
@@ -628,7 +639,7 @@ class Analyzer():
         """
         ope_faulted_obs = self.get_faulted_obs(ope)
         if not ope_faulted_obs is None:
-            self.nb_faulted_obs += len(ope_faulted_obs)
+            self.update_nb_faulted_obs_information(len(ope_faulted_obs), ope)
             for faulted in ope_faulted_obs:
                 self.update_faulted_obs(faulted[0])
                 self.update_faulted_values(faulted[1], ope)
@@ -706,12 +717,23 @@ class Analyzer():
         elif len(self.values_after_execution) == 0:
             self.values_after_execution = self.default_values
 
+    def post_analysis(self):
+        """Realize the post analysis operations.
+
+        """
+        # Realize the division for the mean computation of the number of
+        # faulted observed per power
+        for i in range(len(self.powers)):
+            if self.fault_powers[i] != 0:
+                self.nb_faulted_obs_per_power[i] /= self.fault_powers[i]
+
     def run_analysis(self):
         """Run the analysis. This function must be called before getting any result.
 
         """
         if self.analysis_done == False:
             self.ope_loop_analysis()
+            self.post_analysis()
             self.set_fault_models_occurrence()
             self.analysis_done = True
         else:
@@ -1239,10 +1261,11 @@ class Analyzer():
             },
             {
                 "title": "Effect of the power value",
-                "labels": ["Power value (V)", "Fault (%)", "Reboot (%)"],
+                "labels": ["Power value (V)", "Fault (%)", "Reboot (%)", "Average of faulted obs"],
                 "data": [self.powers,
                          norm_percent(self.fault_powers),
-                         norm_percent(self.reboot_powers)]
+                         norm_percent(self.reboot_powers),
+                         self.nb_faulted_obs_per_power]
             },
             {
                 "title": "Effect of the delay",

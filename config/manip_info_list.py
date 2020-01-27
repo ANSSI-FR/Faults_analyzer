@@ -23,6 +23,54 @@ manip_info_list = [
     {
         "base_dir": base_dir,
         "device": "raspi3",
+        "manip_name": "and_r8_iv4",
+        "result_name": "EM_fix_and_r8_iv4_20200127_1437",
+        "params_file": "analyzer_params/raspi3_and_r8_iv4.py",
+        "id_name": "BCM2837 Linux [and r8,r8] IV4 EM (27/01/2020)"
+    },
+    {
+        "base_dir": base_dir,
+        "device": "raspi3",
+        "manip_name": "orr_r5_iv3",
+        "result_name": "EM_fix_orr_r5_iv3_20200124_1438",
+        "params_file": "analyzer_params/raspi3_orr_r5_iv3.py",
+        "id_name": "BCM2837 Linux [orr r5,r5] IV3 EM (24/01/2020)"
+    },
+    {
+        "base_dir": base_dir,
+        "device": "raspi3",
+        "manip_name": "regtest_movallreg",
+        "result_name": "EM_fix_mov_allreg_iv1_20200123_1132",
+        "params_file": "analyzer_params/raspi3_orr_r5_iv1.py",
+        "id_name": "BCM2837 Linux [mov allreg] IV1 EM (23/01/2020)"
+    },
+    {
+        "base_dir": base_dir,
+        "device": "raspi3",
+        "manip_name": "orr_r5_iv2",
+        "result_name": "EM_fix_and_r8_iv2_20200120_1427",
+        "params_file": "analyzer_params/raspi3_orr_r5_iv2.py",
+        "id_name": "BCM2837 Linux [and r8,r8] IV2 EM (20/01/2020)"
+    },
+    {
+        "base_dir": base_dir,
+        "device": "raspi3",
+        "manip_name": "orr_r5_iv2",
+        "result_name": "EM_fix_orr_r5_iv2_20200117_1418",
+        "params_file": "analyzer_params/raspi3_orr_r5_iv2.py",
+        "id_name": "BCM2837 Linux [orr r5,r5] IV2 EM (17/01/2020)"
+    },
+    {
+        "base_dir": base_dir,
+        "device": "raspi3",
+        "manip_name": "orr_r5_iv1",
+        "result_name": "EM_fix_orr_r5_iv1_20200116_1626",
+        "params_file": "analyzer_params/raspi3_orr_r5_iv1.py",
+        "id_name": "BCM2837 Linux [orr r5,r5] IV1 EM (16/01/2020)"
+    },
+    {
+        "base_dir": base_dir,
+        "device": "raspi3",
         "manip_name": "orr_r5_iv1",
         "result_name": "EM_fix_orr_r5_iv1_20200114_1334",
         "params_file": "analyzer_params/raspi3_orr_r5_iv1.py",
@@ -149,7 +197,7 @@ carto_info_list = [
         "manip_name": "orr_r5_iv1",
         "result_name": "EM_carto_orr_r5_iv1_20200114_1419",
         "params_file": "analyzer_params/raspi3_orr_r5_iv1_carto.py",
-        "id_name": "BCM2837 Linux [orr r5,r5] IV1 EM (14/01/2020)"
+        "id_name": "BCM2837 Linux [orr r5,r5] IV1 EM CARTO40x40 (14/01/2020)"
     },
     {
         "base_dir": base_dir,
