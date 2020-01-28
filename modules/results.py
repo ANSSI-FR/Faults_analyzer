@@ -102,6 +102,12 @@ class Result():
         t.float_format = ".4"
         return t
 
+    def print_info(self):
+        to_print = "title: {}\n".format(self.title)
+        to_print += "data: {}\n".format(self.data)
+        to_print += "labels: {}\n".format(self.labels)
+        print(to_print)
+
     def get_str(self):
         """:return: a printable string which is a table containing the result.
 

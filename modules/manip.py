@@ -41,3 +41,12 @@ class Manip():
 
         """
         return self.id_name
+
+    def print_info(self):
+        to_print = "result_file: {}\n".format(self.result_file)
+        to_print += "analysis_params: {}\n".format(self.analysis_params)
+        to_print += "id_name: {}\n".format(self.id_name)
+        to_print += "analyzed: {}\n".format(self.analyzed)
+        to_print += "carto: {}\n".format(self.carto)
+        to_print += "aes: {}\n".format(self.aes)
+        print(to_print)

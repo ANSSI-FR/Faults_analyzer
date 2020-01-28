@@ -5,7 +5,7 @@ class ManipsManager():
     """A class dedicated to the management of several Manip instances.
 
     """
-    def __init__(self, manips):
+    def __init__(self, manips=[]):
         """Constructor of the class.
 
         :param list manips: a list of Manip object to manage.

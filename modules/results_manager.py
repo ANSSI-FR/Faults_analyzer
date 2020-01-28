@@ -16,8 +16,6 @@ class ResultsManager():
         super().__init__()
         self.results_list = results_list
         """The list of managed Results."""
-        self.result_dir = result_dir
-        """The directory storing the Results files."""
 
     def get_results_index(self, results):
         """:param Results results: the Results to get the index.
@@ -102,7 +100,7 @@ class ResultsManager():
         :param str filename: the name of the file to load the Results from.
 
         """
-        fp = open(self.result_dir + "/" + filename, "r")
+        fp = open(filename, "r")
         results_dict = json.loads(fp.read())
         self.results_list.append(Results(**results_dict))
 
@@ -128,3 +126,9 @@ class ResultsManager():
         """
         results = self.get_results_from_id_name(id_name)
         return self.results_list.index(results)
+
+    def is_in_results(self, id_name):
+        for results in self.results_list:
+            if results.id_name == id_name:
+                return True
+        return False

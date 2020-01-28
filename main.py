@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
+from modules.core import Core
 
-from modules.manip_info_formater import format_manip_info
-from modules.manip import Manip
-from modules.prompt import Prompt
-
-from config.manip_info_list import manip_info_list, carto_info_list, aes_info_list
+from config import CONFIG
 
 if __name__ == "__main__":
+    c = Core(**CONFIG)
+    c.create_directories()
+    res_files = c.get_results_files()
+    print(res_files)
+    for f in res_files:
+        c.load_results(f)
+    for manip in c.mm.manips:
+        manip.print_info()
 
-    manips = []
-    for manip_info in manip_info_list:
-        formated_manip_info = format_manip_info(manip_info)
-        manips.append(Manip(**formated_manip_info))
-    for manip_info in carto_info_list:
-        formated_manip_info = format_manip_info(manip_info)
-        formated_manip_info.update({"carto": True})
-        manips.append(Manip(**formated_manip_info))
-    for manip_info in aes_info_list:
-        formated_manip_info = format_manip_info(manip_info)
-        formated_manip_info.update({"aes": True})
-        manips.append(Manip(**formated_manip_info))
+    for results in c.rm.results_list:
+        print("id_name: {}\n".format(results.id_name))
+        for result in results.results:
+            result.print_info()
 
-    p = Prompt(manips)
-    p.cmdloop()
+    man_files = c.get_manips_files()
+    for f in man_files:
+        c.load_manip(f)
+
+    for manip in c.mm.manips:
+        manip.print_info()

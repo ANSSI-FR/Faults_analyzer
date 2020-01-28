@@ -4,7 +4,7 @@ from importlib import import_module
 
 sys.path += [os.getcwd()]
 
-def get_params(params_file):
+def get_params(params_file, import_path=""):
     """Extract the params object from a given Python file.
 
     :param str params_file: the Python file to get the params object from.
@@ -12,6 +12,7 @@ def get_params(params_file):
     :returns: the params object from the given Python file.
 
     """
+    sys.path += [import_path]
     module_name = params_file.replace(".py", "").replace("/", ".")
     module = import_module(module_name)
     return module.params
