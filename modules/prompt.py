@@ -8,6 +8,7 @@ from .carto_analyzer import CartoAnalyzer
 from .plot_manager import PlotManager
 from .aes_printer import AESPrinter
 from .aes_analyzer import AESAnalyzer
+from .dict_editor import DictEditor
 
 def check_nb_args(cmd, maxi=None, mini=1):
     """Check if the number of arguments from a list.
@@ -50,6 +51,8 @@ class Prompt(Cmd):
         """The ResultsManager used for managing the results."""
         self.analyze_flags = []
         """The flags for the analyze() function."""
+        self.pm = PlotManager(None)
+        """The PlotManager used for managing the plots."""
 
     def get_manip_results(self, manip_index):
         """Get the Results of a Manip if it has been analyzed.
@@ -158,8 +161,8 @@ class Prompt(Cmd):
 
         """
         result = self.rm.results_list[results_index].get_result(result_index)
-        pm = PlotManager(result)
-        pm.plot(style_name, data_to_plot_index_list, data_labels_index)
+        self.pm.result = result
+        self.pm.plot(style_name, data_to_plot_index_list, data_labels_index)
 
     def plot(self, args):
         """Check the number of arguments and plot the data.
@@ -431,6 +434,25 @@ class Prompt(Cmd):
         """
         inp = inp.rstrip().split(" ")
         self.remove(inp)
+
+    def edit(self, args):
+        if check_nb_args(args, maxi=1, mini=1):
+            if args[0] == "tmp_plot_style":
+                de = DictEditor(self.pm.tmp_style)
+                de.intro = "Editing the temporary style plot dictionary. Type ? to list commands"
+                de.exit_msg = "Temporary style plot dictionary edition over."
+                de.cmdloop()
+            else:
+                print("Error: unknown parameter to edit.")
+
+    def do_edit(self, inp):
+        """Split the arguments from an edit command and start the editing of parameters.
+
+        :param str inp: the space separated arguments.
+
+        """
+        inp = inp.rstrip().split(" ")
+        self.edit(inp)
 
     def do_aes(self, inp):
         """Split the arguments from an aes command and realize the AES printing.

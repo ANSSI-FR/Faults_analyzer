@@ -91,6 +91,8 @@ class PlotManager():
         """
         self.result = result
         """The result containing the data to plot."""
+        self.tmp_style = tmp_style
+        """The temporary plotting style to apply to the plot."""
 
     def plot(self, style_name, data_to_plot_index_list=None, data_labels_index=None):
         """Check if the given plot style name is in the available styles. If so, plot the result data according to the given parameters.
@@ -217,6 +219,6 @@ class PlotManager():
 
         if to_plot != None:
             to_plot.update(plot_style)
-            to_plot.update(tmp_style)
+            to_plot.update(self.tmp_style)
             pl = Plotter([to_plot], cmap=plt.cm.YlOrRd)
             pl.show()
