@@ -40,6 +40,7 @@ Put here some introduction to your project.
    analyzer
    bin_utils
    carto_analyzer
+   dict_editor
    manip_info_formater
    manip
    manips_manager
