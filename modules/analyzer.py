@@ -144,6 +144,7 @@ class Analyzer():
         self.xor_with_other_obs_origin_occurrence = [0]*self.nb_obs
         self.sub_with_other_obs_origin_occurrence = [0]*self.nb_obs
         self.or_with_other_obs_value_after_execution_origin_occurrence = [0]*self.nb_obs
+        self.or_with_two_other_obs_origin_occurrence = [0]*self.nb_obs
 
         self.other_obs_value_after_execution_destination = [0]*self.nb_obs
         self.other_obs_value_destination = [0]*self.nb_obs
@@ -154,6 +155,7 @@ class Analyzer():
         self.xor_with_other_obs_destination = [0]*self.nb_obs
         self.sub_with_other_obs_destination = [0]*self.nb_obs
         self.or_with_other_obs_value_after_execution_destination = [0]*self.nb_obs
+        self.or_with_two_other_obs_destination = [0]*self.nb_obs
 
         self.fault_model_unknown_destination = [0]*self.nb_obs
         self.bit_set_destination = [0]*self.nb_obs
@@ -508,6 +510,9 @@ class Analyzer():
             for j, val2 in enumerate(self.default_values):
                 if s2u(faulted_value, self.nb_bits) == (s2u(val1, self.nb_bits) | s2u(val2, self.nb_bits)):
                     if (i != faulted_obs) and (j != faulted_obs):
+                        self.or_with_two_other_obs_destination[faulted_obs] += 1
+                        self.or_with_two_other_obs_origin_occurrence[i] += 1
+                        self.or_with_two_other_obs_origin_occurrence[j] += 1
                         self.or_with_two_other_obs += 1
                         return True
         return False
@@ -1181,12 +1186,26 @@ class Analyzer():
         return ret
 
     def get_or_with_two_other_obs_information(self):
-        """This function exists be does nothing.
+        """Compute the information about the OR with two other obs fault model.
 
-        :return: a list of dictionaries containing NOTHING in the case of the bit or fault model.
+        :return: a list of dictionaries containing the information.
 
         """
-        pass
+        ret = [
+            {
+                "title": "Destination occurrence for OR with two other obs",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         norm_percent(self.or_with_two_other_obs_destination)]
+            },
+            {
+                "title": "Origin of the ORed values",
+                "labels": ["Observed", "Occurrence (%)"],
+                "data": [self.obs_names,
+                         self.or_with_two_other_obs_origin_occurrence]
+            }
+        ]
+        return ret
 
     def get_fault_model_information(self, fault_model):
         """:param fault_model: the fault model, as a string, from which to get the result.
