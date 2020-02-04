@@ -5,8 +5,6 @@ from plotter import Plotter, PlotterType
 
 from .results import CartoResult
 
-from config.plot_styles import styles, tmp_style
-
 def remove_0_values(data, labels):
     """Remove all the values to 0 from a data list and the corresponding index in a labels list.
 
@@ -83,7 +81,7 @@ class PlotManager():
     """A class that able to manage the way to plot a Result.
 
     """
-    def __init__(self, result):
+    def __init__(self, styles, tmp_style, result=None):
         """Constructor of the class.
 
         :param Result result: the result containing the data to plot.
@@ -93,6 +91,7 @@ class PlotManager():
         """The result containing the data to plot."""
         self.tmp_style = tmp_style
         """The temporary plotting style to apply to the plot."""
+        self.styles = styles
 
     def plot(self, style_name, data_to_plot_index_list=None, data_labels_index=None):
         """Check if the given plot style name is in the available styles. If so, plot the result data according to the given parameters.
@@ -102,8 +101,8 @@ class PlotManager():
         :param int data_labels_index: the index of the data to use as labels for the plot.
 
         """
-        if style_name in styles:
-            self.plot_result(styles[style_name], data_to_plot_index_list,
+        if style_name in self.styles:
+            self.plot_result(self.styles[style_name], data_to_plot_index_list,
                              data_labels_index)
         else:
             print("Error: unknown plot style")

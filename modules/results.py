@@ -348,3 +348,15 @@ class Results():
         for i, title in enumerate(titles):
             ret += "[{}] {}\n".format(i, title)
         return ret
+
+    def __iter__(self):
+        self.n = 0
+        return self
+
+    def __next__(self):
+        if self.n < self.nb_results:
+            ret = self.results[self.n]
+            self.n += 1
+            return ret
+        else:
+            raise StopIteration

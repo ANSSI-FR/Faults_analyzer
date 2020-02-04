@@ -93,6 +93,8 @@ class ResultsManager():
         """
         if results_index < len(self.results_list):
             self.results_list[results_index].save(filename)
+        else:
+            print("Error: index out of range")
 
     def load(self, filename):
         """Load a Results from a file.
@@ -126,6 +128,13 @@ class ResultsManager():
         """
         results = self.get_results_from_id_name(id_name)
         return self.results_list.index(results)
+
+    def update_results(self, results):
+        if self.is_in_results(results.id_name):
+            index = self.get_results_index_from_id_name(results.id_name)
+            self.results_list[index] = results
+        else:
+            self.add_results(results)
 
     def is_in_results(self, id_name):
         for results in self.results_list:
