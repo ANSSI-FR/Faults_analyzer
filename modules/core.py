@@ -52,8 +52,8 @@ class Core():
         self.directories = [self.results_dir, self.manips_dir, self.parameters_dir]
         self.mm = ManipsManager()
         self.rm = ResultsManager()
-        styles, tmp_styles = self.get_plot_styles(plot_style_file)
-        self.pm = PlotManager(styles, tmp_styles)
+        self.styles, self.tmp_styles = self.get_plot_styles(plot_style_file)
+        self.pm = PlotManager(self.styles, self.tmp_styles)
         self.init()
 
     def get_plot_styles(self, plot_style_file):

@@ -62,6 +62,13 @@ class Cmdline(Cmd):
         print(self.exit_msg)
         return True
 
+    # do_EOF correspond to Ctrl+D key
+    do_EOF = do_exit
+
+    def help_exit(self):
+        print("Exit the application.")
+        print("Shorthands: Ctrl+D")
+
     def format_manips(self, manips):
         ret_str = format_title("Manips")
         for i, manip in enumerate(manips):
@@ -149,12 +156,39 @@ class Cmdline(Cmd):
         to_print = self.get_to_print(inp)
         print(to_print)
 
+    def help_print(self):
+        print("Display the available manips and their results.")
+
+        print("\nUsage: print <manip_index_list> <result_index_list>")
+        print("\t- manip_index_list: the index list of the manips to print.")
+        print("\t- result_index_list: the index list of the results to print.")
+
+        print("\nNotes:")
+        print("\t- When displaying manips. There is a star (*) next to the index if the manip has already been analyzed (i.e. results are available for printing or plotting).")
+
+        print("\nExamples:")
+        print("\t- \"print\" print the available manips.")
+        print("\t- \"print 4\" print the available results of the manip with index 4")
+        print("\t- \"print 0,3\" print the available results of the manips with index 0 and 3 ")
+        print("\t- \"print 0,3 1-5\" print the results with index 1 to 5 of the manips 0 and 3")
+
     def do_analyze(self, inp):
         inp = inp.rstrip().split(" ")
         if (len(inp) == 1) and (inp[0] != ""):
             manips_to_analyze = str_to_index_list(inp[0])
             self.core.analyze_manips(manips_to_analyze, progress=self.progress,
                                      force=self.force)
+
+    def help_analyze(self):
+        print("Analyze manips.")
+
+        print("\nUsage: analyze [manip_index_list]")
+        print("\t- manip_index_list: the index list of the manips to analyze.")
+
+        print("\nExamples:")
+        print("\t- \"analyze 2\" start the analysis of the manip with index 2")
+        print("\t- \"analyze 2,5\" start the analysis of the manips with index 2 and 5")
+        print("\t- \"analyze 2-4\" start the analysis of the manips with index 2 to 4")
 
     def do_merge(self, inp):
         inp = inp.rstrip().split(" ")
@@ -173,6 +207,20 @@ class Cmdline(Cmd):
         else:
             print("Error: missing arguments")
 
+    def help_merge(self):
+        print("Merge results from different manip into a new manip.")
+
+        print("\nUsage: merge [manip_index_list] [result_to_merge] [columns_to_merge] [columns_in_common] <name>")
+        print("\t- manip_index_list: the index list of the manips to analyze.")
+        print("\t- result_to_merge: the result to merge. The same index will be used for all given manip.")
+        print("\t- columns_to_merge: the columns to copy in the merged result. The merged result will contain the given column for every given manips.")
+        print("\t- columns_in_common: the columns to not duplicate in the new result. Most of the time, a column that all results have in common. These columns must be a subpart of \"columns_to_merge\".")
+        print("\t- the name to give to the merged manip.")
+
+        print("\nExamples:")
+        print("\t- \"merge 0-2 3 4-5 4\" merge all the 5th column of the 3rd result of manip with index 0 to 2 and add the 4th column once in a new result.")
+        print("\t- \"merge 0-2 3 4-5 4 new_merge\" merge all the 5th column of the 3rd result of manip with index 0 to 2 and add the 4th column once in a new result name \"new_merge\".")
+
     def do_save(self, inp):
         inp = inp.rstrip().split(" ")
         if len(inp) == 2:
@@ -184,6 +232,16 @@ class Cmdline(Cmd):
                 print("Error: wrong argument, expected an integer as first argument")
         else:
             print("Error: missing arguments")
+
+    def help_save(self):
+        print("Save the manip results into a JSON file.")
+
+        print("\nUsage: save [manip_index] [filename]")
+        print("\t- manip_index: the index of the manip to save the results from.")
+        print("\t- filename: the name of the file to save the results in.")
+
+        print("\nExamples:")
+        print("\t- \"save 3 new_results\" save the results of the manip with index 3 in the file \"new_results.json\".")
 
     def do_plot(self, inp):
         inp = inp.rstrip().split(" ")
@@ -211,3 +269,19 @@ class Cmdline(Cmd):
         else:
             print("Error: wrong argument")
 
+    def help_plot(self):
+        print("Plot a result.")
+
+        print("\nUsage: plot [manip_index] [result_index] [plot_style] <data_to_plot_index_list> <data_labels_index>")
+        print("\t- manip_index: the index of the manip containing the result to plot.")
+        print("\t- result_index: the index of the result to plot.")
+        print("\t- plot_style: the style to apply for the plot.")
+        print("\t- data_to_plot_index_list: the index of the data to plot from the result.")
+        print("\t- data_labels_index: the index of the data to use as index for the plot.")
+
+        print("\nNote:")
+        print("\t- the \"data_to_plot_index_list\" and \"data_labels_index\" arguments are not necessary for plotting matrices and pies.")
+
+        print("\nAvailable styles:")
+        for style in self.core.styles:
+            print("\t- {}".format(style))
