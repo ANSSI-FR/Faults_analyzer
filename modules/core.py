@@ -161,6 +161,8 @@ class Core():
             results = Results(anal.get_results(), manip.id_name)
             self.rm.update_results(results)
             manip.analyzed = True
+            results_index = self.rm.get_results_index(results)
+            self.save(results_index, results.id_name)
             return CoreErrors.SUCCESS
         else:
             return CoreErrors.MANIP_ALREADY_ANALYZED
@@ -206,10 +208,11 @@ class Core():
 
         return CoreErrors.SUCCESS
 
-    def save(self, result_index, filename):
+    def save(self, results_index, filename):
         if not filename.lower().endswith(".json"):
             filename += ".json"
-        self.rm.save(result_index, self.results_dir + filename)
+        self.rm.save(results_index, self.results_dir + filename)
+        print("Results of {} saved in {}".format(self.rm.results_list[results_index].id_name, self.results_dir + filename))
 
     def get_results_to_plot(self, results):
         if type(results) == str:
@@ -224,3 +227,13 @@ class Core():
         result = self.get_results_to_plot(results).get_result(result_index)
         self.pm.result = result
         self.pm.plot(style_name, data_to_plot_index_list, data_labels_index)
+
+    def get_results_from_manip(self, manip):
+        if type(manip) == int:
+            return self.rm.get_results_from_id_name(self.mm.manips[manip].id_name)
+        elif type(manip) == Manip:
+            return self.rm.get_results_from_id_name(manip.id_name)
+        elif type(manip) == str:
+            return self.rm.get_results_from_id_name(manip)
+        else:
+            return CoreErrors.MANIP_BAD_ARGUMENT

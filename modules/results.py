@@ -360,3 +360,12 @@ class Results():
             return ret
         else:
             raise StopIteration
+
+    def __getitem__(self, key):
+        if key < self.nb_results:
+            return self.results[key]
+        else:
+            raise IndexError
+
+    def __len__(self):
+        return self.nb_results
