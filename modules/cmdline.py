@@ -1,6 +1,7 @@
 from cmd import Cmd
 
 from .utils import *
+from .dict_editor import DictEditor
 
 def check_nb_args(cmd, maxi=None, mini=1):
     """Check if the number of arguments from a list.
@@ -20,7 +21,6 @@ def check_nb_args(cmd, maxi=None, mini=1):
             print("Error: wrong number of arguments")
             return False
     return True
-
 
 def format_title(txt, style="str"):
     if style == "html":
@@ -285,3 +285,13 @@ class Cmdline(Cmd):
         print("\nAvailable styles:")
         for style in self.core.styles:
             print("\t- {}".format(style))
+
+    def do_edit(self, inp):
+        inp = inp.rstrip().split(" ")
+        if inp[0] == "plot_tmp_style":
+            de = DictEditor(self.core.tmp_style)
+            de.cmdloop()
+        else:
+            print("Error: wrong parameter.")
+            print("Available parameters:")
+            print("\t- plot_tmp_style: edit the temporary style for plots.")
