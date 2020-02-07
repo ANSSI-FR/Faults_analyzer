@@ -4,7 +4,6 @@ from pathlib import Path
 from os import listdir
 from os.path import isfile, join
 from importlib import import_module
-
 from enum import Enum
 
 from .manips_manager import ManipsManager
