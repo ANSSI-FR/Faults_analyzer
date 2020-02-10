@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from modules.core import Core
-from modules.cmdline import Cmdline
+from interfaces.cmdline import Cmdline
 
 from config import CONFIG
 

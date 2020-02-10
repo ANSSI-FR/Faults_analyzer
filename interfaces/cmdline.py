@@ -1,7 +1,11 @@
+import os, sys
+
+sys.path.insert(1, os.path.join(sys.path[0], ".."))
+
 from cmd import Cmd
 
-from .utils import *
-from .dict_editor import DictEditor
+from modules.utils import *
+from modules.dict_editor import DictEditor
 
 def check_nb_args(cmd, maxi=None, mini=1):
     """Check if the number of arguments from a list.
