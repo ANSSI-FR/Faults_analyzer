@@ -299,3 +299,12 @@ class Cmdline(Cmd):
             print("Error: wrong parameter.")
             print("Available parameters:")
             print("\t- plot_tmp_style: edit the temporary style for plots.")
+
+    def help_edit(self):
+        print("Able the edition of different parameters.")
+
+        print("\nUsage: edit [parameter]")
+        print("\t- parameter: the parameter to edit.")
+
+        print("\nAvailable parameters:")
+        print("\t- plot_tmp_style: use this parameter to add temporary styles for the plots.")
