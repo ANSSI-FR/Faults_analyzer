@@ -1,7 +1,7 @@
 import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
-from ..utils import intable, print_progress_bar
+from ..utils import intable, print_progress_bar, are_all
 
 from .arg_init import init_arg
 
@@ -11,6 +11,7 @@ from .fault_analyzer import FaultAnalyzer
 from .fault_analyzer_decorator_base import FaultAnalyzerBase
 from .fault_analyzer_decorator_delay import FaultAnalyzerDelay
 from .fault_analyzer_decorator_carto import FaultAnalyzerCarto
+from .fault_analyzer_decorator_fault_models import FaultAnalyzerFaultModel
 
 class Analyzer(AnalyzerComponent):
     def __init__(self, **kwargs):
@@ -23,6 +24,8 @@ class Analyzer(AnalyzerComponent):
     def init_fault_analyzer(self, **kwargs):
         fa = FaultAnalyzer(self.results, **kwargs)
         fa = FaultAnalyzerBase(fa, **kwargs)
+        if are_all(self.values_type, int):
+            fa = FaultAnalyzerFaultModel(fa, **kwargs)
         if ("coordinates_name" in kwargs):
             fa = FaultAnalyzerCarto(fa, **kwargs)
         if ("delay_name" in kwargs):

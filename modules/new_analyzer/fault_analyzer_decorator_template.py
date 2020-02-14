@@ -15,11 +15,11 @@ class FaultAnalyzerTEMPLATE(FaultAnalyzerDecorator):
         self.my_result_data = []
 
         # Add the result data to the results object
-        self.results.append({
+        self.results += [{
             "title": "My title",
             "data": self.my_result_data,
             "labels": ["My first label", "My second label"]
-        })
+        }]
 
     # Overwrite the analyze method
     def analyze(self, ope):
@@ -30,3 +30,7 @@ class FaultAnalyzerTEMPLATE(FaultAnalyzerDecorator):
 
     def update_data(self, data):
         pass
+
+    def post_analysis(self):
+        super().post_analysis()
+        # You can modify the results here
