@@ -16,6 +16,9 @@ from .aes_analyzer import AESAnalyzer
 from .results import Results, merge_results
 from .plot_manager import PlotManager
 
+# NEW ANALYZER
+from .new_analyzer.analyzer import Analyzer as CEAAnalyzer
+
 def get_files(path):
     """Get the files from a given path.
 
@@ -151,17 +154,21 @@ class Core():
             return CartoAnalyzer(progress=progress, **params)
         elif manip.aes:
             return AESAnalyzer(progress=progress, **params)
+        elif manip.CEA:
+            analyzer = CEAAnalyzer(**params)
+            return analyzer
         else:
             return Analyzer(progress=progress, **params)
 
-    def analyze(self, manip, force=False, progress=False):
+    def analyze(self, manip, force=False, progress=False, save=False):
         if (not manip.analyzed) or (force):
             anal = self.get_analyzer(manip, progress)
             results = Results(anal.get_results(), manip.id_name)
             self.rm.update_results(results)
             manip.analyzed = True
             results_index = self.rm.get_results_index(results)
-            self.save(results_index, results.id_name)
+            if save:
+                self.save(results_index, results.id_name)
             return CoreErrors.SUCCESS
         else:
             return CoreErrors.MANIP_ALREADY_ANALYZED
@@ -170,7 +177,8 @@ class Core():
         if type(results) == str:
             return self.rm.get_results_from_id_name(results)
         elif type(results) == int:
-            return self.rm.results_list[results]
+            manip_id_name = self.mm.manips[results].id_name
+            return self.rm.get_results_from_id_name(manip_id_name)
         elif type(results) == Results:
             return results
         else:
@@ -217,7 +225,8 @@ class Core():
         if type(results) == str:
             return self.rm.get_results_from_id_name(results)
         elif type(results) == int:
-            return self.rm.results_list[results]
+            manip_id_name = self.mm.manips[results].id_name
+            return self.rm.get_results_from_id_name(manip_id_name)
         elif type(results) == Results:
             return results
 

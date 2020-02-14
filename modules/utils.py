@@ -1,3 +1,9 @@
+def are_all(data, value):
+    for d in data:
+        if d != value:
+            return False
+    return True
+
 def safe_numpy_to_native(num):
     """Safely convert a numpy object to a native Python object.
 
@@ -165,7 +171,7 @@ def norm_percent(raw):
     :returns: the percentage equivalent of the input list.
 
     """
-    if not sum(raw) is 0:
+    if sum(raw) != 0:
         return [float(i)/sum(raw)*100 for i in raw]
     else:
         return [0 for i in raw]

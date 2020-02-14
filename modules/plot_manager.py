@@ -164,7 +164,7 @@ class PlotManager():
         }
         return ret
 
-    def get_bar_to_plot(self, data_to_plot_index_list, data_labels_index):
+    def get_bar_to_plot(self, data_to_plot_index_list, data_labels_index, remove_0=False):
         """Format the result data for plotting a bar graph.
 
         :param list data_to_plot_index_list: the list of the index of the data to use as data for the plot.
@@ -175,7 +175,8 @@ class PlotManager():
         """
         data_to_plot = self.result.data[data_to_plot_index_list[0]]
         data_labels = self.result.data[data_labels_index]
-        data_to_plot, data_labels = remove_0_values(data_to_plot, data_labels)
+        if remove_0:
+            data_to_plot, data_labels = remove_0_values(data_to_plot, data_labels)
         ret = {
             "data": data_to_plot,
             "x_ticklabels": data_labels,

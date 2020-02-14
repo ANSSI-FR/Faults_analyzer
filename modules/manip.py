@@ -4,7 +4,7 @@ class Manip():
     """A class containing the information about an experimental manipulation.
 
     """
-    def __init__(self, result_file, analysis_params, id_name, carto=False, aes=False):
+    def __init__(self, result_file, analysis_params, id_name, carto=False, aes=False, CEA=False):
         """Constructor of the class.
 
         :param str result_file: the file containing the results of the experiment. For the moment, only .csv file can be read.
@@ -18,6 +18,9 @@ class Manip():
         self.analyzed = False
         self.carto = carto
         self.aes = aes
+        self.CEA = False
+        if "CEA" in analysis_params:
+            self.CEA = analysis_params["CEA"]
 
     def get_dataframe(self):
         """Extract the dataframe from the result file.
