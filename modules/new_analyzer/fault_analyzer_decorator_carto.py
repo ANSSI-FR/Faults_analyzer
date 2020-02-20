@@ -28,7 +28,7 @@ class FaultAnalyzerCarto(FaultAnalyzerDecorator):
         fault_matrix_res = {
             "title": "Fault matrix",
             "data": self.fault_matrix,
-            "label": "Number of fault per position"
+            "label": "Number of faults per position"
         }
         self.results.append(fault_matrix_res)
 

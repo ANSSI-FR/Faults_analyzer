@@ -1,3 +1,5 @@
+from ..bin_utils import a2_comp
+
 class FaultModel():
     def __init__(self, name, faulted_obs):
         self.name = name
@@ -15,6 +17,11 @@ class DataFaultModel(FaultModel):
 def is_other_obs_fault_model(fault, default_values, nb_bits):
     for i, dv in enumerate(default_values):
         if (i != fault.faulted_obs) and (dv == fault.faulted_value):
+            return i
+
+def is_other_obs_comp_fault_model(fault, default_values, nb_bits):
+    for i, dv in enumerate(default_values):
+        if (i != fault.faulted_obs) and (a2_comp(dv, nb_bits) == fault.faulted_value):
             return i
 
 def is_or_with_other_obs_fault_model(fault, default_values, nb_bits):
@@ -56,6 +63,10 @@ instr_fault_models = [
     {
         "name": "Other observed value",
         "test": is_other_obs_fault_model
+    },
+    {
+        "name": "Other observed complementary value",
+        "test": is_other_obs_comp_fault_model
     },
     {
         "name": "And with other observed",
