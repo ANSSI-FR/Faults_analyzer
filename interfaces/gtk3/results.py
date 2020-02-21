@@ -2,20 +2,31 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
+NB_ROWS_MAX = 50
+NB_COLS_MAX = 50
+
 def get_result_table(res):
-    nb_cols = len(res["data"])
-    nb_rows = len(res["data"][0])
+    data = res.data
+
+    if len(res.data) > NB_COLS_MAX:
+        data = res.data[:NB_COLS_MAX]
+    for i, data_set in enumerate(data):
+        if len(data_set) > NB_ROWS_MAX:
+            data[i] = data_set[:NB_ROWS_MAX]
+
+    nb_cols = len(data)
+    nb_rows = len(data[0])
 
     table = Gtk.Table(n_columns=nb_cols, n_rows=nb_rows, homogeneous=True)
     table.set_border_width(3)
 
-    for i,label in enumerate(res["labels"]):
+    for i,label in enumerate(res.labels):
         lab = Gtk.Label(label=label)
         lab.set_markup("<b>" + label + "</b>")
         lab.set_hexpand(True)
         table.attach(lab, left_attach=i, right_attach=i+1, top_attach=0, bottom_attach=1)
 
-    for i,d_list in enumerate(res["data"]):
+    for i,d_list in enumerate(data):
         for j,d in enumerate(d_list):
             lab = Gtk.Label(label=d)
             table.attach(lab, left_attach=i, right_attach=i+1, top_attach=j+1, bottom_attach=j+2)
@@ -35,7 +46,7 @@ class ResultsDisplayer(Gtk.Grid):
         self.res_combo = Gtk.ComboBoxText()
         self.res_combo.connect("changed", self.on_res_combo_changed)
         for res in self.results:
-            self.res_combo.append_text(res["title"])
+            self.res_combo.append_text(res.title)
         self.attach_next_to(self.res_combo, self.hb, Gtk.PositionType.BOTTOM, 1, 1)
         self.res_combo.set_active(0)
 
@@ -51,24 +62,22 @@ class ResultsDisplayer(Gtk.Grid):
 
     def get_result_from_name(self, name):
         for res in self.results:
-            if res["title"] == name:
+            if res.title == name:
                 return res
 
 if __name__ == "__main__":
 
     grid = None
 
+    class Res():
+        def __init__(self, title, data, labels):
+            self.title = title
+            self.data = data
+            self.labels = labels
+
     results = [
-        {
-            "title": "First result",
-            "data": [["A", "B", "C", "D", "E", "F"],[1,5,4,8,9,6]],
-            "labels": ["Names", "Power"]
-        },
-        {
-            "title": "Second result",
-            "data": [["A", "B", "C", "D", "E", "F"],[1,5,4,8,9,6]],
-            "labels": ["LETTERS !!", "Power"]
-        },
+        Res("First result", [["A", "B", "C", "D", "E", "F"],[1,5,4,8,9,6]], ["Names", "Power"]),
+        Res("Second result", [["A", "B", "C", "D", "E", "F"],[1,5,4,8,9,6]], ["LETTERS !!", "Power"])
     ]
 
     win = Gtk.Window()

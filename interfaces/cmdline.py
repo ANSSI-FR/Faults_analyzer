@@ -1,7 +1,3 @@
-import os, sys
-
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
-
 from cmd import Cmd
 
 from modules.utils import *

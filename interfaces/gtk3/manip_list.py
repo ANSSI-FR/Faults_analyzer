@@ -6,11 +6,11 @@ class ManipList(Gtk.ScrolledWindow):
     def __init__(self, manips, DEBUG=False):
         Gtk.ScrolledWindow.__init__(self)
         self.manips = manips
+        self.on_manip_selection_changed_hooks = []
         self.DEBUG = DEBUG
         self.selected_manips = []
         self.list_store = self.init_list_store()
         self.tree_view = self.init_tree_view()
-        self.set_vexpand(True)
         self.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         self.add(self.tree_view)
 
@@ -44,6 +44,8 @@ class ManipList(Gtk.ScrolledWindow):
             self.selected_manips = []
         if self.DEBUG:
             print(self.selected_manips)
+        for hook in self.on_manip_selection_changed_hooks:
+            hook[0](**hook[1])
 
 if __name__ == "__main__":
     manips = [
