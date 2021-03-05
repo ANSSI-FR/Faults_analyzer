@@ -10,14 +10,10 @@ from .manips_manager import ManipsManager
 from .results_manager import ResultsManager
 from .manip_info_formater import get_params
 from .manip import Manip
-from .analyzer import Analyzer
-from .carto_analyzer import CartoAnalyzer
-from .aes_analyzer import AESAnalyzer
 from .results import Results, merge_results
 from .plot_manager import PlotManager
 
-# NEW ANALYZER
-from .new_analyzer.analyzer import Analyzer as CEAAnalyzer
+from .new_analyzer.analyzer import Analyzer
 
 def get_files(path):
     """Get the files from a given path.
@@ -151,27 +147,10 @@ class Core():
 
         """
         params = manip.get_params()
-        # if manip.carto:
-        #     print("Loading CartoAnalyzer")
-        #     return CartoAnalyzer(progress=progress, **params)
-        if manip.aes:
-            if "AES" in params:
-                params.pop("AES")
-            print("Loading AESAnalyzer")
-            return AESAnalyzer(progress=progress, **params)
-        elif manip.CEA:
-            print("Loading CEAAnalyzer")
-            if manip.carto:
-                params.update({"carto": True})
-            analyzer = CEAAnalyzer(**params)
-            return analyzer
-        else:
-            if "coordinates" in params:
-                params.pop("coordinates")
-            if "stage_coordinates" in params:
-                params.pop("stage_coordinates")
-            print("Loading Analyzer")
-            return Analyzer(progress=progress, **params)
+        print("Loading Analyzer")
+        params.update({"carto": manip.carto})
+        analyzer = Analyzer(**params)
+        return analyzer
 
     def analyze(self, manip, force=False, progress=False, save=False):
         """
