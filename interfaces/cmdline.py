@@ -301,7 +301,6 @@ class Cmdline(Cmd):
         if len(inp) == 3:
             if intable(inp[0]):
                 manip_to_plot = int(inp[0])
-                #result_to_plot = int(inp[1])
                 results_to_plot = str_to_index_list(inp[1])
                 style_name = inp[2]
                 self.core.plot(manip_to_plot, results_to_plot, style_name)
@@ -311,11 +310,11 @@ class Cmdline(Cmd):
         elif len(inp) == 5:
             if intable(inp[0]) and intable(inp[1]) and intable(inp[4]):
                 manip_to_plot = int(inp[0])
-                result_to_plot = int(inp[1])
+                results_to_plot = str_to_index_list(inp[1])
                 style_name = inp[2]
                 data_to_plot_index_list = str_to_index_list(inp[3])
                 data_labels_index = int(inp[4])
-                self.core.plot(manip_to_plot, result_to_plot, style_name,
+                self.core.plot(manip_to_plot, results_to_plot, style_name,
                                data_to_plot_index_list, data_labels_index)
             else:
                 print("Error: wrong argument")
