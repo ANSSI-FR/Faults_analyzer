@@ -140,6 +140,7 @@ class Core():
             pass
         else:
             return CoreErrors.MANIP_BAD_ARGUMENT
+        print("Analyzing {}".format(manip.id_name))
         self.analyze(manip, force, progress)
 
     def get_analyzer(self, manip, progress=False):
@@ -150,16 +151,18 @@ class Core():
 
         """
         params = manip.get_params()
-        if manip.carto:
-            print("Loading CartoAnalyzer")
-            return CartoAnalyzer(progress=progress, **params)
-        elif manip.aes:
+        # if manip.carto:
+        #     print("Loading CartoAnalyzer")
+        #     return CartoAnalyzer(progress=progress, **params)
+        if manip.aes:
             if "AES" in params:
                 params.pop("AES")
             print("Loading AESAnalyzer")
             return AESAnalyzer(progress=progress, **params)
         elif manip.CEA:
             print("Loading CEAAnalyzer")
+            if manip.carto:
+                params.update({"carto": True})
             analyzer = CEAAnalyzer(**params)
             return analyzer
         else:
@@ -171,6 +174,10 @@ class Core():
             return Analyzer(progress=progress, **params)
 
     def analyze(self, manip, force=False, progress=False, save=False):
+        """
+
+        :param Boolean force: flag for forcing the analysis
+        """
         if (not manip.analyzed) or (force):
             anal = self.get_analyzer(manip, progress)
             results = Results(anal.get_results(), manip.id_name)

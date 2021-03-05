@@ -27,9 +27,11 @@ class Analyzer(AnalyzerComponent):
         fa = FaultAnalyzerBase(fa, **kwargs)
         if are_all(self.values_type, int):
             fa = FaultAnalyzerFaultModel(fa, **kwargs)
-        if ("coordinates_name" in kwargs):
-            fa = FaultAnalyzerCarto(fa, **kwargs)
-            fa = FaultAnalyzerFaultModelsCarto(fa, **kwargs)
+        #if ("coordinates_name" in kwargs):
+        if "carto" in kwargs:
+            if kwargs["carto"]:
+                fa = FaultAnalyzerCarto(fa, **kwargs)
+                fa = FaultAnalyzerFaultModelsCarto(fa, **kwargs)
         if ("delay_name" in kwargs):
             fa = FaultAnalyzerDelay(fa, **kwargs)
         return fa

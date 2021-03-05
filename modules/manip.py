@@ -17,6 +17,9 @@ class Manip():
         self.id_name = id_name
         self.analyzed = False
         self.carto = False
+        # We assume we have a carto if there is "carto" in the name
+        if "carto" in self.id_name:
+            self.carto = True
         if "carto" in self.analysis_params:
             self.carto = self.analysis_params["carto"]
             self.analysis_params.pop("carto")
