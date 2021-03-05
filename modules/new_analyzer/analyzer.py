@@ -77,9 +77,9 @@ class Analyzer(AnalyzerComponent):
             if len(log) != len(self.obs):
                 return True
             # Check values can be converted to their expected type
-            for v, v_type in zip(log, self.values_type):
+            for v, v_type, base in zip(log, self.values_type, self.result_base):
                 if v_type == int:
-                    if not intable(v):
+                    if not intable(v, base):
                         return True
             return False
         except:

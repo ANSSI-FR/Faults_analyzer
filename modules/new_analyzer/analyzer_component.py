@@ -21,6 +21,16 @@ class AnalyzerComponent():
             self.nb_operations = init_arg("nb_operations", kwargs)
         else:
             self.nb_operations = len(self.df.index)
+        if "result_base" in kwargs:
+            base = init_arg("result_base", kwargs)
+        else:
+            base = 10
+        # If only one base is given we assume all results are displayed in the
+        # same base
+        if type(base) == int:
+            self.result_base = [base]*len(self.obs)
+        else:
+            self.result_base = base
 
     def get_faults(self, ope):
         faulted_obs = []
@@ -28,14 +38,15 @@ class AnalyzerComponent():
         log = log.split(self.log_sep)
         log = log[1:-1]
         log_values = []
-        for v, v_type in zip(log, self.values_type):
+        for v, v_type, base in zip(log, self.values_type, self.result_base):
             # int values are converted as unsigned values considering the
             # number of bits
             if v_type == int:
-                log_values.append(s2u(int(v), self.nb_bits))
+                log_values.append(s2u(int(v, base), self.nb_bits))
             else:
                 log_values.append(v)
 
+        # We check for fault
         for i, (lv, dv) in enumerate(zip(log_values, self.default_values)):
             if lv != dv:
                 faulted_obs.append(Fault(i,lv))

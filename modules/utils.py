@@ -47,7 +47,7 @@ def in_range(table, index):
         return False
     return True
 
-def intable(int_str):
+def intable(int_str, base=10):
     """Safely check if a string is convertible to int.
 
     :param str int_str: the string to convert into int.
@@ -56,7 +56,7 @@ def intable(int_str):
 
     """
     try:
-        int(int_str)
+        int(int_str, base)
         return True
     except:
         return False

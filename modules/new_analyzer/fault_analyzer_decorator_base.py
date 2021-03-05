@@ -40,12 +40,17 @@ class FaultAnalyzerBase(FaultAnalyzerDecorator):
         super().post_analysis()
 
         # Generic information about the results
+        if self.nb_faults != 0:
+            nb_obs_per_fault = self.nb_faulted_obs/self.nb_faults
+        else:
+            nb_obs_per_fault = 0
+
         self.results.append(
             {
                 "title": "Faults general information",
                 "data": [
                     ["Number of faults", "Fault probability (%)", "Average number of faulted observed per fault"],
-                    [self.nb_faults, self.nb_faults/self.nb_operations*100, self.nb_faulted_obs/self.nb_faults]
+                    [self.nb_faults, self.nb_faults/self.nb_operations*100, nb_obs_per_fault]
                 ],
                 "labels": ["Information", "Values"]
             }
