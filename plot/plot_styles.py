@@ -19,7 +19,7 @@ def even_str(v):
 styles = {
     "bcm2711b0_layout":{
         "type": PlotterType.MATRIXSCATTER,
-        "image": "chips/bcm2711b0_layout.jpg",
+        "image": "chips/bcm2711b0/bcm2711b0_layout.jpg",
         "scale_to_image": True,
         "x_ticklabels": [i for i in range(7+1)],
         "x_ticklabels_position": [i*114 for i in range(7+1)],
@@ -30,7 +30,7 @@ styles = {
     },
     "bcm2711b0_layout_bw":{
         "type": PlotterType.MATRIXSCATTER,
-        "image": "chips/bcm2711b0_layout_bw.jpg",
+        "image": "chips/bcm2711b0/bcm2711b0_layout_bw.jpg",
         "scale_to_image": True,
         "x_ticklabels": [i for i in range(7+1)],
         "x_ticklabels_position": [i*114 for i in range(7+1)],
@@ -41,7 +41,7 @@ styles = {
     },
     "intel_core_i3":{
         "type": PlotterType.MATRIXSCATTER,
-        "image": "chips/intel_core_i3_large.jpg",
+        "image": "chips/i3-6100T/intel_core_i3_large.jpg",
         "scale_to_image": True,
         "x_ticklabels": [even_str(i) for i in range(29)],
         "x_ticklabels_position": [i*49.21 for i in range(29)],
@@ -58,7 +58,7 @@ styles = {
     },
     "bcm2837": {
         "type": PlotterType.MATRIXSCATTER,
-        "image": "chips/bcm2837_square_mirror.jpg",
+        "image": "chips/bcm2837/bcm2837_square_mirror.jpg",
         "scale_to_image": True,
         "x_ticklabels": reversed([str(i) for i in range(15)]),
         "x_ticklabels_position": [i*26.643 for i in range(15)],
@@ -97,7 +97,7 @@ styles = {
     },
     "bcm2711b0_layout_multimatrixbin": {
         "type": PlotterType.MULTIMATRIXSCATTERBIN,
-        "image": "chips/bcm2711b0_layout_bw.jpg",
+        "image": "chips/bcm2711b0/bcm2711b0_layout_bw.jpg",
         "scale_to_image": True,
         "x_ticklabels": [i for i in range(7+1)],
         "x_ticklabels_position": [i*114 for i in range(7+1)],
@@ -108,7 +108,7 @@ styles = {
     },
     "bcm2837_multimatrixbin": {
         "type": PlotterType.MULTIMATRIXSCATTERBIN,
-        "image": "chips/bcm2837_square_mirror.jpg",
+        "image": "chips/bcm2837/bcm2837_square_mirror.jpg",
         "scale_to_image": True,
         "x_ticklabels": reversed([str(i) for i in range(15)]),
         "x_ticklabels_position": [i*26.643 for i in range(15)],
