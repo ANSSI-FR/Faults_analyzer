@@ -223,11 +223,14 @@ class Cmdline(Cmd):
 
     def do_save(self, inp):
         inp = inp.rstrip().split(" ")
-        if len(inp) == 2:
+        if len(inp) >= 2:
             if intable(inp[0]):
                 results_to_save = int(inp[0])
                 filename = inp[1]
-                self.core.save(results_to_save, filename)
+                result_indexes = []
+                if len(inp) == 3:
+                    result_indexes = str_to_index_list(inp[2])
+                self.core.save(results_to_save, filename, result_indexes)
             else:
                 print("Error: wrong argument, expected an integer as first argument")
         else:
@@ -243,14 +246,65 @@ class Cmdline(Cmd):
         print("\nExamples:")
         print("\t- \"save 3 new_results\" save the results of the manip with index 3 in the file \"new_results.json\".")
 
-    def do_plot(self, inp):
+    def do_tikz(self, inp):
         inp = inp.rstrip().split(" ")
-        if len(inp) == 3:
+        filename = "tikz_figure.tex"
+        if (len(inp) == 3) or (len(inp) == 4):
             if intable(inp[0]) and intable(inp[1]):
                 manip_to_plot = int(inp[0])
                 result_to_plot = int(inp[1])
                 style_name = inp[2]
-                self.core.plot(manip_to_plot, result_to_plot, style_name)
+                if len(inp) == 4:
+                    filename = inp[3]
+                self.core.export_tikz(manip_to_plot, result_to_plot, style_name, filename)
+            else:
+                print("Error: wrong argument")
+                print("Usage: plot [manip index] [result_index] [style_name] <filename>")
+        elif (len(inp) == 5) or (len(inp) == 6):
+            if intable(inp[0]) and intable(inp[1]) and intable(inp[4]):
+                manip_to_plot = int(inp[0])
+                result_to_plot = int(inp[1])
+                style_name = inp[2]
+                data_to_plot_index_list = str_to_index_list(inp[3])
+                data_labels_index = int(inp[4])
+                if len(inp) == 6:
+                    filename = inp[5]
+                self.core.export_tikz(manip_to_plot, result_to_plot, style_name,
+                                      data_to_plot_index_list, data_labels_index, filename)
+            else:
+                print("Error: wrong argument")
+                print("Usage: plot [manip_index] [result_index] [style_name] <data_to_plot_index_list> <data_labels_index> <filename>")
+        else:
+            print("Error: wrong argument")
+
+    def help_tikz(self):
+        print("Export a plot into a tikz figure.")
+
+        print("\nUsage: plot [manip_index] [result_index] [plot_style] <data_to_plot_index_list> <data_labels_index> <filename>")
+        print("\t- manip_index: the index of the manip containing the result to plot.")
+        print("\t- result_index: the index of the result to plot.")
+        print("\t- plot_style: the style to apply for the plot.")
+        print("\t- data_to_plot_index_list: the index of the data to plot from the result.")
+        print("\t- data_labels_index: the index of the data to use as index for the plot.")
+        print("\t- filename: the file where to save the tikz code.")
+
+        print("\nNote:")
+        print("\t- the \"data_to_plot_index_list\" and \"data_labels_index\" arguments are not necessary for plotting matrices and pies.")
+        print("\t- the \"filename\" argument is not mandatory.")
+
+        print("\nAvailable styles:")
+        for style in self.core.styles:
+            print("\t- {}".format(style))
+
+    def do_plot(self, inp):
+        inp = inp.rstrip().split(" ")
+        if len(inp) == 3:
+            if intable(inp[0]):
+                manip_to_plot = int(inp[0])
+                #result_to_plot = int(inp[1])
+                results_to_plot = str_to_index_list(inp[1])
+                style_name = inp[2]
+                self.core.plot(manip_to_plot, results_to_plot, style_name)
             else:
                 print("Error: wrong argument")
                 print("Usage: plot [manip index] [result_index] [style_name]")

@@ -76,7 +76,7 @@ class FaultAnalyzerFaultModel(FaultAnalyzerDecorator):
 
     def update_data_fault_model(self, fault, fault_model):
         if fault_model.name in self.data_fault_model_names:
-            i = self.data_fault_model_names[fault_model.name]
+            i = self.data_fault_model_names.index(fault_model.name)
             self.data_fault_model_occurrences[i] += 1
             self.data_fault_model_destinations[i][fault.faulted_obs] += 1
         else:

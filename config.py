@@ -3,5 +3,5 @@ CONFIG = {
     "results_dir": "results/",
     "manips_dir": "manips/",
     "parameters_dir": "parameters/",
-    "plot_style_file": "plot/plot_styles.py"
+    "plot_style_file": "plot_styles.py"
 }

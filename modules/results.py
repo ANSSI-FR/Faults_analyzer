@@ -218,7 +218,6 @@ the label attributes.
         return ret
 
 class Results():
-
     """Class for storing and managing the results of an experiment.
 
     """
@@ -238,19 +237,29 @@ class Results():
                 self.results.append(Result(**result_dict))
         self.nb_results = len(self.results)
 
-    def save(self, filename):
+    def get_results_to_save(self, result_indexes):
+        if result_indexes == []:
+            return [result.get_JSON_dict() for result in self.results]
+        else:
+            ret = []
+            for i in result_indexes:
+                ret.append(self.results[i].get_JSON_dict())
+            return ret
+
+    def save(self, filename, result_indexes=[]):
         """Save the results as a JSON compliant dictionary containing the id_name and a list of JSON compliant dictionaries representing the results.
 
         :param filename: the name of the file to save the results in.
 
         """
+        results_to_save = self.get_results_to_save(result_indexes)
         to_save = {
             "id_name": self.id_name,
-            "results": [result.get_JSON_dict() for result in self.results]
+            "results": results_to_save
         }
-        fp = open(filename, "w")
-        json.dump(to_save, fp)
-        fp.close()
+        with open(filename, "w+") as fp:
+            json.dump(to_save, fp)
+        print("write of {} done in {}".format(to_save, fp))
 
     def __str__(self):
         """:return: A printable string of all the results.

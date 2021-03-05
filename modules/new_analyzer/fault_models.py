@@ -59,6 +59,36 @@ def is_or_between_two_other_obs_fault_model(fault, default_values, nb_bits):
                     if fault.faulted_value == dv1 | dv2:
                         return (i1, i2)
 
+def is_bit_reset(fault, default_values, nb_bits):
+    if fault.faulted_value == 0:
+        return True
+    return False
+
+def is_bit_set(fault, default_values, nb_bits):
+    if fault.faulted_value == (2**nb_bits)-1:
+        return True
+    return False
+
+def is_bit_flip(fault, default_values, nb_bits):
+    if fault.faulted_value == default_values[fault.faulted_obs] ^ (2**nb_bits)-1:
+        return True
+    return False
+
+data_fault_models = [
+    {
+        "name": "Bit reset",
+        "test": is_bit_reset
+    },
+    {
+        "name": "Bit set",
+        "test": is_bit_set
+    },
+    {
+        "name": "Bit flip",
+        "test": is_bit_flip
+    }
+]
+
 instr_fault_models = [
     {
         "name": "Other observed value",
@@ -90,13 +120,12 @@ instr_fault_models = [
     }
 ]
 
+fault_models = data_fault_models + instr_fault_models
+
 def get_fault_model(fault, default_values, nb_bits):
-    if fault.faulted_value == 0:
-        return DataFaultModel("Bit reset", fault.faulted_obs)
-    if fault.faulted_value == (2**nb_bits)-1:
-        return DataFaultModel("Bit set", fault.faulted_obs)
-    if fault.faulted_value == default_values[fault.faulted_obs] ^ (2**nb_bits)-1:
-        return DataFaultModel("Bit flip", fault.faulted_obs)
+    for data_fault_model in data_fault_models:
+        if data_fault_model["test"](fault, default_values, nb_bits):
+            return DataFaultModel(data_fault_model["name"], fault.faulted_obs)
     for instr_fault_model in instr_fault_models:
         origin = instr_fault_model["test"](fault, default_values, nb_bits)
         if origin != None:

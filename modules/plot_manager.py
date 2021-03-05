@@ -81,13 +81,13 @@ class PlotManager():
     """A class that able to manage the way to plot a Result.
 
     """
-    def __init__(self, styles, tmp_style, result=None):
+    def __init__(self, styles, tmp_style, results=None):
         """Constructor of the class.
 
         :param Result result: the result containing the data to plot.
 
         """
-        self.result = result
+        self.results = results
         """The result containing the data to plot."""
         self.tmp_style = tmp_style
         """The temporary plotting style to apply to the plot."""
@@ -102,8 +102,9 @@ class PlotManager():
 
         """
         if style_name in self.styles:
+            self.style_name = style_name
             self.plot_result(self.styles[style_name], data_to_plot_index_list,
-                             data_labels_index)
+                             data_labels_index, latex=True)
         else:
             print("Error: unknown plot style")
 
@@ -113,10 +114,11 @@ class PlotManager():
         :returns: a Plotter compliant dictionary containing the information for plotting the result as a matrix if the result is a CartoResult object. None in the other case.
 
         """
-        if type(self.result) == CartoResult:
+        result = self.results[0]
+        if type(result) == CartoResult:
             ret = {
-                "data": np.array(self.result.data),
-                "colorbar_label": self.result.label
+                "data": np.array(result.data),
+                "colorbar_label": result.label
             }
             return ret
         else:
@@ -131,15 +133,16 @@ class PlotManager():
         :returns: a Plotter compliant dictionary containing the information for plotting the result as a multibar graph.
 
         """
-        data_to_plot = [self.result.data[index] for index in data_to_plot_index_list]
-        data_labels = self.result.data[data_labels_index]
+        result = self.results[0]
+        data_to_plot = [result.data[index] for index in data_to_plot_index_list]
+        data_labels = result.data[data_labels_index]
         data_to_plot, data_labels = remove_0_values_multi(data_to_plot, data_labels)
-        labels = [self.result.labels[index] for index in data_to_plot_index_list]
+        labels = [result.labels[index] for index in data_to_plot_index_list]
         label = get_common_label_from_labels(labels)
         ret = {
             "data": data_to_plot,
             "x_ticklabels": data_labels,
-            "x_label": self.result.labels[data_labels_index],
+            "x_label": result.labels[data_labels_index],
             "bar_width": 0.6/len(data_to_plot),
             "y_label": label,
             "legend": labels
@@ -155,8 +158,9 @@ class PlotManager():
         :returns: a Plotter compliant dictionary containing the information for plotting the result as a pie graph.
 
         """
-        data_to_plot = self.result.data[data_to_plot_index_list[0]]
-        data_labels = self.result.data[data_labels_index]
+        result = self.results[0]
+        data_to_plot = result.data[data_to_plot_index_list[0]]
+        data_labels = result.data[data_labels_index]
         data_to_plot, data_labels = remove_0_values(data_to_plot, data_labels)
         ret = {
             "data": data_to_plot,
@@ -164,7 +168,7 @@ class PlotManager():
         }
         return ret
 
-    def get_bar_to_plot(self, data_to_plot_index_list, data_labels_index, remove_0=False):
+    def get_bar_to_plot(self, data_to_plot_index_list, data_labels_index, remove_0=True):
         """Format the result data for plotting a bar graph.
 
         :param list data_to_plot_index_list: the list of the index of the data to use as data for the plot.
@@ -173,27 +177,73 @@ class PlotManager():
         :returns: a Plotter compliant dictionary containing the information for plotting the result as a bar graph.
 
         """
-        data_to_plot = self.result.data[data_to_plot_index_list[0]]
-        data_labels = self.result.data[data_labels_index]
+        result = self.results[0]
+        data_to_plot = result.data[data_to_plot_index_list[0]]
+        data_labels = result.data[data_labels_index]
         if remove_0:
             data_to_plot, data_labels = remove_0_values(data_to_plot, data_labels)
         ret = {
             "data": data_to_plot,
             "x_ticklabels": data_labels,
-            "x_label": self.result.labels[data_labels_index],
-            "y_label": self.result.labels[data_to_plot_index_list[0]]
+            "x_label": result.labels[data_labels_index],
+            "y_label": result.labels[data_to_plot_index_list[0]]
         }
         return ret
 
-    def plot_result(self, plot_style, data_to_plot_index_list=None,
-                    data_labels_index=None):
-        """Check if the type of the plot_style is available as a Plotter type plot. The supported type are: matrix, matrixscatter, multibar, pie and bar. If so, check that the needed parameters are set. If so, plot the data using the given plot style and a temporary plot style.
+    def get_plot_to_plot(self, data_to_plot_index_list, data_labels_index):
+        """Format the result data for plotting a default plot. The default plot
+        requires the X values and Y values. The labels are considered as the X
+        values and therefore must be values.
+
+        :param list data_to_plot_index_list: the list of the index of the data to use as data for the plot.
+        :param int data_labels_index: the index of the data to use as labels for the plot.
+
+        :returns: a Plotter compliant dictionary containing the information for plotting the result as a bar graph.
+
+        """
+        result = self.results[0]
+        data_to_plot_X = result.data[data_labels_index]
+        data_to_plot_Y = result.data[data_to_plot_index_list[0]]
+        ret = {
+            "data": [data_to_plot_X, data_to_plot_Y],
+            "x_label": result.labels[data_labels_index],
+            "y_label": result.labels[data_to_plot_index_list[0]]
+        }
+        return ret
+
+    def get_multiplot_to_plot(self, data_to_plot_index_list, data_labels_index):
+        result = self.results[0]
+        data_to_plot_X = result.data[data_labels_index]
+        data_to_plot_Y = [result.data[index] for index in data_to_plot_index_list]
+        labels = [result.labels[index] for index in data_to_plot_index_list]
+        label = get_common_label_from_labels(labels)
+        ret = {
+            "data": [data_to_plot_X, data_to_plot_Y],
+            "x_label": result.labels[data_labels_index],
+            "y_label": label,
+            "legend": labels
+        }
+        return ret
+
+    def get_multimatrixscatterbin_to_plot(self):
+        legend = [r.title for r in self.results]
+        common = get_common_label_from_labels(legend)
+        legend = [l.rstrip() for l in legend]
+        ret = {
+            "data": [r.data for r in self.results],
+            "legend": legend
+        }
+        return ret
+
+    def get_to_plot(self, plot_style, data_to_plot_index_list=None, data_labels_index=None):
+        """Check if the type of the plot_style is available as a Plotter type plot. The supported type are: matrix, matrixscatter, multibar, pie and bar. If so, check that the needed parameters are set. If so, return the formated data for plotitng.
 
         :param dict plot_style: the style information for the plot.
         :param list data_to_plot_index_list: the list of the index of the data to use as data for the plot.
         :param int data_labels_index: the index of the data to use as labels for the plot.
 
         """
+        to_plot = None
         if plot_style["type"] in ["matrix", "matrixscatter",
                                   PlotterType.MATRIX, PlotterType.MATRIXSCATTER]:
             to_plot = self.get_matrix_to_plot()
@@ -215,10 +265,46 @@ class PlotManager():
                                                     data_labels_index)
             else:
                 print("Error: missing arguments")
-
+        elif plot_style["type"] in ["plot", PlotterType.PLOT]:
+            if (data_to_plot_index_list != None) and (data_labels_index != None):
+                to_plot = self.get_plot_to_plot(data_to_plot_index_list, data_labels_index)
+            else:
+                print("Error: missing arguments")
+        elif plot_style["type"] in ["multiplot", PlotterType.MULTIPLOT]:
+            if (data_to_plot_index_list != None) and (data_labels_index != None):
+                to_plot = self.get_multiplot_to_plot(data_to_plot_index_list, data_labels_index)
+            else:
+                print("Error: missing arguments")
+        elif plot_style["type"] in ["multimatrixscatterbin", PlotterType.MULTIMATRIXSCATTERBIN]:
+            to_plot = self.get_multimatrixscatterbin_to_plot()
 
         if to_plot != None:
             to_plot.update(plot_style)
             to_plot.update(self.tmp_style)
-            pl = Plotter([to_plot], cmap=plt.cm.YlOrRd)
+
+        return to_plot
+
+    def plot_result(self, plot_style, data_to_plot_index_list=None,
+                    data_labels_index=None, latex=False):
+        to_plot = self.get_to_plot(plot_style, data_to_plot_index_list, data_labels_index)
+        if to_plot != None:
+            cmap = plt.cm.YlOrRd
+            cmap = plt.get_cmap("autumn_r")
+            pl = Plotter([to_plot], cmap=cmap, latex=latex)
             pl.show()
+        else:
+            print("Error: unable to generate something to plot in plot_result()")
+
+    def export_tikz(self, plot_style, data_to_plot_index_list=None,
+                    data_labels_index=None, filename="tikz_figure.tex"):
+        if plot_style in self.styles:
+            to_plot = self.get_to_plot(self.styles[plot_style], data_to_plot_index_list, data_labels_index)
+            if to_plot != None:
+                cmap = plt.cm.YlOrRd
+                cmap = plt.get_cmap("autumn_r")
+                pl = Plotter([to_plot], cmap=cmap)
+                pl.export_tikz(filename=filename)
+            else:
+                print("Error: unable to generate something to plot in export_tikz()")
+        else:
+            print("Error: unknown plot style")

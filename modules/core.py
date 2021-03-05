@@ -1,7 +1,7 @@
 import sys
 
 from pathlib import Path
-from os import listdir
+from os import listdir, getcwd
 from os.path import isfile, join
 from importlib import import_module
 from enum import Enum
@@ -46,8 +46,8 @@ class Core():
                  results_dir="results/",
                  manips_dir="manips/",
                  parameters_dir="parameters/",
-                 plot_style_file="plot/plot_styles.py"):
-        sys.path += [main_dir]
+                 plot_style_file="plot_styles.py"):
+        sys.path += [main_dir, getcwd()]
         self.results_dir = main_dir + results_dir
         self.manips_dir = main_dir + manips_dir
         self.parameters_dir = main_dir + parameters_dir
@@ -60,7 +60,7 @@ class Core():
 
     def get_plot_styles(self, plot_style_file):
             module_name = plot_style_file.replace(".py", "").replace("/", ".")
-            module = import_module(module_name)
+            module = import_module("plot." + module_name)
             return module.styles, module.tmp_style
 
     def init(self):
@@ -151,13 +151,23 @@ class Core():
         """
         params = manip.get_params()
         if manip.carto:
+            print("Loading CartoAnalyzer")
             return CartoAnalyzer(progress=progress, **params)
         elif manip.aes:
+            if "AES" in params:
+                params.pop("AES")
+            print("Loading AESAnalyzer")
             return AESAnalyzer(progress=progress, **params)
         elif manip.CEA:
+            print("Loading CEAAnalyzer")
             analyzer = CEAAnalyzer(**params)
             return analyzer
         else:
+            if "coordinates" in params:
+                params.pop("coordinates")
+            if "stage_coordinates" in params:
+                params.pop("stage_coordinates")
+            print("Loading Analyzer")
             return Analyzer(progress=progress, **params)
 
     def analyze(self, manip, force=False, progress=False, save=False):
@@ -200,8 +210,8 @@ class Core():
     def merge(self, results_list, result_to_merge, columns_to_merge,
               columns_in_common, name="Merged results"):
         results_to_merge = self.get_results_to_merge(results_list)
-        if results_to_merge in CoreErrors:
-            return results_to_merge
+        #if results_to_merge in CoreErrors:
+        #    return results_to_merge
 
         merged_result = merge_results(results_to_merge, result_to_merge,
                                       columns_to_merge, columns_in_common)
@@ -215,11 +225,13 @@ class Core():
 
         return CoreErrors.SUCCESS
 
-    def save(self, results_index, filename):
+    def save(self, results_index, filename, results_indexes=[]):
         if not filename.lower().endswith(".json"):
             filename += ".json"
-        self.rm.save(results_index, self.results_dir + filename)
-        print("Results of {} saved in {}".format(self.rm.results_list[results_index].id_name, self.results_dir + filename))
+        results = self.get_results_from_manip(results_index)
+        results.save(filename, results_indexes)
+        #self.rm.save(results_index, self.results_dir + filename)
+        print("Results of {} saved in {}".format(results.id_name, self.results_dir + filename))
 
     def get_results_to_plot(self, results):
         if type(results) == str:
@@ -230,11 +242,21 @@ class Core():
         elif type(results) == Results:
             return results
 
-    def plot(self, results, result_index, style_name,
+    def plot(self, results, result_index_list, style_name,
              data_to_plot_index_list=None, data_labels_index=None):
+        #result = self.get_results_to_plot(results).get_result(result_index)
+        results = [self.get_results_to_plot(results).get_result(result_index) for result_index in result_index_list]
+        #self.pm.result = result
+        self.pm.results = results
+        self.pm.plot(style_name, data_to_plot_index_list, data_labels_index)
+
+    def export_tikz(self, results, result_index, style_name,
+                    data_to_plot_index_list=None, data_labels_index=None, filename="tikz_figure.tex"):
         result = self.get_results_to_plot(results).get_result(result_index)
         self.pm.result = result
-        self.pm.plot(style_name, data_to_plot_index_list, data_labels_index)
+        if not filename.lower().endswith(".tex"):
+            filename += ".tex"
+        self.pm.export_tikz(style_name, data_to_plot_index_list, data_labels_index, filename)
 
     def get_results_from_manip(self, manip):
         if type(manip) == int:

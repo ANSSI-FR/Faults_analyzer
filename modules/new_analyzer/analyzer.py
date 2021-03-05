@@ -12,6 +12,7 @@ from .fault_analyzer_decorator_base import FaultAnalyzerBase
 from .fault_analyzer_decorator_delay import FaultAnalyzerDelay
 from .fault_analyzer_decorator_carto import FaultAnalyzerCarto
 from .fault_analyzer_decorator_fault_models import FaultAnalyzerFaultModel
+from .fault_analyzer_decorator_fault_models_carto import FaultAnalyzerFaultModelsCarto
 
 class Analyzer(AnalyzerComponent):
     def __init__(self, **kwargs):
@@ -28,6 +29,7 @@ class Analyzer(AnalyzerComponent):
             fa = FaultAnalyzerFaultModel(fa, **kwargs)
         if ("coordinates_name" in kwargs):
             fa = FaultAnalyzerCarto(fa, **kwargs)
+            fa = FaultAnalyzerFaultModelsCarto(fa, **kwargs)
         if ("delay_name" in kwargs):
             fa = FaultAnalyzerDelay(fa, **kwargs)
         return fa
