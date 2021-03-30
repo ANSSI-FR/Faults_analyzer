@@ -106,7 +106,7 @@ class Core():
             self.mm.get_manip_from_id_name(id_name).analyzed = True
 
     def get_params_from_manip_file(self, filename):
-        s = filename.split("_")
+        s = filename.replace(".csv", "").split("_")
         params_file = s[0] + "_" + s[1] + "_" + s[2] + ".py"
         return get_params(params_file, import_path=self.parameters_dir)
 

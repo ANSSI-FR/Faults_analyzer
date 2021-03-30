@@ -1,5 +1,5 @@
 CONFIG = {
-    "main_dir": "/home/kerzas/ANSSI/Labo/faults/",
+    "main_dir": "../faults/",
     "results_dir": "results/",
     "manips_dir": "manips/",
     "parameters_dir": "parameters/"

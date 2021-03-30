@@ -1,2 +1,4 @@
 *__pycache__*
 documentation/_build*
+env/
+doc-sphinx
