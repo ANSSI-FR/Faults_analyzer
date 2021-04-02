@@ -8,5 +8,6 @@ params = {
     "log_name": "log",
     "log_separator": ";",
     "nb_bits": 32,
-    "coordinates_name": ["x", "y"]
+    "coordinates_name": ["x", "y"],
+    "delay_name": "delay"
 }

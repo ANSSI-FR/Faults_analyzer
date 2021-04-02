@@ -96,10 +96,14 @@ class Result():
 
         """
         t = PrettyTable()
+        # We need to format float to avoid seeing only 0s
+        if type(self.data[0]) == float:
+            data = ["{0.5}".format(d) for d in self.data]
+        else:
+            data = self.data
         for i, col in enumerate(self.data):
             if len(col) > 0:
                 t.add_column(self.labels[i], col)
-        t.float_format = ".4"
         return t
 
     def print_info(self):
