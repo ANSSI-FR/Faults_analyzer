@@ -42,12 +42,14 @@ class Core():
                  results_dir="results/",
                  manips_dir="manips/",
                  parameters_dir="parameters/",
+                 tikz_dir="tikz/",
                  plot_style_file="plot_styles.py"):
         sys.path += [main_dir, getcwd()]
         self.results_dir = main_dir + results_dir
         self.manips_dir = main_dir + manips_dir
         self.parameters_dir = main_dir + parameters_dir
-        self.directories = [self.results_dir, self.manips_dir, self.parameters_dir]
+        self.tikz_dir = main_dir + tikz_dir
+        self.directories = [self.results_dir, self.manips_dir, self.parameters_dir, self.tikz_dir]
         self.mm = ManipsManager()
         self.rm = ResultsManager()
         self.styles, self.tmp_style = self.get_plot_styles(plot_style_file)
@@ -242,6 +244,7 @@ class Core():
         self.pm.result = result
         if not filename.lower().endswith(".tex"):
             filename += ".tex"
+        filename = self.tikz_dir + "/" + filename
         self.pm.export_tikz(style_name, data_to_plot_index_list, data_labels_index, filename)
 
     def get_results_from_manip(self, manip):
