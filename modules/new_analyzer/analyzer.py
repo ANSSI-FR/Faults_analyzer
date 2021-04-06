@@ -33,7 +33,8 @@ class Analyzer(AnalyzerComponent):
                 fa = FaultAnalyzerCarto(fa, **kwargs)
                 fa = FaultAnalyzerFaultModelsCarto(fa, **kwargs)
         if ("delay_name" in kwargs):
-            fa = FaultAnalyzerDelay(fa, **kwargs)
+            if kwargs["delay_name"] in fa.df:
+                fa = FaultAnalyzerDelay(fa, **kwargs)
         return fa
 
     def get_results(self):
