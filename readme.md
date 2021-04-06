@@ -1,7 +1,7 @@
 # Fault Analyzer
 
-## Authors
-- Thomas Trouchkine
+## Maintener
+- Thomas Trouchkine (thomas.trouchkine@ssi.gouv.fr)
 
 ## Quick start
 ```sh
