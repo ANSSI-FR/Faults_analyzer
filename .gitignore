@@ -1,4 +1,4 @@
 *__pycache__*
 env/
 *_site
-doc/.jekyll-cache*
+*.jekyll-cache*
