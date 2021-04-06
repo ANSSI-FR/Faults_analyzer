@@ -13,6 +13,13 @@ This software is licensed under MIT license. See LICENSE file in the root folder
 - Thomas Trouchkine (thomas.trouchkine@ssi.gouv.fr)
 
 ## Quick start
+
+### Initialize the environment (first time)
+```sh
+make init
+```
+
+### Run the analyzer
 ```sh
 make run
 ```
