@@ -8,7 +8,7 @@ permalink: /plot/
 # Plotting results
 {: .no_toc}
 
-*Last update: {% last_modified_at %}*
+<!-- *Last update: {% last_modified_at %}* -->
 
 - TOC
 {:toc}

@@ -8,7 +8,7 @@ permalink: /cmds/
 # Fault Analyzer commands
 {: .no_toc}
 
-*Last update: {% last_modified_at %}*
+<!-- *Last update: {% last_modified_at %}* -->
 
 Using the fault analyzer, the documentation of the different commands is
 available using the `?` or `help` command.

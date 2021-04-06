@@ -7,7 +7,7 @@ nav_order: 0
 # Fault Analyzer documentation
 {: .no_toc}
 
-*Last update: {% last_modified_at %}*
+<!-- *Last update: {% last_modified_at %}* -->
 
 - TOC
 {:toc}

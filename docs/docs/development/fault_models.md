@@ -9,7 +9,7 @@ parent: Development
 # Adding a new fault model
 {: .no_toc}
 
-*Last update: {% last_modified_at %}*
+<!-- *Last update: {% last_modified_at %}* -->
 
 - TOC
 {:toc}
