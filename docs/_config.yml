@@ -23,7 +23,7 @@ email: thomas.trouchkine@ssi.gouv.fr
 description: >- # this means to ignore newlines until "baseurl:"
   The documentation of the ANSSI's fault analyzer.
 baseurl: "/Fault_analyzer" # the subpath of your site, e.g. /blog
-#url: "" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://anssi-fr.github.io/" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: jekyllrb
 github_username:  jekyll
 
