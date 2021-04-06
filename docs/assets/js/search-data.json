@@ -1,0 +1,314 @@
+{"0": {
+    "doc": "Analyzer modules",
+    "title": "Adding a new analyzer module",
+    "content": ". | Location | Naming convention | Loading a module | Developping a module . | Inheritance | Constructor | Mandatory functions | . | Template | . ",
+    "url": "/Fault_analyzer/dev/analyzer_modules/#adding-a-new-analyzer-module",
+    "relUrl": "/dev/analyzer_modules/#adding-a-new-analyzer-module"
+  },"1": {
+    "doc": "Analyzer modules",
+    "title": "Location",
+    "content": "Modules for the analyzer are stored in the modules/new_analyzer/ directory. ",
+    "url": "/Fault_analyzer/dev/analyzer_modules/#location",
+    "relUrl": "/dev/analyzer_modules/#location"
+  },"2": {
+    "doc": "Analyzer modules",
+    "title": "Naming convention",
+    "content": "Currently every analyzer module is defined in a file with the name fault_analyzer_decorator_MODULE_NAME.py. The reason is that they are all decorators of the analyzer component defined in fault_analyzer_component.py. The class name of the module is define as FaultAnalyzerMODULENAME. ",
+    "url": "/Fault_analyzer/dev/analyzer_modules/#naming-convention",
+    "relUrl": "/dev/analyzer_modules/#naming-convention"
+  },"3": {
+    "doc": "Analyzer modules",
+    "title": "Loading a module",
+    "content": "The modules are loaded in the modules/new_analyzer/analyzer.py file, in the init_fault_analyzer() function. # modules/new_analyzer/analyzer.py def init_fault_analyzer(self, **kwargs): fa = FaultAnalyzer(self.results, **kwargs) fa = FaultAnalyzerBase(fa, **kwargs) if are_all(self.values_type, int): fa = FaultAnalyzerFaultModel(fa, **kwargs) if \"carto\" in kwargs: if kwargs[\"carto\"]: fa = FaultAnalyzerCarto(fa, **kwargs) fa = FaultAnalyzerFaultModelsCarto(fa, **kwargs) if (\"delay_name\" in kwargs): fa = FaultAnalyzerDelay(fa, **kwargs) return fa . To load a module, it is only needed to import it: . from .fault_analyzer_MODULE_NAME import FaultAnalyzerMODULENAME . and to add the following line to the init_fault_analyzer() function: . fa = FaultAnalyzerMODULENAME(fa, **kwargs) . **kwargs is the params dictionary defined in the parameter file. It is possible to make the loading of a module conditional by adding if statements. ",
+    "url": "/Fault_analyzer/dev/analyzer_modules/#loading-a-module",
+    "relUrl": "/dev/analyzer_modules/#loading-a-module"
+  },"4": {
+    "doc": "Analyzer modules",
+    "title": "Developping a module",
+    "content": "Inheritance . A module inherit from the FaultAnalyzerDecorator class defined in the fault_analyzer_decorator file. from .fault_analyzer_decorator import FaultAnalyzerDecorator class FaultAnalyzerMODULENAME(FaultAnalyzerDecorator): # My module . Constructor . The constructor of a module must have the following prototype: . def __init__(self, comp, **kwargs): super().__init__(comp, **kwargs) . | comp is the component we want to decorate with the module. | kwargs is a dictionary of parameters. | . To extract the wanted parameters from the dictionary, it is recommended to use the init_arg() function from the modules/new_analyzer/arg_init.py file: . from .arg_init import init_arg def __init__(self, comp, **kwargs): super().__init__(comp, **kwargs) self.my_param = init_arg(\"my_param_name\", kwargs) . Then it is recommended to create the results structure. The results is a list of dictionary, each dictionary represent a result computed by the module and has three parameters: . | a title which able to identify the result, | a data set which stores the result values, | a set of labels which able to identify the different data sets. For instance: | . # Create result set self.my_result1_set = [] self.my_result2_set = [] # Create a result data self.my_result_data = [] # Add the result data to the results object self.results += [{ \"title\": \"My title\", \"data\": self.my_result_data, \"labels\": [\"My first label\", \"My second label\"] }] . Mandatory functions . There are two mandatory functions. | analyze(self, ope) . This function is called for every load module. The ope parameter is a line from the manip file. It is possible to access to the different fields of this line by calling ope[\"field_name\"]. This function must always call the super().analyze(ope) function before doing anything. Otherwise the decorator pattern will not work. For instance: . def analyze(self, ope): super().analyze(ope) self.my_result1_set.append(ope[\"param1\"]) self.my_result2_set.append(ope[\"param2\"]) . | post_analysis(self) . This function is called after the whole analysis process for every module. It is used for setting the actual results once the analysis is done. This function must always call the super().post_analysis() function before doing anything. Otherwise the decorator pattern will not work. For instance: . def post_analysis(self): super().post_analysis() self.my_result_data = [self.my_result1_set, self.my_result2_set] . | . ",
+    "url": "/Fault_analyzer/dev/analyzer_modules/#developping-a-module",
+    "relUrl": "/dev/analyzer_modules/#developping-a-module"
+  },"5": {
+    "doc": "Analyzer modules",
+    "title": "Template",
+    "content": "A template is available in the modules/new_analyzer/fault_analyzer_decorator_template.py file: . # modules/new_analyzer/fault_analyzer_decorator_template.py from .arg_init import init_arg # Import the FaultAnalyzerDecorator class for inheritance from .fault_analyzer_decorator import FaultAnalyzerDecorator # Create a child class of the FaultAnalyzerDecorator class class FaultAnalyzerTEMPLATE(FaultAnalyzerDecorator): def __init__(self, comp, **kwargs): super().__init__(comp, **kwargs) # Initialize the parameters you need self.my_param = init_arg(\"my_param_name\", kwargs) # Create a result data self.my_result_data = [] # Add the result data to the results object self.results += [{ \"title\": \"My title\", \"data\": self.my_result_data, \"labels\": [\"My first label\", \"My second label\"] }] # Overwrite the analyze method def analyze(self, ope): # Call the parent class method super().analyze(ope) # Update your data self.update_data(self.my_result_data) def update_data(self, data): pass def post_analysis(self): super().post_analysis() # You can modify the results here . ",
+    "url": "/Fault_analyzer/dev/analyzer_modules/#template",
+    "relUrl": "/dev/analyzer_modules/#template"
+  },"6": {
+    "doc": "Analyzer modules",
+    "title": "Analyzer modules",
+    "content": " ",
+    "url": "/Fault_analyzer/dev/analyzer_modules/",
+    "relUrl": "/dev/analyzer_modules/"
+  },"7": {
+    "doc": "Commands",
+    "title": "Fault Analyzer commands",
+    "content": "Using the fault analyzer, the documentation of the different commands is available using the ? or help command. List of commands: . | analyze | edit | exit | help | merge | plot | print | save | tikz | . ",
+    "url": "/Fault_analyzer/cmds/#fault-analyzer-commands",
+    "relUrl": "/cmds/#fault-analyzer-commands"
+  },"8": {
+    "doc": "Commands",
+    "title": "analyze",
+    "content": "Analyze manips. Usage . analyze [manip_index_list] . Arguments . | manip_index_list: the index list of the manips to analyze. | . Examples . | analyze 2 start the analysis of the manip with index 2 | analyze 2,5 start the analysis of the manips with index 2 and 5 | analyze 2-4 start the analysis of the manips with index 2 to 4 | . ",
+    "url": "/Fault_analyzer/cmds/#analyze",
+    "relUrl": "/cmds/#analyze"
+  },"9": {
+    "doc": "Commands",
+    "title": "edit",
+    "content": "Able the edition of different parameters. Usage . edit [parameter] . Arguments . | parameter: the parameter to edit. | . Available parameters: . | plot_tmp_style: use this parameter to add temporary styles for the plots. | . ",
+    "url": "/Fault_analyzer/cmds/#edit",
+    "relUrl": "/cmds/#edit"
+  },"10": {
+    "doc": "Commands",
+    "title": "exit",
+    "content": "Exit the application. Shorthands . Ctrl+D . ",
+    "url": "/Fault_analyzer/cmds/#exit",
+    "relUrl": "/cmds/#exit"
+  },"11": {
+    "doc": "Commands",
+    "title": "help",
+    "content": "List available commands with help or detailed help with help cmd. Shorthands . ? . ",
+    "url": "/Fault_analyzer/cmds/#help",
+    "relUrl": "/cmds/#help"
+  },"12": {
+    "doc": "Commands",
+    "title": "merge",
+    "content": "Merge results from different manip into a new manip. Usage . merge [manip_index_list] [result_to_merge] [columns_to_merge] [columns_in_common] &lt;name&gt; . Arguments . | manip_index_list: the index list of the manips to analyze. | result_to_merge: the result to merge. The same index will be used for all given manip. | columns_to_merge: the columns to copy in the merged result. The merged result will contain the given column for every given manips. | columns_in_common: the columns to not duplicate in the new result. Most of the time, a column that all results have in common. These columns must be a subpart of columns_to_merge. | name: the name to give to the merged manip. | . Examples: . | merge 0-2 3 4-5 4: merge all the 5th column of the 3rd result of manip with index 0 to 2 and add the 4th column once in a new result. | merge 0-2 3 4-5 4 new_merge: merge all the 5th column of the 3rd result of manip with index 0 to 2 and add the 4th column once in a new result name “new_merge”. | . Detailed example: . I have two manips with a common result I want to compare. fa&gt; print 0 3 bcm2837_andR8_iv4_EM_fix_20200127 results =========================================== Observed statistics +----------+---------------+-----------------------+-----------+--------+ | Observed | Default value | Value after execution | Fault (%) | Tested | +----------+---------------+-----------------------+-----------+--------+ | r0 | 0xfffe0001 | 0xfffe0001 | 22.6190 | True | r1 | 0xfffd0002 | 0xfffd0002 | 1.1905 | True | r2 | 0xfffb0004 | 0xfffb0004 | 1.1905 | True | r3 | 0xfff70008 | 0xfff70008 | 1.1905 | True | r4 | 0xffef0010 | 0xffef0010 | 1.1905 | True | r5 | 0xffdf0020 | 0xffdf0020 | 1.1905 | True | r6 | 0xffbf0040 | 0xffbf0040 | 1.1905 | True | r7 | 0xff7f0080 | 0xff7f0080 | 1.1905 | True | r8 | 0xfeff0100 | 0xfeff0100 | 67.8571 | True | r9 | 0xfdff0200 | 0xfdff0200 | 1.1905 | True | +----------+---------------+-----------------------+-----------+--------+ fa&gt; print 1 3 bcm2837_orrR5_iv3_EM_fix_20200124 results =========================================== Observed statistics +----------+---------------+-----------------------+-----------+--------+ | Observed | Default value | Value after execution | Fault (%) | Tested | +----------+---------------+-----------------------+-----------+--------+ | r0 | 0xc3d0c220 | 0xc3d0c220 | 10.4294 | True | r1 | 0x72b8ccd6 | 0x72b8ccd6 | 0.0000 | True | r2 | 0xf25f29b9 | 0xf25f29b9 | 0.2045 | True | r3 | 0x22c7271d | 0x22c7271d | 0.0000 | True | r4 | 0xd3f8f3b1 | 0xd3f8f3b1 | 1.4315 | True | r5 | 0x3ba81d04 | 0x3ba81d04 | 87.7301 | True | r6 | 0x7c22b133 | 0x7c22b133 | 0.0000 | True | r7 | 0xcc302f01 | 0xcc302f01 | 0.0000 | True | r8 | 0xafa42878 | 0xafa42878 | 0.2045 | True | r9 | 0xdd4c70ca | 0xdd4c70ca | 0.0000 | True | +----------+---------------+-----------------------+-----------+--------+ . I want to merge the result 3 of the manips 0 and 1 into a new result which contains the information from both original manips. The columns to merge are the first one with the observed (index 0) and the 4th one with their fault probability(index 3). The “Observed” column is in common. I use the following merge function: . fa&gt; merge 0-1 3 0,3 0 fa&gt; print Manips ======== [0]* bcm2837_andR8_iv4_EM_fix_20200127 [1]* bcm2837_orrR5_iv3_EM_fix_20200124 [2]* Merged results . It has created a new manip named “Merged results”. I can manipulated it as a classical result: . fa&gt; print 2 Merged results available results ================================== [0] Merged Observed statistics fa&gt; print 2 0 Merged results results ======================== Merged Observed statistics +----------+---------------------------------------------+---------------------------------------------+ | Observed | bcm2837_andR8_iv4_EM_fix_20200127 Fault (%) | bcm2837_orrR5_iv3_EM_fix_20200124 Fault (%) | +----------+---------------------------------------------+---------------------------------------------+ | r0 | 22.6190 | 10.4294 | r1 | 1.1905 | 0.0000 | r2 | 1.1905 | 0.2045 | r3 | 1.1905 | 0.0000 | r4 | 1.1905 | 1.4315 | r5 | 1.1905 | 87.7301 | r6 | 1.1905 | 0.0000 | r7 | 1.1905 | 0.0000 | r8 | 67.8571 | 0.2045 | r9 | 1.1905 | 0.0000 | +----------+---------------------------------------------+---------------------------------------------+ . ",
+    "url": "/Fault_analyzer/cmds/#merge",
+    "relUrl": "/cmds/#merge"
+  },"13": {
+    "doc": "Commands",
+    "title": "plot",
+    "content": "Plot a result. Usage . plot [manip_index] [result_index] [plot_style] &lt;data_to_plot_index_list&gt; &lt;data_labels_index&gt; . Arguments . | manip_index: the index of the manip containing the result to plot. | result_index: the index of the result to plot. | plot_style: the style to apply for the plot. | data_to_plot_index_list: the index of the data to plot from the result. | data_labels_index: the index of the data to use as index for the plot. | . The data_to_plot_index_list and data_labels_index arguments are not necessary for plotting matrices and pies. Styles . See the plot section. ",
+    "url": "/Fault_analyzer/cmds/#plot",
+    "relUrl": "/cmds/#plot"
+  },"14": {
+    "doc": "Commands",
+    "title": "print",
+    "content": "Display the available manips and their results. Usage . print &lt;manip_index_list&gt; &lt;result_index_list&gt; . Arguments . | manip_index_list: the index list of the manips to print. | result_index_list: the index list of the results to print. | . When displaying manips. There is an asterisk (*) next to the index if the manip has already been analyzed (i.e. results are available for printing or plotting). Examples . | print print the available manips. | print 4 print the available results of the manip with index 4 | print 0,3 print the available results of the manips with index 0 and 3 | print 0,3 1-5 print the results with index 1 to 5 of the manips 0 and 3 | . ",
+    "url": "/Fault_analyzer/cmds/#print",
+    "relUrl": "/cmds/#print"
+  },"15": {
+    "doc": "Commands",
+    "title": "save",
+    "content": "Save the manip results into a .json file. Usage . save [manip_index] [filename] . Arguments . | manip_index: the index of the manip to save the results from. | filename: the name of the file to save the results in. | . Examples . | save 3 new_results save the results of the manip with index 3 in the file new_results.json. | . The results are saved in the directory mentioned by the results_dir variable in the config.py. Moreover, any result available in this directory is automatically loaded at the startup of the analyzer (and therefore available as an analyzed result). ",
+    "url": "/Fault_analyzer/cmds/#save",
+    "relUrl": "/cmds/#save"
+  },"16": {
+    "doc": "Commands",
+    "title": "tikz",
+    "content": "Export a plot into a tikz figure. It has the same syntax as the plot command but you can add a filename at the end of the command. Usage . tikz [manip_index] [result_index] [plot_style] &lt;data_to_plot_index_list&gt; &lt;data_labels_index&gt; &lt;filename&gt; . Arguments . | manip_index: the index of the manip containing the result to plot. | result_index: the index of the result to plot. | plot_style: the style to apply for the plot. | data_to_plot_index_list: the index of the data to plot from the result. | data_labels_index: the index of the data to use as index for the plot. | filename: the file where to save the tikz code. | . ",
+    "url": "/Fault_analyzer/cmds/#tikz",
+    "relUrl": "/cmds/#tikz"
+  },"17": {
+    "doc": "Commands",
+    "title": "Commands",
+    "content": " ",
+    "url": "/Fault_analyzer/cmds/",
+    "relUrl": "/cmds/"
+  },"18": {
+    "doc": "Development",
+    "title": "Development",
+    "content": "These sections explain how to develop the different packages used in the laboratory. ",
+    "url": "/Fault_analyzer/dev/",
+    "relUrl": "/dev/"
+  },"19": {
+    "doc": "Documentation",
+    "title": "Developing the documentation",
+    "content": "This page presents how to update this documentation. | Requirements | Template documentation | Plugins | Building the documentation . | Using the Makefile | Using jekyll | . | Live test . | Using the Makefile | Using jekyll | . | Live test using Python3 (if Jekyll is not installed) | Adding a page . | Directory organization | Creating a new page | Page content | . | Images . | The drawio directory | . | . ",
+    "url": "/Fault_analyzer/dev/doc/#developing-the-documentation",
+    "relUrl": "/dev/doc/#developing-the-documentation"
+  },"20": {
+    "doc": "Documentation",
+    "title": "Requirements",
+    "content": ". | ruby (https://www.ruby-lang.org) | jekyll (https://jekyllrb.com/) | bundler (https://bundler.io/) | . It is suggested to install ruby using your distribution packages but jekyll and bundler using the gem package manager (as suggested here). ",
+    "url": "/Fault_analyzer/dev/doc/#requirements",
+    "relUrl": "/dev/doc/#requirements"
+  },"21": {
+    "doc": "Documentation",
+    "title": "Template documentation",
+    "content": "This documentation use the Just-the-Docs template. ",
+    "url": "/Fault_analyzer/dev/doc/#template-documentation",
+    "relUrl": "/dev/doc/#template-documentation"
+  },"22": {
+    "doc": "Documentation",
+    "title": "Plugins",
+    "content": "Some plugins are used to have some interesting features, they are already embedded in the project and no more installation is needed. | Absolute path plugin: https://github.com/tnhu/jekyll-include-absolute-plugin | Callouts . | issue: https://github.com/pmarsceill/just-the-docs/issues/171 (this is implemented currently) | pull request: https://github.com/pmarsceill/just-the-docs/pull/466 (not merged in just-the-docs yet, check regularly) | . | . ",
+    "url": "/Fault_analyzer/dev/doc/#plugins",
+    "relUrl": "/dev/doc/#plugins"
+  },"23": {
+    "doc": "Documentation",
+    "title": "Building the documentation",
+    "content": "Using the Makefile . make build . Using jekyll . bundle exec jekyll build . The website will be built in the _site directory. The statically built project cannot be used without a server. The reason is that the links are relative to the server root. Therefore, the links are not correctly resolved if the index.html is simply opened in a browser. ",
+    "url": "/Fault_analyzer/dev/doc/#building-the-documentation",
+    "relUrl": "/dev/doc/#building-the-documentation"
+  },"24": {
+    "doc": "Documentation",
+    "title": "Live test",
+    "content": "Using the Makefile . make server . With this command the website is available at http://localhost:4000. Using jekyll . bundle exec jekyll serve . With this command the website is available at http://localhost:4000. ",
+    "url": "/Fault_analyzer/dev/doc/#live-test",
+    "relUrl": "/dev/doc/#live-test"
+  },"25": {
+    "doc": "Documentation",
+    "title": "Live test using Python3 (if Jekyll is not installed)",
+    "content": "make show . This should open your internet browser on the documentation which is available at http://localhost:8000. ",
+    "url": "/Fault_analyzer/dev/doc/#live-test-using-python3-if-jekyll-is-not-installed",
+    "relUrl": "/dev/doc/#live-test-using-python3-if-jekyll-is-not-installed"
+  },"26": {
+    "doc": "Documentation",
+    "title": "Adding a page",
+    "content": "This section describe how to add a page to the documentation. Knowing how jekyll work is important to fully understand it. However, the following points are enough to understand how to add a simple page. | jekyll able to build an HTML/CSS/JavaScript based website. | The meta-data are defined in the _config.yml file (both information for jekyll and Just-the-Docs are present in it). This file can be used to add plugins, change the template, set the files to ignore during the website build, etc. | When jekyll build the website, it will use all the files in the root directory expected the ones starting with an underscore \"_\", the ones mentioned in the _config.yml to be ignored and the ruby configuration files (Gemfile, Gemfile.lock). | The files describing the pages can be either in markdown or in HTML. The will be converted in HTML in the end. | jekyll can interpret liquid scripting for creating pages. | . Directory organization . | 404.html: this is the “page not found” page. | _config.yml: the configuration file of the website. | Gemfile and Gemfile.lock: the files managing the ruby packages. | index.md: this is the index page of our website. | Makefile: the Makefile (I should not describe this one). | readme.md: you should read this. | assets/: this directory contains all the public files available from the website (css and js files, images, pdf files, etc) | docs/: this directory contains all the documentation pages that are the content of this documentation. This directory is organized with various categories which correspond to the different documented projects. | _plugins: this directory contains the plugins that are not in the official ruby packages and that were added “by hand”. | _sass: this directory contains the custom css styles used by the website. | _site: this directory is created when building the documentation and contains the website itself. To put the documentation online, the server must be set with this directory as root. | . Creating a new page . A new page can be created at any location in the directory. However, it is recommended to store all the pages in the docs/ directory. The page can be either in HTML or in markdown, but, in both cases, a header is needed by Jekyll and Just-the-Docs to work properly. For instance, the header of this page is: . --- layout: home title: Documentation permalink: /dev/doc/ nav_order: 0 parent: Development has_children: false --- . These attributes are the most important to give. More can be find in the Jekyll and Just-the-Docs documentations. Here are their purpose: . | layout: this attributes gives the layout where to integrate the page. The home layout contains the sidebar, the search field and all the inclusions for the page to render correctly. | title: this attributes is the title of the page (used in the web browser typically) but also an (not necessary unique) identifier of the page. | permalink: this is the suffix of the URL of this page. The complete URL will be //Fault_analyzer/ where url and baseurl are defined in the _config.yml. For instance, on the test version, the complete URL of this page is http://localhost:4000/dev/doc/ | nav_order: is the index of the page in the sidebar navigation menu. The higher the number, the lower the page is in the navigation menu. If two pages have the same nav_order they are sort in the alphabetical way. | parent: this attributes refers to the parent of the page in the navigation menu. The references must match the title attribute of the parent. In the case of children of children, the grand_parent attribute must also be set. | has_children: this attributes describes if the current page can have children in the navigation menu. | . Page content . For the content, it depends if you work on a HTML or a Markdown file. However, I will only describe the markdown content specificities of this site. | Markdown cheatsheet | Jekyll cheatsheet | Just-the-Docs documentation | Absolute path plugin usage: {% include_absolute 'path/to/the/file' %} | Callouts: This is an informative callout. {: .info} . This is an informative callout. This is a warning callout. {: .warn} . This is a warning callout. This is a danger callout. {: .danger} . This is a danger callout. | Reference to another page: [Link text]({{ site.baseurl }}/{{ page.permalink }}) . For instance: . [Create an experiment from scratch]({{ site.baseurl }}/scratch/) . Create an experiment from scratch . | . ",
+    "url": "/Fault_analyzer/dev/doc/#adding-a-page",
+    "relUrl": "/dev/doc/#adding-a-page"
+  },"27": {
+    "doc": "Documentation",
+    "title": "Images",
+    "content": "The way to include images in a markdown file is described in the Markdown cheatsheet. However, as we store them in the assets/ directory, we must append their location to the site.baseurl attribute to have it render properly in HTML, such as: . ![Image text]({{ site.baseurl }}/assets/path/to/image) . The drawio directory . In the assets/ directory, there is the drawio/ directory. This directory store the file describing some diagrams used in this documentation. To edit them, one must use the draw.io website. ",
+    "url": "/Fault_analyzer/dev/doc/#images",
+    "relUrl": "/dev/doc/#images"
+  },"28": {
+    "doc": "Documentation",
+    "title": "Documentation",
+    "content": " ",
+    "url": "/Fault_analyzer/dev/doc/",
+    "relUrl": "/dev/doc/"
+  },"29": {
+    "doc": "Fault models",
+    "title": "Adding a new fault model",
+    "content": ". | File location | Inheritance | The InstructionFaultModel has a special attribute: | Create a new fault model . | Develop a test function . | Arguments | Returned value | Examples | . | . | . ",
+    "url": "/Fault_analyzer/dev/fault_models/#adding-a-new-fault-model",
+    "relUrl": "/dev/fault_models/#adding-a-new-fault-model"
+  },"30": {
+    "doc": "Fault models",
+    "title": "File location",
+    "content": "The fault models are defined in the modules/new_analyzer/fault_models.py file. ",
+    "url": "/Fault_analyzer/dev/fault_models/#file-location",
+    "relUrl": "/dev/fault_models/#file-location"
+  },"31": {
+    "doc": "Fault models",
+    "title": "Inheritance",
+    "content": "Currently, there are two fault models classes InstructionFaultModel and DataFaultModel which both inherit from the FaultModel class. class FaultModel(): def __init__(self, name, faulted_obs): self.name = name self.faulted_obs = faulted_obs . class InstructionFaultModel(FaultModel): def __init__(self, name, faulted_obs, origin): super().__init__(name, faulted_obs) self.origin = origin . class DataFaultModel(FaultModel): def __init__(self, name, faulted_obs): super().__init__(name, faulted_obs) . Every fault model has two attributes: . | name: the name of the fault model. | faulted_obs: the index of the faulted observed. | . ",
+    "url": "/Fault_analyzer/dev/fault_models/#inheritance",
+    "relUrl": "/dev/fault_models/#inheritance"
+  },"32": {
+    "doc": "Fault models",
+    "title": "The InstructionFaultModel has a special attribute:",
+    "content": " ",
+    "url": "/Fault_analyzer/dev/fault_models/#the-instructionfaultmodel-has-a-special-attribute",
+    "relUrl": "/dev/fault_models/#the-instructionfaultmodel-has-a-special-attribute"
+  },"33": {
+    "doc": "Fault models",
+    "title": "Create a new fault model",
+    "content": "To create a new fault model you must define two things: . | the name of the fault model. | the test function of this fault model. | . Both must be set either in the data_fault_models or in the instruction_fault_models variables in the modules/new_analyzer/fault_models.py file. For instance: . data_fault_models = [ { \"name\": \"Bit reset\", \"test\": is_bit_reset }, { \"name\": \"Bit set\", \"test\": is_bit_set } ] . instr_fault_models = [ { \"name\": \"Other observed value\", \"test\": is_other_obs_fault_model }, { \"name\": \"Other observed complementary value\", \"test\": is_other_obs_comp_fault_model } ] . Develop a test function . The test function must have the following prototype: . def my_test_function(fault, default_values, nb_bits): # the core of the function return val . | the fault parameter is a Fault class defined in modules/new_analyzer/fault.py and has the following definition: class Fault(): def __init__(self, faulted_obs, faulted_value): self.faulted_obs = faulted_obs self.faulted_value = faulted_value . It stores the index of the faulted observed in faulted_obs and the faulted value in faulted_value. | . Arguments . | the default_values parameter is the list of the observed default values defined in the parameter file of the experiments. | the nb_bits parameter is the number of bits to consider the values on as defined in the parameter file of the experiments. | . Returned value . The test function either return a boolean in the case of a DataFaultModel flagging if the faulted value matches the tested fault model, or it returns the origin(s) of the faulted value when it could be determined. In the case there are multiple origins, the returned value can be a tuple. Examples . You can see examples in the modules/new_analyzer/fault_models.py file. ",
+    "url": "/Fault_analyzer/dev/fault_models/#create-a-new-fault-model",
+    "relUrl": "/dev/fault_models/#create-a-new-fault-model"
+  },"34": {
+    "doc": "Fault models",
+    "title": "Fault models",
+    "content": " ",
+    "url": "/Fault_analyzer/dev/fault_models/",
+    "relUrl": "/dev/fault_models/"
+  },"35": {
+    "doc": "In depth analysis",
+    "title": "In depth analysis",
+    "content": ". | Modularity of the analyzer | Modules . | Base | Fault Models . | Adding a new fault model | . | Carto . | Specific parameters | Manip and parameters file examples | . | Fault Model Carto | Delay . | Specific parameters | . | . | Adding a new module | . ",
+    "url": "/Fault_analyzer/depth/",
+    "relUrl": "/depth/"
+  },"36": {
+    "doc": "In depth analysis",
+    "title": "Modularity of the analyzer",
+    "content": "When an experiment is analyzed using the analyze command, the analyzer is built to match the manip to analyze. This is done thanks to the modularity of the analyzer. ",
+    "url": "/Fault_analyzer/depth/#modularity-of-the-analyzer",
+    "relUrl": "/depth/#modularity-of-the-analyzer"
+  },"37": {
+    "doc": "In depth analysis",
+    "title": "Modules",
+    "content": "In this section we will go through the various available modules of the analyzer and when they are loaded. Base . This module is the base of the fault analyzer, it is loaded all the time. It able to have the following information about the manip: . | The fault general information: this result contains the number of faults, the fault probability and the number of faulted observed per fault. | The observed statistics: this result contains the fault probability for every observed with their name, initial values and if they are tested or not. | The faulted values statistics: this result contains the distribution of the faulted values and their probability of occurrence. | . Fault Models . This module able the analyzer to identify various fault models. It is loaded when the type of every initial values (defined in the parameters file) is an int. It able to have the following information about the manip: . | Fault model statistics: this result contains the distribution of the identified fault models and their probability of occurrence. | Unknown fault model values: this result contains all the faulted values for which the analyzer could not determine a fault model explaining its appearance. | {FAULT MODEL} destination occurrence: this result contains the probability for each register to be faulted for every {FAULT MODEL}. This is add if the corresponding {FAULT MODEL} appears at least once. | {FAULT MODEL} origin occurrence: in the case the determined {FAULT MODEL} involves a known value, and the origin of this value has been determined, this result contains the probability for each source to be involved in the corresponding {FAULT MODEL}. For instance, the probability for each register to be the origin of the XORed value in the case the analyzer determine the fault model is XOR with other observed. | . Adding a new fault model . See how to add a new fault model. Carto . This module able to analyze cartography manips and generate matrices from them. This module is loaded if the sequence \"carto\" is in the name of the manip file. For instance, bcm2837_aes_iv1_carto.csv will automatically load the carto module. It able to have the following information about the manip: . Specific parameters . To work properly, the carto module requires a new parameter to be set in the parameters file: . | coordinates_name: a list containing the names of the coordinates used in the manip file. | . Manip and parameters file examples . # test_base_0_carto.csv ,log,reboot,x,y 0,FlagBegin;-131071;FlagEnd,False,1,3 1,FlagBegin;-131070;FlagEnd,False,2,3 . # test_base_0.py params = { \"log_flag_begin\": \"FlagBegin\", \"log_flag_end\": \"FlagEnd\", \"obs_names\": [\"My register\"], \"default_values\": [0xfffe0001], \"to_test\": [True], \"reboot_name\": \"reboot\", \"log_name\": \"log\", \"log_separator\": \";\", \"nb_bits\": 32, \"coordinates_name\": [\"x\", \"y\"] } . The values corresponding to the fields mentioned by the coordinates_name parameters must contain integers. These values will be used to build the matrices. It able to have the following information about the manip: . | Fault matrix: the matrix giving the number of fault for every position. | . Fault Model Carto . This module is a mix between the carto and the fault model modules. It generate a matrix of the positions a fault model has been observed for every fault model. To work properly, the parameter and manip files must match the requirements of the carto module. Currently, it is automatically loaded with the carto module. However, due to its need in memory space, it might be smart to disable it by default. The auto-saving of results was disabled because this module generated to big files. It able to have the following information about the manip: . | Unknown fault model matrix: the matrix giving the number of fault for which no fault model has been determined for every position. | {FAULT MODEL} matrix: the matrix giving the number of fault matching the {FAULT MODEL} fault model for every position. | . Delay . This module able to have information about the manip when a delay parameter is set during the manip. It able to have the following information: . | Number of faults per delay: this results stores the number of fault for every tested delays. | . Specific parameters . The delay module requires specific parameters to work properly: . | delay_name: the name of the field containing the delay information for each experiment. | . This way the module will automatically extract the delay from the manip file and create the list of tested delays. However, in some cases, the manip file does not store all the tested experiments but only the ones that ended up in a fault. Therefore, it is possible to gives the module more parameters for it to be able to know all the tested delays: . | delay_start: the first tested delay. | delay_end: the last tested delay. | delay_step: the step used to increment the tested delays. | . These parameters are optional, but if they are given, the analyzer will calculate all the tested delays as the linear space defined by these parameters. ",
+    "url": "/Fault_analyzer/depth/#modules",
+    "relUrl": "/depth/#modules"
+  },"38": {
+    "doc": "In depth analysis",
+    "title": "Adding a new module",
+    "content": "See how to add a new analyzer module. ",
+    "url": "/Fault_analyzer/depth/#adding-a-new-module",
+    "relUrl": "/depth/#adding-a-new-module"
+  },"39": {
+    "doc": "Home",
+    "title": "Fault Analyzer documentation",
+    "content": ". | Requirements . | Python packages | . | Quick start . | Setting up the configuration file | The manips . | Mandatory fields | Filename format | Minimal example | . | The parameters . | Minimal example | . | Starting the analyzer | . | . The fault analyzer software aims at providing an interface for analyzing perturbation experiments. | Current maintaner: Thomas Trouchkine (thomas.trouchkine@ssi.gouv.fr) | . ",
+    "url": "/Fault_analyzer/#fault-analyzer-documentation",
+    "relUrl": "/#fault-analyzer-documentation"
+  },"40": {
+    "doc": "Home",
+    "title": "Requirements",
+    "content": ". | python (tested with version 3.8.6) | . Python packages . All the needed packages are listed in the requirements.txt file and are automatically install in the virtualenv via the make init command. | pandas | prettytable | matplotlib | plotter | tikzplotlib | termcolor | PyGObject | . ",
+    "url": "/Fault_analyzer/#requirements",
+    "relUrl": "/#requirements"
+  },"41": {
+    "doc": "Home",
+    "title": "Quick start",
+    "content": " ",
+    "url": "/Fault_analyzer/#quick-start",
+    "relUrl": "/#quick-start"
+  },"42": {
+    "doc": "Home",
+    "title": "Setting up the configuration file",
+    "content": "The config.py stores the pathes where the experiments, their parameters and their results are stored. By default the config.py file looks like this: . # config.py CONFIG = { \"main_dir\": \"./tests/\", \"results_dir\": \"results/\", \"manips_dir\": \"manips/\", \"parameters_dir\": \"parameters/\" } . | main_dir is the directory containing the other directories. You may want to change it to match your system. | results_dir is the directory where the results of the analysis are stored. | manips_dir is the directory where the manips, i.e. the non analyzed results coming from the experiments are stored. | parameters_dir is the directory where the specific to manips parameters (such as initial values for instance) are stored. | . ",
+    "url": "/Fault_analyzer/#setting-up-the-configuration-file",
+    "relUrl": "/#setting-up-the-configuration-file"
+  },"43": {
+    "doc": "Home",
+    "title": "The manips",
+    "content": "The manips files are .csv files storing the results of each experiments, but not analyzed. Mandatory fields . The minimal parameters to have in a manips file are log and reboot. Filename format . The name format of a manips file must mathc the following: {component}_{target}_{iv}_{anything}.csv where: . | {component} is the name of the component. | {target} is the tageted implementation running on the component. | {iv} is a code that helps in identifying the used initial values. | {anything} can be anything you want. | . This nomenclature is a proposed way to manage your experiments. In practice it is only needed to have, at least, three underscores _ in the file name as the analyzer will parse the name of the manip based on them and load the matching parameters. For instance bcm2837_aes_iv1_carto.csv matches the bcm2837_aes_iv1.py parameters file. Minimal example . # test_base_0.csv ,log,reboot 0,FlagBegin;-131071;FlagEnd,False 1,FlagBegin;-131070;FlagEnd,False . ",
+    "url": "/Fault_analyzer/#the-manips",
+    "relUrl": "/#the-manips"
+  },"44": {
+    "doc": "Home",
+    "title": "The parameters",
+    "content": "The parameters file are .py files the parameters needed for the analysis in a params variable. This params variable is a dictionnary containing the parameters for analyzing the experiments. The mandatory parameters are: . | obs_names: a list containing the names of the observed. The order given in this list must match the order of the log field in the manip file. | default_values: a list containing the expected values of the observed. | to_test: a list containing booleans. If the boolean at index i is set to True then the observed at the same index will be taken into account during the analysis, otherwise it will be ignored. | reboot_name: the name of the field in the manip file storing the information if there was a reboot or not during the experiment. | log_name: the name of the field in the manip file storing the log of the experiment. | log_separator: the sequence used for separing the different fields of the log. | nb_bits: the number of bits the observed values are on. | log_flag_begin: the sequence at the index 0 in the log. | log_flag_end: the sequence at the last index in the log. | . Minimal example . # test_base_0.py params = { \"log_flag_begin\": \"FlagBegin\", \"log_flag_end\": \"FlagEnd\", \"obs_names\": [\"My register\"], \"default_values\": [0xfffe0001], \"to_test\": [True], \"reboot_name\": \"reboot\", \"log_name\": \"log\", \"log_separator\": \";\", \"nb_bits\": 32, } . ",
+    "url": "/Fault_analyzer/#the-parameters",
+    "relUrl": "/#the-parameters"
+  },"45": {
+    "doc": "Home",
+    "title": "Starting the analyzer",
+    "content": "The analyzer can be started by simply running the following command: . make run . and the following interface should appear: . Welcome! Type ? to list commands fa&gt; . From this point, you can use the available commands to manipulate your experiments. For instance, you can display the available manips using the print command: . fa&gt; print Manips ======== [0] test_base_0 . Then you can analyze a manip using the analyze command and the index of the manip you want to analyze: . fa&gt; analyze 0 Analyzing test_base_0 Loading Analyzer Analysis progress: |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100.0% Complete . When the analysis is over you can see an asteriks next to the analyzed manip when using the print command. You can display the available results of the analysis of a manip using the print command and the index of the manip you want to see the results: . fa&gt; print 0 test_base_0 available results =============================== [0] Faults general information [1] Observed statistics [2] Faulted values statistics [3] Fault model statistics [4] Unknown fault model values . Finally, you can display the results using the print command and both the index of the manip and the index of the result you want to see: . fa&gt; print 0 0 test_base_0 results ===================== Faults general information +----------------------------------------------+---------+ | Information | Values | +----------------------------------------------+---------+ | Number of faults | 1 | Fault probability (%) | 50.0000 | Average number of faulted observed per fault | 1.0000 | +----------------------------------------------+---------+ . ",
+    "url": "/Fault_analyzer/#starting-the-analyzer",
+    "relUrl": "/#starting-the-analyzer"
+  },"46": {
+    "doc": "Home",
+    "title": "Home",
+    "content": " ",
+    "url": "/Fault_analyzer/",
+    "relUrl": "/"
+  },"47": {
+    "doc": "Plotting results",
+    "title": "Plotting results",
+    "content": ". | Plotting Matrices . | Using styles | Pre-built matrice styles | . | Plotting data . | Pre-built data styles | . | Create a new plot style | Exporting to Tikz | . ",
+    "url": "/Fault_analyzer/plot/",
+    "relUrl": "/plot/"
+  },"48": {
+    "doc": "Plotting results",
+    "title": "Plotting Matrices",
+    "content": "It is possible to plot matrices using the fault analyzer. This only works if the result is a matrix (created via the carto module of the analyzer for instance). To do so, the only thing to do is to use the plot command with the index of the manip, the index of the result in this manip to plot and the style. plot $MANIP_INDEX $RESULT_INDEX $STYLE . For instance: . plot 1 5 matrix . It is also possible to plot a matrix as a scatter: . plot 1 5 matrixscatter . Using matrix scatter, only the position with at least one fault will be plotted. It is also possible to plot multiple matrices on the same scatter plot by giving the indexes of all the matrices to plot: . # Tested with experiment bcm2711b0_orrR5_iv5_laser_20x_4v_20ns_carto_core_20200211 plot 4 14,15 multimatrixscatterbin . Plotting several matrices on the same scatter plot removes the information of the number of faults per position as the different matrices will be plotted with different colors. Using styles . For using a specific style, you can simply name it instead of the classic style. For instance: . plot 1 5 bcm2711b0_layout . Pre-built matrice styles . Various styles are already implemented for plotting matrices, they are mainly designed for matching with surface components. They are defined in the plot/plot_styles.py file. A style is a dictionary containing the rules for plotting the result, they are based on the Plotter Python package. The styles suitable for plotting a matrice must have the type entry set to either PlotterType.MATRIX, PlotterType.MATRIXSCATTER, PlotterType.MULTISCATTER PlotterType.MULTIMATRIXSCATTERBIN. The currently available custom styles for plotting matrices are: . | bcm2711b0_layout: a style that plots a matrix over the layout of the bcm2711b0. | bcm2711b0_layout_bw: a style that plots a matrix over the black and white layout of the bcm2711b0. | bcm2711b0_layout_multimatrixbin: a style that plots several matrices over the black and white layout of the bcm2711b0. | intel_core_i3: style that plots a matrix over an opened Intel Core i3-6100T. | bcm2837: a style that plots a matrix over a bcm2837 component. | bcm2837_multimatrixbin: style that plots several matrices over a bcm2837 component. | . All the styles that are used to plot over an image are scatter plots. ",
+    "url": "/Fault_analyzer/plot/#plotting-matrices",
+    "relUrl": "/plot/#plotting-matrices"
+  },"49": {
+    "doc": "Plotting results",
+    "title": "Plotting data",
+    "content": "It is possible to plot data. To do so, one must use the plot command with the index of the manip, the index of the result of this manip to plot, the style to use but also the columns to use as data and the column to use as labels. plot $MANIP_INDEX $RESULT_INDEX $STYLE $DATA_COLUMN $LABEL_COLUMN . The columns to use must all be in the same result. If you want to plot data from different manip, use the merge command before plotting. For instance: . # Tested with experiment bcm2711b0_orrR5_iv5_laser_20x_4v_20ns_carto_core_20200211 plot 4 1 bar 3 0 . It is possible to plot various set of data in the same plot using “multi” styles. For instance: . plot 4 1 multibar 3,1 0 . Pre-built data styles . Various styles are already implemented for plotting data. They are defined in the plot/plot_styles.py file. A style is a dictionary containing the rules for plotting the result, they are based on the Plotter Python package. The currently available custom styles for plotting data are: . | large_dist: a style made for plotting large amount of data by adjusting the labels size and by rotating them. This style plots the data the same way as bar. | pie: plots the data as a pie. | bar: plots a single set of data as bars. | multibar: plots several sets of data as bars. | marked_plot: plots a set of data as dots with links. | marked_multiplot: plots several sets of data as dots with links. | . ",
+    "url": "/Fault_analyzer/plot/#plotting-data",
+    "relUrl": "/plot/#plotting-data"
+  },"50": {
+    "doc": "Plotting results",
+    "title": "Create a new plot style",
+    "content": "To create a new plot style, it is only necessary to create a plot dictionary style suitable with the Plotter Python package and to add it to the styles dictionnary in the plot/plot_styles.py file. ",
+    "url": "/Fault_analyzer/plot/#create-a-new-plot-style",
+    "relUrl": "/plot/#create-a-new-plot-style"
+  },"51": {
+    "doc": "Plotting results",
+    "title": "Exporting to Tikz",
+    "content": "It is possible to export a plotted figure using the command tikz instead of the plot command. It is also possible to add a name to the tikz file. For instance: . # Tested with experiment bcm2711b0_orrR5_iv5_laser_20x_4v_20ns_carto_core_20200211 tikz 4 1 bar 3 0 my_tikz.tex . This command will save the figure generated by the plot 4 1 bar 3 0 command into the my_tikz.tex file. This file will be located at in the {MAIN_DIR}/tikz/ directory. It is possible to customize the target directory by modifying the tikz_dir option in the config.py file. The tikz exportations does not work correctly for matrices. It is recommanded to export them as a .pdf file directly from the Matplotlib interface. ",
+    "url": "/Fault_analyzer/plot/#exporting-to-tikz",
+    "relUrl": "/plot/#exporting-to-tikz"
+  }
+}
