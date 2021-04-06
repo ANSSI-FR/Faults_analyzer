@@ -1,0 +1,121 @@
+I"&<h1 class="no_toc" id="adding-a-new-fault-model">Adding a new fault model</h1>
+
+<ul id="markdown-toc">
+  <li><a href="#file-location" id="markdown-toc-file-location">File location</a></li>
+  <li><a href="#inheritance" id="markdown-toc-inheritance">Inheritance</a></li>
+  <li><a href="#the-instructionfaultmodel-has-a-special-attribute" id="markdown-toc-the-instructionfaultmodel-has-a-special-attribute">The <code class="language-plaintext highlighter-rouge">InstructionFaultModel</code> has a special attribute:</a></li>
+  <li><a href="#create-a-new-fault-model" id="markdown-toc-create-a-new-fault-model">Create a new fault model</a>    <ul>
+      <li><a href="#develop-a-test-function" id="markdown-toc-develop-a-test-function">Develop a test function</a>        <ul>
+          <li><a href="#arguments" id="markdown-toc-arguments">Arguments</a></li>
+          <li><a href="#returned-value" id="markdown-toc-returned-value">Returned value</a></li>
+          <li><a href="#examples" id="markdown-toc-examples">Examples</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="file-location">File location</h2>
+<p>The fault models are defined in the <code class="language-plaintext highlighter-rouge">modules/new_analyzer/fault_models.py</code> file.</p>
+
+<h2 id="inheritance">Inheritance</h2>
+<p>Currently, there are two fault models classes <code class="language-plaintext highlighter-rouge">InstructionFaultModel</code> and <code class="language-plaintext highlighter-rouge">DataFaultModel</code> which both inherit from the <code class="language-plaintext highlighter-rouge">FaultModel</code> class.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">FaultModel</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">faulted_obs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">faulted_obs</span> <span class="o">=</span> <span class="n">faulted_obs</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">InstructionFaultModel</span><span class="p">(</span><span class="n">FaultModel</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">faulted_obs</span><span class="p">,</span> <span class="n">origin</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">faulted_obs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">origin</span> <span class="o">=</span> <span class="n">origin</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">DataFaultModel</span><span class="p">(</span><span class="n">FaultModel</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">faulted_obs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">faulted_obs</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Every fault model has two attributes:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">name</code>: the name of the fault model.</li>
+  <li><code class="language-plaintext highlighter-rouge">faulted_obs</code>: the index of the faulted observed.</li>
+</ul>
+
+<h2 id="the-instructionfaultmodel-has-a-special-attribute">The <code class="language-plaintext highlighter-rouge">InstructionFaultModel</code> has a special attribute:</h2>
+
+<h2 id="create-a-new-fault-model">Create a new fault model</h2>
+<p>To create a new fault model you must define two things:</p>
+<ul>
+  <li>the name of the fault model.</li>
+  <li>the test function of this fault model.</li>
+</ul>
+
+<p>Both must be set either in the <code class="language-plaintext highlighter-rouge">data_fault_models</code> or in the
+<code class="language-plaintext highlighter-rouge">instruction_fault_models</code> variables in the
+<code class="language-plaintext highlighter-rouge">modules/new_analyzer/fault_models.py</code> file.</p>
+
+<p>For instance:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data_fault_models</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s">"name"</span><span class="p">:</span> <span class="s">"Bit reset"</span><span class="p">,</span>
+        <span class="s">"test"</span><span class="p">:</span> <span class="n">is_bit_reset</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s">"name"</span><span class="p">:</span> <span class="s">"Bit set"</span><span class="p">,</span>
+        <span class="s">"test"</span><span class="p">:</span> <span class="n">is_bit_set</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">instr_fault_models</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s">"name"</span><span class="p">:</span> <span class="s">"Other observed value"</span><span class="p">,</span>
+        <span class="s">"test"</span><span class="p">:</span> <span class="n">is_other_obs_fault_model</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s">"name"</span><span class="p">:</span> <span class="s">"Other observed complementary value"</span><span class="p">,</span>
+        <span class="s">"test"</span><span class="p">:</span> <span class="n">is_other_obs_comp_fault_model</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div></div>
+
+<h3 id="develop-a-test-function">Develop a test function</h3>
+<p>The test function must have the following prototype:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">my_test_function</span><span class="p">(</span><span class="n">fault</span><span class="p">,</span> <span class="n">default_values</span><span class="p">,</span> <span class="n">nb_bits</span><span class="p">):</span>
+    <span class="c1"># the core of the function
+</span>    <span class="k">return</span> <span class="n">val</span>
+</code></pre></div></div>
+
+<ul>
+  <li>the <code class="language-plaintext highlighter-rouge">fault</code> parameter is a <code class="language-plaintext highlighter-rouge">Fault</code> class defined in
+<code class="language-plaintext highlighter-rouge">modules/new_analyzer/fault.py</code> and has the following definition:
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Fault</span><span class="p">():</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">faulted_obs</span><span class="p">,</span> <span class="n">faulted_value</span><span class="p">):</span>
+      <span class="bp">self</span><span class="p">.</span><span class="n">faulted_obs</span> <span class="o">=</span> <span class="n">faulted_obs</span>
+      <span class="bp">self</span><span class="p">.</span><span class="n">faulted_value</span> <span class="o">=</span> <span class="n">faulted_value</span>
+</code></pre></div>    </div>
+    <p>It stores the index of the faulted observed in <code class="language-plaintext highlighter-rouge">faulted_obs</code> and the faulted
+value in <code class="language-plaintext highlighter-rouge">faulted_value</code>.</p>
+  </li>
+</ul>
+
+<h4 id="arguments">Arguments</h4>
+<ul>
+  <li>the <code class="language-plaintext highlighter-rouge">default_values</code> parameter is the list of the observed default values
+defined in the parameter file of the experiments.</li>
+  <li>the <code class="language-plaintext highlighter-rouge">nb_bits</code> parameter is the number of bits to consider the values on as
+defined in the parameter file of the experiments.</li>
+</ul>
+
+<h4 id="returned-value">Returned value</h4>
+<p>The test function either return a boolean in the case of a <code class="language-plaintext highlighter-rouge">DataFaultModel</code>
+flagging if the faulted value matches the tested fault model, or it returns the
+origin(s) of the faulted value when it could be determined. In the case there
+are multiple origins, the returned value can be a tuple.</p>
+
+<h4 id="examples">Examples</h4>
+<p>You can see examples in the <code class="language-plaintext highlighter-rouge">modules/new_analyzer/fault_models.py</code> file.</p>
+:ET

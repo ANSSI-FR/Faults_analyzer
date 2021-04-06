@@ -1,0 +1,175 @@
+I"·(<h1 class="no_toc" id="in-depth-analysis">In depth analysis</h1>
+
+<ul id="markdown-toc">
+  <li><a href="#modularity-of-the-analyzer" id="markdown-toc-modularity-of-the-analyzer">Modularity of the analyzer</a></li>
+  <li><a href="#modules" id="markdown-toc-modules">Modules</a>    <ul>
+      <li><a href="#base" id="markdown-toc-base">Base</a></li>
+      <li><a href="#fault-models" id="markdown-toc-fault-models">Fault Models</a>        <ul>
+          <li><a href="#adding-a-new-fault-model" id="markdown-toc-adding-a-new-fault-model">Adding a new fault model</a></li>
+        </ul>
+      </li>
+      <li><a href="#carto" id="markdown-toc-carto">Carto</a>        <ul>
+          <li><a href="#specific-parameters" id="markdown-toc-specific-parameters">Specific parameters</a></li>
+          <li><a href="#manip-and-parameters-file-examples" id="markdown-toc-manip-and-parameters-file-examples">Manip and parameters file examples</a></li>
+        </ul>
+      </li>
+      <li><a href="#fault-model-carto" id="markdown-toc-fault-model-carto">Fault Model Carto</a></li>
+      <li><a href="#delay" id="markdown-toc-delay">Delay</a>        <ul>
+          <li><a href="#specific-parameters-1" id="markdown-toc-specific-parameters-1">Specific parameters</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#adding-a-new-module" id="markdown-toc-adding-a-new-module">Adding a new module</a></li>
+</ul>
+
+<h2 id="modularity-of-the-analyzer">Modularity of the analyzer</h2>
+<p>When an experiment is analyzed using the <code class="language-plaintext highlighter-rouge">analyze</code> command, the analyzer is
+built to match the manip to analyze. This is done thanks to the modularity of
+the analyzer.</p>
+
+<h2 id="modules">Modules</h2>
+<p>In this section we will go through the various available modules of the analyzer
+and when they are loaded.</p>
+
+<h3 id="base">Base</h3>
+<p>This module is the base of the fault analyzer, it is loaded all the time. It
+able to have the following information about the manip:</p>
+<ul>
+  <li><strong>The fault general information</strong>: this result contains the number of faults, the
+fault probability and the number of faulted observed per fault.</li>
+  <li><strong>The observed statistics</strong>: this result contains the fault probability for every
+observed with their name, initial values and if they are tested or not.</li>
+  <li><strong>The faulted values statistics</strong>: this result contains the distribution of the
+faulted values and their probability of occurrence.</li>
+</ul>
+
+<h3 id="fault-models">Fault Models</h3>
+<p>This module able the analyzer to identify various fault models. It is loaded
+when the <code class="language-plaintext highlighter-rouge">type</code> of every initial values (defined in the parameters file) is an
+<code class="language-plaintext highlighter-rouge">int</code>.</p>
+
+<p>It able to have the following information about the manip:</p>
+<ul>
+  <li><strong>Fault model statistics</strong>: this result contains the distribution of the
+identified fault models and their probability of occurrence.</li>
+  <li><strong>Unknown fault model values</strong>: this result contains all the faulted values
+for which the analyzer could not determine a fault model explaining its
+appearance.</li>
+  <li><strong>{FAULT MODEL} destination occurrence</strong>: this result contains the probability
+for each register to be faulted for every <code class="language-plaintext highlighter-rouge">{FAULT MODEL}</code>. This is add if the
+corresponding <code class="language-plaintext highlighter-rouge">{FAULT MODEL}</code> appears at least once.</li>
+  <li><strong>{FAULT MODEL} origin occurrence</strong>: in the case the determined <code class="language-plaintext highlighter-rouge">{FAULT
+MODEL}</code> involves a known value, and the origin of this value has been
+determined, this result contains the probability for each source to be
+involved in the corresponding <code class="language-plaintext highlighter-rouge">{FAULT MODEL}</code>. For instance, the probability
+for each register to be the origin of the <code class="language-plaintext highlighter-rouge">XORed</code> value in the case the
+analyzer determine the fault model is <code class="language-plaintext highlighter-rouge">XOR with other observed</code>.</li>
+</ul>
+
+<h4 id="adding-a-new-fault-model">Adding a new fault model</h4>
+
+<p>See <a href="/Fault_analyzer/dev/fault_models/">how to add a new fault model</a>.</p>
+
+<h3 id="carto">Carto</h3>
+<p>This module able to analyze cartography manips and generate matrices from them.
+This module is loaded if the sequence <code class="language-plaintext highlighter-rouge">"carto"</code> is in the name of the manip
+file. For instance, <code class="language-plaintext highlighter-rouge">bcm2837_aes_iv1_carto.csv</code> will automatically load the
+carto module.</p>
+
+<p>It able to have the following information about the manip:</p>
+
+<h4 id="specific-parameters">Specific parameters</h4>
+<p>To work properly, the carto module requires a new parameter to be set in the
+parameters file:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">coordinates_name</code>: a list containing the names of the coordinates used in the
+manip file.</li>
+</ul>
+
+<h4 id="manip-and-parameters-file-examples">Manip and parameters file examples</h4>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># test_base_0_carto.csv</span>
+
+,log,reboot,x,y
+0,FlagBegin<span class="p">;</span><span class="nt">-131071</span><span class="p">;</span>FlagEnd,False,1,3
+1,FlagBegin<span class="p">;</span><span class="nt">-131070</span><span class="p">;</span>FlagEnd,False,2,3
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># test_base_0.py
+</span>
+<span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">"log_flag_begin"</span><span class="p">:</span> <span class="s">"FlagBegin"</span><span class="p">,</span>
+    <span class="s">"log_flag_end"</span><span class="p">:</span> <span class="s">"FlagEnd"</span><span class="p">,</span>
+    <span class="s">"obs_names"</span><span class="p">:</span> <span class="p">[</span><span class="s">"My register"</span><span class="p">],</span>
+    <span class="s">"default_values"</span><span class="p">:</span> <span class="p">[</span><span class="mh">0xfffe0001</span><span class="p">],</span>
+    <span class="s">"to_test"</span><span class="p">:</span> <span class="p">[</span><span class="bp">True</span><span class="p">],</span>
+    <span class="s">"reboot_name"</span><span class="p">:</span> <span class="s">"reboot"</span><span class="p">,</span>
+    <span class="s">"log_name"</span><span class="p">:</span> <span class="s">"log"</span><span class="p">,</span>
+    <span class="s">"log_separator"</span><span class="p">:</span> <span class="s">";"</span><span class="p">,</span>
+    <span class="s">"nb_bits"</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+    <span class="s">"coordinates_name"</span><span class="p">:</span> <span class="p">[</span><span class="s">"x"</span><span class="p">,</span> <span class="s">"y"</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p class="danger">The values corresponding to the fields mentioned by the <code class="language-plaintext highlighter-rouge">coordinates_name</code>
+parameters must contain <strong>integers</strong>. These values will be used to build the
+matrices.</p>
+
+<p>It able to have the following information about the manip:</p>
+<ul>
+  <li><strong>Fault matrix</strong>: the matrix giving the number of fault for every position.</li>
+</ul>
+
+<h3 id="fault-model-carto">Fault Model Carto</h3>
+<p>This module is a mix between the carto and the fault model modules. It generate
+a matrix of the positions a fault model has been observed for every fault model.
+To work properly, the parameter and manip files must match the requirements of
+the carto module.</p>
+
+<p>Currently, it is automatically loaded with the carto module. However, due to its
+need in memory space, it might be smart to disable it by default.</p>
+
+<p class="info">The auto-saving of results was disabled because this module generated to big
+files.</p>
+
+<p>It able to have the following information about the manip:</p>
+<ul>
+  <li><strong>Unknown fault model matrix</strong>: the matrix giving the number of fault for
+which no fault model has been determined for every position.</li>
+  <li><strong>{FAULT MODEL} matrix</strong>: the matrix giving the number of fault matching the
+<code class="language-plaintext highlighter-rouge">{FAULT MODEL}</code> fault model for every position.</li>
+</ul>
+
+<h3 id="delay">Delay</h3>
+<p>This module able to have information about the manip when a delay parameter is
+set during the manip. It able to have the following information:</p>
+<ul>
+  <li><strong>Number of faults per delay</strong>: this results stores the number of fault for
+every tested delays.</li>
+</ul>
+
+<h4 id="specific-parameters-1">Specific parameters</h4>
+<p>The delay module requires specific parameters to work properly:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">delay_name</code>: the name of the field containing the delay information for each
+experiment.</li>
+</ul>
+
+<p>This way the module will automatically extract the delay from the manip file and
+create the list of tested delays. However, in some cases, the manip file does
+not store all the tested experiments but only the ones that ended up in a fault.
+Therefore, it is possible to gives the module more parameters for it to be able
+to know all the tested delays:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">delay_start</code>: the first tested delay.</li>
+  <li><code class="language-plaintext highlighter-rouge">delay_end</code>: the last tested delay.</li>
+  <li><code class="language-plaintext highlighter-rouge">delay_step</code>: the step used to increment the tested delays.</li>
+</ul>
+
+<p>These parameters are optional, but if they are given, the analyzer will
+calculate all the tested delays as the linear space defined by these parameters.</p>
+
+<h2 id="adding-a-new-module">Adding a new module</h2>
+<p>See <a href="/Fault_analyzer/dev/analyzer_modules/">how to add a new analyzer module</a>.</p>
+:ET

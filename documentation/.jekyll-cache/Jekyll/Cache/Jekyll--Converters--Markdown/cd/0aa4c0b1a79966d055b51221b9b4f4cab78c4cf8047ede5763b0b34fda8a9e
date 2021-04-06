@@ -1,0 +1,225 @@
+I"�A<h1 class="no_toc" id="developing-the-documentation">Developing the documentation</h1>
+
+<p>This page presents how to update this documentation.</p>
+
+<ul id="markdown-toc">
+  <li><a href="#requirements" id="markdown-toc-requirements">Requirements</a></li>
+  <li><a href="#template-documentation" id="markdown-toc-template-documentation">Template documentation</a></li>
+  <li><a href="#plugins" id="markdown-toc-plugins">Plugins</a></li>
+  <li><a href="#building-the-documentation" id="markdown-toc-building-the-documentation">Building the documentation</a>    <ul>
+      <li><a href="#using-the-makefile" id="markdown-toc-using-the-makefile">Using the <code class="language-plaintext highlighter-rouge">Makefile</code></a></li>
+      <li><a href="#using-jekyll" id="markdown-toc-using-jekyll">Using <code class="language-plaintext highlighter-rouge">jekyll</code></a></li>
+    </ul>
+  </li>
+  <li><a href="#live-test" id="markdown-toc-live-test">Live test</a>    <ul>
+      <li><a href="#using-the-makefile-1" id="markdown-toc-using-the-makefile-1">Using the <code class="language-plaintext highlighter-rouge">Makefile</code></a></li>
+      <li><a href="#using-jekyll-1" id="markdown-toc-using-jekyll-1">Using <code class="language-plaintext highlighter-rouge">jekyll</code></a></li>
+    </ul>
+  </li>
+  <li><a href="#live-test-using-python3-if-jekyll-is-not-installed" id="markdown-toc-live-test-using-python3-if-jekyll-is-not-installed">Live test using <code class="language-plaintext highlighter-rouge">Python3</code> (if Jekyll is not installed)</a></li>
+  <li><a href="#adding-a-page" id="markdown-toc-adding-a-page">Adding a page</a>    <ul>
+      <li><a href="#directory-organization" id="markdown-toc-directory-organization">Directory organization</a></li>
+      <li><a href="#creating-a-new-page" id="markdown-toc-creating-a-new-page">Creating a new page</a></li>
+      <li><a href="#page-content" id="markdown-toc-page-content">Page content</a></li>
+    </ul>
+  </li>
+  <li><a href="#images" id="markdown-toc-images">Images</a>    <ul>
+      <li><a href="#the-drawio-directory" id="markdown-toc-the-drawio-directory">The <code class="language-plaintext highlighter-rouge">drawio</code> directory</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="requirements">Requirements</h2>
+<ul>
+  <li>ruby (<a href="https://www.ruby-lang.org">https://www.ruby-lang.org</a>)</li>
+  <li>jekyll (<a href="https://jekyllrb.com/">https://jekyllrb.com/</a>)</li>
+  <li>bundler (<a href="https://bundler.io/">https://bundler.io/</a>)</li>
+</ul>
+
+<p class="info">It is suggested to install ruby using your distribution packages but jekyll and
+bundler using the <code class="language-plaintext highlighter-rouge">gem</code> package manager (as suggested
+<a href="https://jekyllrb.com/">here</a>).</p>
+
+<h2 id="template-documentation">Template documentation</h2>
+<p>This documentation use the
+<a href="https://pmarsceill.github.io/just-the-docs/">Just-the-Docs</a> template.</p>
+
+<h2 id="plugins">Plugins</h2>
+<p>Some plugins are used to have some interesting features, they are already
+embedded in the project and no more installation is needed.</p>
+<ul>
+  <li>Absolute path plugin: <a href="https://github.com/tnhu/jekyll-include-absolute-plugin">https://github.com/tnhu/jekyll-include-absolute-plugin</a></li>
+  <li>Callouts
+    <ul>
+      <li>issue: <a href="https://github.com/pmarsceill/just-the-docs/issues/171">https://github.com/pmarsceill/just-the-docs/issues/171</a> (this is implemented currently)</li>
+      <li>pull request: <a href="https://github.com/pmarsceill/just-the-docs/pull/466">https://github.com/pmarsceill/just-the-docs/pull/466</a> (not merged in just-the-docs yet, check regularly)</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="building-the-documentation">Building the documentation</h2>
+<h3 id="using-the-makefile">Using the <code class="language-plaintext highlighter-rouge">Makefile</code></h3>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>make build
+</code></pre></div></div>
+
+<h3 id="using-jekyll">Using <code class="language-plaintext highlighter-rouge">jekyll</code></h3>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bundle <span class="nb">exec </span>jekyll build
+</code></pre></div></div>
+
+<p>The website will be built in the <code class="language-plaintext highlighter-rouge">_site</code> directory.</p>
+
+<p class="warn">The statically built project cannot be used without a server. The reason is that
+the links are relative to the server root. Therefore, the links are not
+correctly resolved if the <code class="language-plaintext highlighter-rouge">index.html</code> is simply opened in a browser.</p>
+
+<h2 id="live-test">Live test</h2>
+<h3 id="using-the-makefile-1">Using the <code class="language-plaintext highlighter-rouge">Makefile</code></h3>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>make server
+</code></pre></div></div>
+<p>With this command the website is available at <code class="language-plaintext highlighter-rouge">http://localhost:4000</code>.</p>
+
+<h3 id="using-jekyll-1">Using <code class="language-plaintext highlighter-rouge">jekyll</code></h3>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bundle <span class="nb">exec </span>jekyll serve
+</code></pre></div></div>
+<p>With this command the website is available at <code class="language-plaintext highlighter-rouge">http://localhost:4000</code>.</p>
+
+<h2 id="live-test-using-python3-if-jekyll-is-not-installed">Live test using <code class="language-plaintext highlighter-rouge">Python3</code> (if Jekyll is not installed)</h2>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>make show
+</code></pre></div></div>
+<p>This should open your internet browser on the documentation which is available at <code class="language-plaintext highlighter-rouge">http://localhost:8000</code>.</p>
+
+<h2 id="adding-a-page">Adding a page</h2>
+
+<p>This section describe how to add a page to the documentation. Knowing how
+<code class="language-plaintext highlighter-rouge">jekyll</code> work is important to fully understand it. However, the following points
+are enough to understand how to add a simple page.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">jekyll</code> able to build an HTML/CSS/JavaScript based website.</li>
+  <li>The meta-data are defined in the <code class="language-plaintext highlighter-rouge">_config.yml</code> file (both information for
+<code class="language-plaintext highlighter-rouge">jekyll</code> and <code class="language-plaintext highlighter-rouge">Just-the-Docs</code> are present in it). This file can be used to add plugins, change the template, set the files to ignore during the website build, <em>etc</em>.</li>
+  <li>When <code class="language-plaintext highlighter-rouge">jekyll</code> build the website, it will use all the files in the root
+directory expected the ones starting with an underscore <code class="language-plaintext highlighter-rouge">"_"</code>, the ones
+mentioned in the <code class="language-plaintext highlighter-rouge">_config.yml</code> to be ignored and the <code class="language-plaintext highlighter-rouge">ruby</code> configuration
+files (<code class="language-plaintext highlighter-rouge">Gemfile</code>, <code class="language-plaintext highlighter-rouge">Gemfile.lock</code>).</li>
+  <li>The files describing the pages can be either in markdown or in HTML. The will
+be converted in HTML in the end.</li>
+  <li><code class="language-plaintext highlighter-rouge">jekyll</code> can interpret <a href="https://jekyllrb.com/docs/liquid/"><code class="language-plaintext highlighter-rouge">liquid</code></a> scripting
+for creating pages.</li>
+</ul>
+
+<h3 id="directory-organization">Directory organization</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">404.html</code>: this is the “page not found” page.</li>
+  <li><code class="language-plaintext highlighter-rouge">_config.yml</code>: the configuration file of the website.</li>
+  <li><code class="language-plaintext highlighter-rouge">Gemfile</code> and <code class="language-plaintext highlighter-rouge">Gemfile.lock</code>: the files managing the <code class="language-plaintext highlighter-rouge">ruby</code> packages.</li>
+  <li><code class="language-plaintext highlighter-rouge">index.md</code>: this is the index page of our website.</li>
+  <li><code class="language-plaintext highlighter-rouge">Makefile</code>: the Makefile (I should not describe this one).</li>
+  <li><code class="language-plaintext highlighter-rouge">readme.md</code>: you should read this.</li>
+  <li><code class="language-plaintext highlighter-rouge">assets/</code>: this directory contains all the public files available from the
+website (<code class="language-plaintext highlighter-rouge">css</code> and <code class="language-plaintext highlighter-rouge">js</code> files, images, <code class="language-plaintext highlighter-rouge">pdf</code> files, <em>etc</em>)</li>
+  <li><code class="language-plaintext highlighter-rouge">docs/</code>: this directory contains all the documentation pages that are the
+content of this documentation. This directory is organized with various
+categories which correspond to the different documented projects.</li>
+  <li><code class="language-plaintext highlighter-rouge">_plugins</code>: this directory contains the plugins that are not in the official
+<code class="language-plaintext highlighter-rouge">ruby</code> packages and that were added “by hand”.</li>
+  <li><code class="language-plaintext highlighter-rouge">_sass</code>: this directory contains the custom <code class="language-plaintext highlighter-rouge">css</code> styles used by the website.</li>
+  <li><code class="language-plaintext highlighter-rouge">_site</code>: this directory is created when building the documentation and
+contains the website itself. To put the documentation online, the server must
+be set with this directory as root.</li>
+</ul>
+
+<h3 id="creating-a-new-page">Creating a new page</h3>
+<p>A new page can be created at any location in the directory. However, it is
+recommended to store all the pages in the <code class="language-plaintext highlighter-rouge">docs/</code> directory.</p>
+
+<p>The page can be either in HTML or in markdown, but, in both cases, a header is
+needed by <code class="language-plaintext highlighter-rouge">Jekyll</code> and <code class="language-plaintext highlighter-rouge">Just-the-Docs</code> to work properly.</p>
+
+<p>For instance, the header of this page is:</p>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">---</span>
+layout: home
+title: Documentation
+permalink: /dev/doc/
+nav_order: 0
+parent: Development
+has_children: <span class="nb">false</span>
+<span class="nt">---</span>
+</code></pre></div></div>
+
+<p>These attributes are the most important to give. More can be find in the
+<a href="https://jekyllrb.com/"><code class="language-plaintext highlighter-rouge">Jekyll</code></a> and
+<a href="https://pmarsceill.github.io/just-the-docs/"><code class="language-plaintext highlighter-rouge">Just-the-Docs</code></a> documentations.
+Here are their purpose:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">layout</code>: this attributes gives the layout where to integrate the page. The
+<code class="language-plaintext highlighter-rouge">home</code> layout contains the sidebar, the search field and all the inclusions
+for the page to render correctly.</li>
+  <li><code class="language-plaintext highlighter-rouge">title</code>: this attributes is the title of the page (used in the web browser
+typically) but also an (not necessary unique) identifier of the page.</li>
+  <li><code class="language-plaintext highlighter-rouge">permalink</code>: this is the suffix of the URL of this page. The complete URL will
+be <code class="language-plaintext highlighter-rouge">https://anssi-fr.github.io//Fault_analyzer/</code> where <code class="language-plaintext highlighter-rouge">url</code> and
+<code class="language-plaintext highlighter-rouge">baseurl</code> are defined in the <code class="language-plaintext highlighter-rouge">_config.yml</code>. For instance, on the test version,
+the complete URL of this page is <code class="language-plaintext highlighter-rouge">http://localhost:4000/dev/doc/</code></li>
+  <li><code class="language-plaintext highlighter-rouge">nav_order</code>: is the index of the page in the sidebar navigation menu. The higher
+the number, the lower the page is in the navigation menu. If two pages have
+the same <code class="language-plaintext highlighter-rouge">nav_order</code> they are sort in the alphabetical way.</li>
+  <li><code class="language-plaintext highlighter-rouge">parent</code>: this attributes refers to the parent of the page in the navigation
+menu. The references must match the <code class="language-plaintext highlighter-rouge">title</code> attribute of the parent. In the
+case of children of children, the <code class="language-plaintext highlighter-rouge">grand_parent</code> attribute must also be set.</li>
+  <li><code class="language-plaintext highlighter-rouge">has_children</code>: this attributes describes if the current page can have
+children in the navigation menu.</li>
+</ul>
+
+<h3 id="page-content">Page content</h3>
+<p>For the content, it depends if you work on a HTML or a Markdown file. However, I
+will only describe the markdown content specificities of this site.</p>
+
+<ul>
+  <li><a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">Markdown cheatsheet</a></li>
+  <li><a href="https://devhints.io/jekyll">Jekyll cheatsheet</a></li>
+  <li><a href="https://pmarsceill.github.io/just-the-docs/">Just-the-Docs documentation</a></li>
+  <li>Absolute path plugin usage: <code class="language-plaintext highlighter-rouge">{% include_absolute 'path/to/the/file' %}</code></li>
+  <li>Callouts:
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>This is an informative callout.
+<span class="o">{</span>: .info<span class="o">}</span>
+</code></pre></div>    </div>
+
+    <p class="info">This is an informative callout.</p>
+
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>This is a warning callout.
+<span class="o">{</span>: .warn<span class="o">}</span>
+</code></pre></div>    </div>
+
+    <p class="warn">This is a warning callout.</p>
+
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>This is a danger callout.
+<span class="o">{</span>: .danger<span class="o">}</span>
+</code></pre></div>    </div>
+
+    <p class="danger">This is a danger callout.</p>
+  </li>
+  <li>Reference to another page:
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>Link text]<span class="o">({{</span> site.baseurl <span class="o">}}</span>/<span class="o">{{</span> page.permalink <span class="o">}})</span>
+</code></pre></div>    </div>
+    <p>For instance:</p>
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>Create an experiment from scratch]<span class="o">({{</span> site.baseurl <span class="o">}}</span>/scratch/<span class="o">)</span>
+</code></pre></div>    </div>
+    <p><a href="/Fault_analyzer/scratch/">Create an experiment from scratch</a></p>
+  </li>
+</ul>
+
+<h2 id="images">Images</h2>
+<p>The way to include images in a markdown file is described in the <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">Markdown
+cheatsheet</a>.
+However, as we store them in the <code class="language-plaintext highlighter-rouge">assets/</code> directory, we must append their
+location to the <code class="language-plaintext highlighter-rouge">site.baseurl</code> attribute to have it render properly in HTML,
+such as:</p>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">![</span>Image text]<span class="o">({{</span> site.baseurl <span class="o">}}</span>/assets/path/to/image<span class="o">)</span>
+</code></pre></div></div>
+
+<h3 id="the-drawio-directory">The <code class="language-plaintext highlighter-rouge">drawio</code> directory</h3>
+<p>In the <code class="language-plaintext highlighter-rouge">assets/</code> directory, there is the <code class="language-plaintext highlighter-rouge">drawio/</code> directory. This directory
+store the file describing some diagrams used in this documentation. To edit
+them, one must use the <a href="https://app.diagrams.net/">draw.io website</a>.</p>
+:ET

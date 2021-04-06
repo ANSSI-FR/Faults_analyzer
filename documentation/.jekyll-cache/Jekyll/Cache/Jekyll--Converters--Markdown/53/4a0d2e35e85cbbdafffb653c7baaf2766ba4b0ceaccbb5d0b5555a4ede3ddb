@@ -1,0 +1,277 @@
+I"�C<h1 class="no_toc" id="fault-analyzer-commands">Fault Analyzer commands</h1>
+
+<p>Using the fault analyzer, the documentation of the different commands is
+available using the <code class="language-plaintext highlighter-rouge">?</code> or <code class="language-plaintext highlighter-rouge">help</code> command.</p>
+
+<p><strong>List of commands:</strong></p>
+<ul id="markdown-toc">
+  <li><a href="#analyze" id="markdown-toc-analyze"><code class="language-plaintext highlighter-rouge">analyze</code></a></li>
+  <li><a href="#edit" id="markdown-toc-edit"><code class="language-plaintext highlighter-rouge">edit</code></a></li>
+  <li><a href="#exit" id="markdown-toc-exit"><code class="language-plaintext highlighter-rouge">exit</code></a></li>
+  <li><a href="#help" id="markdown-toc-help"><code class="language-plaintext highlighter-rouge">help</code></a></li>
+  <li><a href="#merge" id="markdown-toc-merge"><code class="language-plaintext highlighter-rouge">merge</code></a></li>
+  <li><a href="#plot" id="markdown-toc-plot"><code class="language-plaintext highlighter-rouge">plot</code></a></li>
+  <li><a href="#print" id="markdown-toc-print"><code class="language-plaintext highlighter-rouge">print</code></a></li>
+  <li><a href="#save" id="markdown-toc-save"><code class="language-plaintext highlighter-rouge">save</code></a></li>
+  <li><a href="#tikz" id="markdown-toc-tikz"><code class="language-plaintext highlighter-rouge">tikz</code></a></li>
+</ul>
+
+<hr />
+<h2 id="analyze"><code class="language-plaintext highlighter-rouge">analyze</code></h2>
+<p>Analyze manips.</p>
+
+<h3 class="no_toc" id="usage">Usage</h3>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>analyze <span class="o">[</span>manip_index_list]
+</code></pre></div></div>
+
+<h3 class="no_toc" id="arguments">Arguments</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">manip_index_list</code>: the index list of the manips to analyze.</li>
+</ul>
+
+<h3 class="no_toc" id="examples">Examples</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">analyze 2</code> start the analysis of the manip with index 2</li>
+  <li><code class="language-plaintext highlighter-rouge">analyze 2,5</code> start the analysis of the manips with index 2 and 5</li>
+  <li><code class="language-plaintext highlighter-rouge">analyze 2-4</code> start the analysis of the manips with index 2 to 4</li>
+</ul>
+
+<hr />
+<h2 id="edit"><code class="language-plaintext highlighter-rouge">edit</code></h2>
+<p>Able the edition of different parameters.</p>
+
+<h3 class="no_toc" id="usage-1">Usage</h3>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>edit <span class="o">[</span>parameter]
+</code></pre></div></div>
+
+<h3 class="no_toc" id="arguments-1">Arguments</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">parameter</code>: the parameter to edit.</li>
+</ul>
+
+<h3 class="no_toc" id="available-parameters">Available parameters:</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">plot_tmp_style</code>: use this parameter to add temporary styles for the plots.</li>
+</ul>
+
+<hr />
+<h2 id="exit"><code class="language-plaintext highlighter-rouge">exit</code></h2>
+<p>Exit the application.</p>
+
+<h3 class="no_toc" id="shorthands">Shorthands</h3>
+<p><code class="language-plaintext highlighter-rouge">Ctrl+D</code></p>
+
+<hr />
+<h2 id="help"><code class="language-plaintext highlighter-rouge">help</code></h2>
+<p>List available commands with <code class="language-plaintext highlighter-rouge">help</code> or detailed help with <code class="language-plaintext highlighter-rouge">help cmd</code>.</p>
+
+<h3 class="no_toc" id="shorthands-1">Shorthands</h3>
+<p><code class="language-plaintext highlighter-rouge">?</code></p>
+
+<hr />
+<h2 id="merge"><code class="language-plaintext highlighter-rouge">merge</code></h2>
+<p>Merge results from different manip into a new manip.</p>
+
+<h3 class="no_toc" id="usage-2">Usage</h3>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>merge <span class="o">[</span>manip_index_list] <span class="o">[</span>result_to_merge] <span class="o">[</span>columns_to_merge] <span class="o">[</span>columns_in_common] &lt;name&gt;
+</code></pre></div></div>
+
+<h3 class="no_toc" id="arguments-2">Arguments</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">manip_index_list</code>: the index list of the manips to analyze.</li>
+  <li><code class="language-plaintext highlighter-rouge">result_to_merge</code>: the result to merge. The same index will be used for all given manip.</li>
+  <li><code class="language-plaintext highlighter-rouge">columns_to_merge</code>: the columns to copy in the merged result. The merged result will contain the given column for every given manips.</li>
+  <li><code class="language-plaintext highlighter-rouge">columns_in_common</code>: the columns to not duplicate in the new result. Most of the time, a column that all results have in common. These columns must be a subpart of <code class="language-plaintext highlighter-rouge">columns_to_merge</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">name</code>: the name to give to the merged manip.</li>
+</ul>
+
+<h3 class="no_toc" id="examples-1">Examples:</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">merge 0-2 3 4-5 4</code>: merge all the 5th column of the 3rd result of manip with index 0 to 2 and add the 4th column once in a new result.</li>
+  <li><code class="language-plaintext highlighter-rouge">merge 0-2 3 4-5 4 new_merge</code>: merge all the 5th column of the 3rd result of manip with index 0 to 2 and add the 4th column once in a new result name “new_merge”.</li>
+</ul>
+
+<h3 class="no_toc" id="detailed-example">Detailed example:</h3>
+
+<p>I have two manips with a common result I want to compare.</p>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>fa&gt; print 0 3
+
+ bcm2837_andR8_iv4_EM_fix_20200127 results
+<span class="o">===========================================</span>
+Observed statistics
++----------+---------------+-----------------------+-----------+--------+
+| Observed | Default value | Value after execution | Fault <span class="o">(</span>%<span class="o">)</span> | Tested |
++----------+---------------+-----------------------+-----------+--------+
+|    r0    |   0xfffe0001  |       0xfffe0001      |  22.6190  |  True  |
+|    r1    |   0xfffd0002  |       0xfffd0002      |   1.1905  |  True  |
+|    r2    |   0xfffb0004  |       0xfffb0004      |   1.1905  |  True  |
+|    r3    |   0xfff70008  |       0xfff70008      |   1.1905  |  True  |
+|    r4    |   0xffef0010  |       0xffef0010      |   1.1905  |  True  |
+|    r5    |   0xffdf0020  |       0xffdf0020      |   1.1905  |  True  |
+|    r6    |   0xffbf0040  |       0xffbf0040      |   1.1905  |  True  |
+|    r7    |   0xff7f0080  |       0xff7f0080      |   1.1905  |  True  |
+|    r8    |   0xfeff0100  |       0xfeff0100      |  67.8571  |  True  |
+|    r9    |   0xfdff0200  |       0xfdff0200      |   1.1905  |  True  |
++----------+---------------+-----------------------+-----------+--------+
+
+fa&gt; print 1 3
+
+ bcm2837_orrR5_iv3_EM_fix_20200124 results
+<span class="o">===========================================</span>
+Observed statistics
++----------+---------------+-----------------------+-----------+--------+
+| Observed | Default value | Value after execution | Fault <span class="o">(</span>%<span class="o">)</span> | Tested |
++----------+---------------+-----------------------+-----------+--------+
+|    r0    |   0xc3d0c220  |       0xc3d0c220      |  10.4294  |  True  |
+|    r1    |   0x72b8ccd6  |       0x72b8ccd6      |   0.0000  |  True  |
+|    r2    |   0xf25f29b9  |       0xf25f29b9      |   0.2045  |  True  |
+|    r3    |   0x22c7271d  |       0x22c7271d      |   0.0000  |  True  |
+|    r4    |   0xd3f8f3b1  |       0xd3f8f3b1      |   1.4315  |  True  |
+|    r5    |   0x3ba81d04  |       0x3ba81d04      |  87.7301  |  True  |
+|    r6    |   0x7c22b133  |       0x7c22b133      |   0.0000  |  True  |
+|    r7    |   0xcc302f01  |       0xcc302f01      |   0.0000  |  True  |
+|    r8    |   0xafa42878  |       0xafa42878      |   0.2045  |  True  |
+|    r9    |   0xdd4c70ca  |       0xdd4c70ca      |   0.0000  |  True  |
++----------+---------------+-----------------------+-----------+--------+
+</code></pre></div></div>
+
+<p>I want to merge the result 3 of the manips 0 and 1 into a new result which
+contains the information from both original manips. The columns to merge are the
+first one with the observed (index 0) and the 4th one with their fault
+probability(index 3). The “Observed” column is in common.</p>
+
+<p>I use the following <code class="language-plaintext highlighter-rouge">merge</code> function:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>fa&gt; merge 0-1 3 0,3 0
+fa&gt; print
+
+Manips
+<span class="o">========</span>
+<span class="o">[</span>0]<span class="k">*</span> bcm2837_andR8_iv4_EM_fix_20200127
+<span class="o">[</span>1]<span class="k">*</span> bcm2837_orrR5_iv3_EM_fix_20200124
+<span class="o">[</span>2]<span class="k">*</span> Merged results
+</code></pre></div></div>
+
+<p>It has created a new manip named “Merged results”. I can manipulated it as a
+classical result:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>fa&gt; print 2
+
+ Merged results available results
+<span class="o">==================================</span>
+<span class="o">[</span>0] Merged Observed statistics
+
+fa&gt; print 2 0
+
+ Merged results results
+<span class="o">========================</span>
+Merged Observed statistics
++----------+---------------------------------------------+---------------------------------------------+
+| Observed | bcm2837_andR8_iv4_EM_fix_20200127 Fault <span class="o">(</span>%<span class="o">)</span> | bcm2837_orrR5_iv3_EM_fix_20200124 Fault <span class="o">(</span>%<span class="o">)</span> |
++----------+---------------------------------------------+---------------------------------------------+
+|    r0    |                   22.6190                   |                   10.4294                   |
+|    r1    |                    1.1905                   |                    0.0000                   |
+|    r2    |                    1.1905                   |                    0.2045                   |
+|    r3    |                    1.1905                   |                    0.0000                   |
+|    r4    |                    1.1905                   |                    1.4315                   |
+|    r5    |                    1.1905                   |                   87.7301                   |
+|    r6    |                    1.1905                   |                    0.0000                   |
+|    r7    |                    1.1905                   |                    0.0000                   |
+|    r8    |                   67.8571                   |                    0.2045                   |
+|    r9    |                    1.1905                   |                    0.0000                   |
++----------+---------------------------------------------+---------------------------------------------+
+</code></pre></div></div>
+
+<hr />
+<h2 id="plot"><code class="language-plaintext highlighter-rouge">plot</code></h2>
+<p>Plot a result.</p>
+
+<h3 class="no_toc" id="usage-3">Usage</h3>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>plot <span class="o">[</span>manip_index] <span class="o">[</span>result_index] <span class="o">[</span>plot_style] &lt;data_to_plot_index_list&gt; &lt;data_labels_index&gt;
+</code></pre></div></div>
+
+<h3 class="no_toc" id="arguments-3">Arguments</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">manip_index</code>: the index of the manip containing the result to plot.</li>
+  <li><code class="language-plaintext highlighter-rouge">result_index</code>: the index of the result to plot.</li>
+  <li><code class="language-plaintext highlighter-rouge">plot_style</code>: the style to apply for the plot.</li>
+  <li><code class="language-plaintext highlighter-rouge">data_to_plot_index_list</code>: the index of the data to plot from the result.</li>
+  <li><code class="language-plaintext highlighter-rouge">data_labels_index</code>: the index of the data to use as index for the plot.</li>
+</ul>
+
+<p class="info">The <code class="language-plaintext highlighter-rouge">data_to_plot_index_list</code> and <code class="language-plaintext highlighter-rouge">data_labels_index</code> arguments are not
+necessary for plotting matrices and pies.</p>
+
+<h3 class="no_toc" id="styles">Styles</h3>
+<p>See the <a href="">plot section</a>.</p>
+
+<hr />
+<h2 id="print"><code class="language-plaintext highlighter-rouge">print</code></h2>
+<p>Display the available manips and their results.</p>
+
+<h3 class="no_toc" id="usage-4">Usage</h3>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>print &lt;manip_index_list&gt; &lt;result_index_list&gt;
+</code></pre></div></div>
+
+<h3 class="no_toc" id="arguments-4">Arguments</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">manip_index_list</code>: the index list of the manips to print.</li>
+  <li><code class="language-plaintext highlighter-rouge">result_index_list</code>: the index list of the results to print.</li>
+</ul>
+
+<p class="info">When displaying manips. There is an asterisk (*) next to the index if the manip
+has already been analyzed (<em>i.e.</em> results are available for printing or
+plotting).</p>
+
+<h3 class="no_toc" id="examples-2">Examples</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">print</code> print the available manips.</li>
+  <li><code class="language-plaintext highlighter-rouge">print 4</code> print the available results of the manip with index 4</li>
+  <li><code class="language-plaintext highlighter-rouge">print 0,3</code> print the available results of the manips with index 0 and 3</li>
+  <li><code class="language-plaintext highlighter-rouge">print 0,3 1-5</code> print the results with index 1 to 5 of the manips 0 and 3</li>
+</ul>
+
+<hr />
+<h2 id="save"><code class="language-plaintext highlighter-rouge">save</code></h2>
+<p>Save the manip results into a <code class="language-plaintext highlighter-rouge">.json</code> file.</p>
+
+<h3 class="no_toc" id="usage-5">Usage</h3>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>save <span class="o">[</span>manip_index] <span class="o">[</span>filename]
+</code></pre></div></div>
+
+<h3 class="no_toc" id="arguments-5">Arguments</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">manip_index</code>: the index of the manip to save the results from.</li>
+  <li><code class="language-plaintext highlighter-rouge">filename</code>: the name of the file to save the results in.</li>
+</ul>
+
+<h3 class="no_toc" id="examples-3">Examples</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">save 3 new_results</code> save the results of the manip with index 3 in the file
+<code class="language-plaintext highlighter-rouge">new_results.json</code>.</li>
+</ul>
+
+<p class="info">The results are saved in the directory mentioned by the <code class="language-plaintext highlighter-rouge">results_dir</code> variable
+in the <code class="language-plaintext highlighter-rouge">config.py</code>. Moreover, any result available in this directory is
+automatically loaded at the startup of the analyzer (and therefore available as
+an analyzed result).</p>
+
+<hr />
+<h2 id="tikz"><code class="language-plaintext highlighter-rouge">tikz</code></h2>
+<p>Export a plot into a tikz figure. It has the same syntax as the <code class="language-plaintext highlighter-rouge">plot</code> command
+but you can add a <code class="language-plaintext highlighter-rouge">filename</code> at the end of the command.</p>
+
+<h3 class="no_toc" id="usage-6">Usage</h3>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>tikz <span class="o">[</span>manip_index] <span class="o">[</span>result_index] <span class="o">[</span>plot_style] &lt;data_to_plot_index_list&gt; &lt;data_labels_index&gt; &lt;filename&gt;
+</code></pre></div></div>
+
+<h3 class="no_toc" id="arguments-6">Arguments</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">manip_index</code>: the index of the manip containing the result to plot.</li>
+  <li><code class="language-plaintext highlighter-rouge">result_index</code>: the index of the result to plot.</li>
+  <li><code class="language-plaintext highlighter-rouge">plot_style</code>: the style to apply for the plot.</li>
+  <li><code class="language-plaintext highlighter-rouge">data_to_plot_index_list</code>: the index of the data to plot from the result.</li>
+  <li><code class="language-plaintext highlighter-rouge">data_labels_index</code>: the index of the data to use as index for the plot.</li>
+  <li><code class="language-plaintext highlighter-rouge">filename</code>: the file where to save the tikz code.</li>
+</ul>
+:ET
