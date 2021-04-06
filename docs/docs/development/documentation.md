@@ -8,7 +8,6 @@ parent: Development
 
 # Developing the documentation
 {: .no_toc}
-<!-- *Last update: {% last_modified_at %}* -->
 
 This page presents how to update this documentation.
 

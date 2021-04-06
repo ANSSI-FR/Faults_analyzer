@@ -8,8 +8,6 @@ permalink: /depth/
 # In depth analysis
 {: .no_toc}
 
-<!-- *Last update: {% last_modified_at %}* -->
-
 - TOC
 {:toc}
 
