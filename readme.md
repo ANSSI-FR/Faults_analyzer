@@ -54,3 +54,7 @@ cd doc && make show
 - Add a reboot analyzer in the `Analyzer` class in the
   `modules/new_analyzer/analyzer.py` file. In particular for having the reboot
   matrix when analyzing carto experiments.
+- Add an AES module
+- Add a module for testing the faulted values against the values observed in the
+  non tested register after the executions. These values might be different from
+  the initial values but involved in the fault model.
