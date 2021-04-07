@@ -16,7 +16,7 @@ modules or fault models has been thought to an easy thing. The goal is that the
 community can add everything that is specifics to its particular case while
 benefiting from others contributions.
 
-## Maintener
+## Maintainer
 - Thomas Trouchkine (thomas.trouchkine@ssi.gouv.fr)
 
 ## Copyright and license
