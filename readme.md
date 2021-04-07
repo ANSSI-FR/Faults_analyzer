@@ -1,5 +1,21 @@
 # Fault Analyzer
 
+## Introduction
+This software is a development started by Thomas Trouchkine during its PhD.
+thesis at the French Cybersecurity Agency (ANSSI). It aims at providing all the
+tools needed for analyzing fault experiments regarding the state of the art of
+fault models. It also propose a way for plotting results to use them in
+scientific papers.
+
+The use of this tool by the community may simplify the understanding and
+repeatability of the fault experiments done in the hardware security
+laboratories worlwide.
+
+The fault analyzer has been thought to be modular. Moreover, adding analyzer
+modules or fault models has been thought to an easy thing. The goal is that the
+community can add everything that is specifics to its particular case while
+benefiting from others contributions.
+
 ## Maintener
 - Thomas Trouchkine (thomas.trouchkine@ssi.gouv.fr)
 
