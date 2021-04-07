@@ -49,3 +49,8 @@ make run
 ```sh
 cd doc && make show
 ```
+
+## TODO
+- Add a reboot analyzer in the `Analyzer` class in the
+  `modules/new_analyzer/analyzer.py` file. In particular for having the reboot
+  matrix when analyzing carto experiments.

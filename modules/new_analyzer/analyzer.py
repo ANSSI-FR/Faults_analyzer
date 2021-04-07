@@ -27,7 +27,6 @@ class Analyzer(AnalyzerComponent):
         fa = FaultAnalyzerBase(fa, **kwargs)
         if are_all(self.values_type, int):
             fa = FaultAnalyzerFaultModel(fa, **kwargs)
-        #if ("coordinates_name" in kwargs):
         if "carto" in kwargs:
             if kwargs["carto"]:
                 fa = FaultAnalyzerCarto(fa, **kwargs)
