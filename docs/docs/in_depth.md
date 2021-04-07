@@ -69,6 +69,15 @@ parameters file:
 - `coordinates_name`: a list containing the names of the coordinates used in the
   manip file.
   
+In some cases, the manip `.csv` file only stores the experiments where a fault
+occurs. In this case the carto module cannot parse the matrix dimension from the
+manip file. Therefore, to have to correct matrix size, it is possible to add the
+dimensions used during the experiment with the `carto_resolution` parameter.
+
+- `carto_resolution`: the resolution used during the experiment for the
+  cartography. It is a couple which will be used for defining the size of all
+  the matrices set by the carto module.
+  
 #### Manip and parameters file examples
 ```sh
 # test_base_0_carto.csv
