@@ -107,6 +107,15 @@ The mandatory parameters are:
 - `log_flag_begin`: the sequence at the index `0` in the log.
 - `log_flag_end`: the sequence at the last index in the log.
 
+### Optional parameters
+There are some parameters that are not mandatory but may be useful regarding the
+situation.
+
+- `result_base`: this parameter is an `int` describing the base in which the
+  result values are stored in the manip `.csv` file. By default it is set to
+  `10` but it is possible to set it to `16` in the case the values are stored in
+  hexadecimal.
+
 ### Minimal example
 ```python
 # test_base_0.py
