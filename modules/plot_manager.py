@@ -104,7 +104,7 @@ class PlotManager():
         if style_name in self.styles:
             self.style_name = style_name
             self.plot_result(self.styles[style_name], data_to_plot_index_list,
-                             data_labels_index, latex=True)
+                             data_labels_index, latex=False)
         else:
             print("Error: unknown plot style")
 

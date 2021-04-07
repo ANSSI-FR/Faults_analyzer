@@ -48,7 +48,8 @@ class AnalyzerComponent():
 
         # We check for fault
         for i, (lv, dv) in enumerate(zip(log_values, self.default_values)):
-            if lv != dv:
-                faulted_obs.append(Fault(i,lv))
+            if self.to_test[i]:
+                if lv != dv:
+                    faulted_obs.append(Fault(i,lv))
 
         return faulted_obs
