@@ -13,7 +13,7 @@ parent: Development
 {:toc}
 
 ## Location
-Modules for the analyzer are stored in the `modules/new_analyzer/` directory.
+Modules for the analyzer are stored in the `modules/analyzer/` directory.
 
 ## Naming convention
 Currently every analyzer module is defined in a file with the name
@@ -23,10 +23,10 @@ decorators of the analyzer component defined in `fault_analyzer_component.py`.
 The class name of the module is define as `FaultAnalyzerMODULENAME`.
 
 ## Loading a module
-The modules are loaded in the `modules/new_analyzer/analyzer.py` file, in the
+The modules are loaded in the `modules/analyzer/analyzer.py` file, in the
 `init_fault_analyzer()` function.
 ```python
-# modules/new_analyzer/analyzer.py
+# modules/analyzer/analyzer.py
 
 def init_fault_analyzer(self, **kwargs):
     fa = FaultAnalyzer(self.results, **kwargs)
@@ -76,7 +76,7 @@ def __init__(self, comp, **kwargs):
 - `kwargs` is a dictionary of parameters.
 
 To extract the wanted parameters from the dictionary, it is recommended to use
-the `init_arg()` function from the `modules/new_analyzer/arg_init.py` file:
+the `init_arg()` function from the `modules/analyzer/arg_init.py` file:
 ```python
 from .arg_init import init_arg
 
@@ -150,9 +150,9 @@ There are two mandatory functions.
   
 ## Template
 A template is available in the
-`modules/new_analyzer/fault_analyzer_decorator_template.py` file:
+`modules/analyzer/fault_analyzer_decorator_template.py` file:
 ```python
-# modules/new_analyzer/fault_analyzer_decorator_template.py
+# modules/analyzer/fault_analyzer_decorator_template.py
 
 from .arg_init import init_arg
 

@@ -13,7 +13,7 @@ parent: Development
 {:toc}
 
 ## File location
-The fault models are defined in the `modules/new_analyzer/fault_models.py` file.
+The fault models are defined in the `modules/analyzer/fault_models.py` file.
 
 ## Inheritance
 Currently, there are two fault models classes `InstructionFaultModel` and `DataFaultModel` which both inherit from the `FaultModel` class.
@@ -52,7 +52,7 @@ To create a new fault model you must define two things:
 
 Both must be set either in the `data_fault_models` or in the
 `instruction_fault_models` variables in the
-`modules/new_analyzer/fault_models.py` file.
+`modules/analyzer/fault_models.py` file.
 
 For instance:
 ```python
@@ -90,7 +90,7 @@ def my_test_function(fault, default_values, nb_bits):
 ```
 
 - the `fault` parameter is a `Fault` class defined in
-  `modules/new_analyzer/fault.py` and has the following definition:
+  `modules/analyzer/fault.py` and has the following definition:
   ```python
   class Fault():
     def __init__(self, faulted_obs, faulted_value):
@@ -113,4 +113,4 @@ origin(s) of the faulted value when it could be determined. In the case there
 are multiple origins, the returned value can be a tuple.
 
 #### Examples
-You can see examples in the `modules/new_analyzer/fault_models.py` file.
+You can see examples in the `modules/analyzer/fault_models.py` file.

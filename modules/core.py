@@ -13,7 +13,7 @@ from .manip import Manip
 from .results import Results, merge_results
 from .plot_manager import PlotManager
 
-from .new_analyzer.analyzer import Analyzer
+from .analyzer.analyzer import Analyzer
 
 def get_files(path):
     """Get the files from a given path.
