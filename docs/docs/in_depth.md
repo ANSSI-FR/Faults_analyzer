@@ -35,7 +35,7 @@ This module able the analyzer to identify various fault models. It is loaded
 when the `type` of every initial values (defined in the parameters file) is an
 `int`.
 
-It able to have the following information about the manip:
+It allows to have the following information about the manip:
 - **Fault model statistics**: this result contains the distribution of the
   identified fault models and their probability of occurrence.
 - **Unknown fault model values**: this result contains all the faulted values
@@ -54,6 +54,36 @@ It able to have the following information about the manip:
 #### Adding a new fault model
 
 See [how to add a new fault model]({{site.baseurl}}/dev/fault_models/).
+
+### Fault Models After Execution
+This module is very similar to the Fault Models module. The only difference is
+that it identifies the fault models based on the observed values in the log
+instead of the default values given in the parameters file.
+
+It is loaded when at list one value in the `to_test` parameter in the parameters
+file is set to `False`. This will force the analyzer to consider this value as a
+potential value involved in the fault models.
+
+It able to have the following information about the manip:
+- **Fault model statistics**: this result contains the distribution of the
+  identified fault models and their probability of occurrence.
+- **Unknown fault model values**: this result contains all the faulted values
+  for which the analyzer could not determine a fault model explaining its
+  appearance.
+- **{FAULT MODEL} after execution destination occurrence**: this result contains
+  the probability for each register to be faulted for every `{FAULT MODEL}`.
+  This is add if the corresponding `{FAULT MODEL}` appears at least once.
+- **{FAULT MODEL} after execution origin occurrence**: in the case the
+  determined `{FAULT MODEL}` involves a known value, and the origin of this
+  value has been determined, this result contains the probability for each
+  source to be involved in the corresponding `{FAULT MODEL}`. For instance, the
+  probability for each register to be the origin of the `XORed` value in the
+  case the analyzer determine the fault model is `XOR with other observed`.
+  
+The **Fault model statistics** and **Unknown fault model values** results
+replace the ones set by the Fault Models module. However, the best thing to do
+would be to merge them.
+{: .info}
 
 ### Carto
 This module able to analyze cartography manips and generate matrices from them.

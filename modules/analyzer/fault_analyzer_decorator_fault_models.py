@@ -26,11 +26,22 @@ class FaultAnalyzerFaultModels(FaultAnalyzerDecorator):
         self.inst_fault_model_origins = []
         self.inst_fault_model_origins_occurrence = []
 
+        self.suffix = "" # This suffix can be used in child class to identify
+                         # it. Used in the fault model after execution module.
+
+    def get_fault_model(self, fault, ope):
+        """The interest of this function is to be able to overload it. This is used in
+        the fault model after execution module to call the get_fault_model()
+        function with different default_values.
+
+        """
+        return get_fault_model(fault, self.default_values, self.nb_bits)
+
     def analyze(self, ope):
         super().analyze(ope)
         faults = self.get_faults(ope)
         for fault in faults:
-            fault_model = get_fault_model(fault, self.default_values, self.nb_bits)
+            fault_model = self.get_fault_model(fault, ope)
             if type(fault_model) == DataFaultModel:
                 self.update_data_fault_model(fault, fault_model)
             elif type(fault_model) == InstructionFaultModel:
@@ -50,13 +61,13 @@ class FaultAnalyzerFaultModels(FaultAnalyzerDecorator):
             return origin_name
 
     def update_inst_fault_model(self, fault, fault_model):
-        if fault_model.name in self.inst_fault_model_names:
-            i = self.inst_fault_model_names.index(fault_model.name)
+        if (fault_model.name + self.suffix) in self.inst_fault_model_names:
+            i = self.inst_fault_model_names.index(fault_model.name + self.suffix)
             self.inst_fault_model_occurrences[i] += 1
             self.inst_fault_model_destinations[i][fault.faulted_obs] += 1
             origin_name = self.get_origin_name(fault_model)
         else:
-            self.inst_fault_model_names.append(fault_model.name)
+            self.inst_fault_model_names.append(fault_model.name + self.suffix)
             self.inst_fault_model_occurrences.append(1)
             self.inst_fault_model_destinations.append([0]*len(self.obs))
             self.inst_fault_model_destinations[-1][fault.faulted_obs] += 1
@@ -92,8 +103,8 @@ class FaultAnalyzerFaultModels(FaultAnalyzerDecorator):
         fault_model_occurrences = [self.unknown_fault_model_occurrence] + self.data_fault_model_occurrences + self.inst_fault_model_occurrences
         res = {
             "title": "Fault model statistics",
-            "data": [fault_model_names, norm_percent(fault_model_occurrences)],
-            "labels": ["Names", "Occurrences (%)"]
+            "data": [fault_model_names, fault_model_occurrences, norm_percent(fault_model_occurrences)],
+            "labels": ["Names", "Occurrences (#)", "Occurrences (%)"]
         }
         self.results.append(res)
 
