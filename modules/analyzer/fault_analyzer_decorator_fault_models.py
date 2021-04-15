@@ -6,7 +6,7 @@ from .fault_analyzer_decorator import FaultAnalyzerDecorator
 
 from .fault_models import get_fault_model, DataFaultModel, InstructionFaultModel
 
-class FaultAnalyzerFaultModel(FaultAnalyzerDecorator):
+class FaultAnalyzerFaultModels(FaultAnalyzerDecorator):
     def __init__(self, comp, **kwargs):
         super().__init__(comp, **kwargs)
 

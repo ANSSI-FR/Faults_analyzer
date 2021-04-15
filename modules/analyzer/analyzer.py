@@ -11,7 +11,7 @@ from .fault_analyzer import FaultAnalyzer
 from .fault_analyzer_decorator_base import FaultAnalyzerBase
 from .fault_analyzer_decorator_delay import FaultAnalyzerDelay
 from .fault_analyzer_decorator_carto import FaultAnalyzerCarto
-from .fault_analyzer_decorator_fault_models import FaultAnalyzerFaultModel
+from .fault_analyzer_decorator_fault_models import FaultAnalyzerFaultModels
 from .fault_analyzer_decorator_fault_models_carto import FaultAnalyzerFaultModelsCarto
 
 class Analyzer(AnalyzerComponent):
@@ -26,7 +26,7 @@ class Analyzer(AnalyzerComponent):
         fa = FaultAnalyzer(self.results, **kwargs)
         fa = FaultAnalyzerBase(fa, **kwargs)
         if are_all(self.values_type, int):
-            fa = FaultAnalyzerFaultModel(fa, **kwargs)
+            fa = FaultAnalyzerFaultModels(fa, **kwargs)
         if "carto" in kwargs:
             if kwargs["carto"]:
                 fa = FaultAnalyzerCarto(fa, **kwargs)
