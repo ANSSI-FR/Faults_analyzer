@@ -1,5 +1,7 @@
 from ..bin_utils import a2_comp
 
+from .instr_fault_models_shift import instr_fault_model_shift
+
 class FaultModel():
     def __init__(self, name, faulted_obs):
         self.name = name
@@ -119,6 +121,9 @@ instr_fault_models = [
         "test": is_or_between_two_other_obs_fault_model
     }
 ]
+
+# We add the instruction fault models with shift in the instruction fault models
+instr_fault_models += instr_fault_model_shift
 
 fault_models = data_fault_models + instr_fault_models
 
