@@ -15,13 +15,14 @@ from .fault_analyzer_decorator_fault_models import FaultAnalyzerFaultModels
 from .fault_analyzer_decorator_fault_models_after_execution import FaultAnalyzerFaultModelsAfterExecution
 from .fault_analyzer_decorator_fault_models_carto import FaultAnalyzerFaultModelsCarto
 
+from .reboot_analyzer import RebootAnalyzer
+
 class Analyzer(AnalyzerComponent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
         self.results = []
-
         self.fault_analyzer = self.init_fault_analyzer(**kwargs)
+        self.reboot_analyzer = RebootAnalyzer(self.results, **kwargs)
 
     def init_fault_analyzer(self, **kwargs):
         fa = FaultAnalyzer(self.results, **kwargs)
@@ -55,14 +56,22 @@ class Analyzer(AnalyzerComponent):
 
     def post_analysis(self):
         self.fault_analyzer.post_analysis()
+        self.reboot_analyzer.post_analysis()
+
+    def is_done(self, ope):
+        if self.done_name == None:
+            return True
+        else:
+            return ope[self.done_name]
 
     def analyze(self, ope):
-        if self.is_reboot(ope):
-            pass
-        if self.is_log_bad_formated(ope):
-            pass
-        elif self.is_faulted(ope):
-            self.fault_analyzer.analyze(ope)
+        if self.is_done(ope):
+            if self.is_reboot(ope):
+                self.reboot_analyzer.analyze(ope)
+            if self.is_log_bad_formated(ope):
+                pass
+            elif self.is_faulted(ope):
+                self.fault_analyzer.analyze(ope)
 
     def is_log_bad_formated(self, ope):
         try:

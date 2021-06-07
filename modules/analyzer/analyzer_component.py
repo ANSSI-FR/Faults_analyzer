@@ -31,6 +31,9 @@ class AnalyzerComponent():
             self.result_base = [base]*len(self.obs)
         else:
             self.result_base = base
+        self.done_name = None
+        if "done_name" in kwargs:
+            self.done_name = init_arg("done_name", kwargs)
 
     def get_faults(self, ope):
         faulted_obs = []
