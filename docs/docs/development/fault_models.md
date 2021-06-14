@@ -43,7 +43,11 @@ Every fault model has two attributes:
 - `faulted_obs`: the index of the faulted observed.
 
 The `InstructionFaultModel` has a special attribute:
-- 
+- `origin`: the index(es) of the fault origin. For instance, when the observed
+  faulted value is the logical `OR` between the faulted register and another
+  register, it is the index of the second register. In the case the faulted
+  value is computed from different registers, it can be the list of the involved
+  registers (`(1,2)` for instance).
 
 ## Create a new fault model
 To create a new fault model you must define two things:
