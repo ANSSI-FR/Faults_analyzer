@@ -127,11 +127,11 @@ instr_fault_models += instr_fault_model_shift
 
 fault_models = data_fault_models + instr_fault_models
 
-def get_fault_model(fault, default_values, nb_bits):
+def get_fault_model(fault, default_values, nb_bits, suffix=""):
     for data_fault_model in data_fault_models:
         if data_fault_model["test"](fault, default_values, nb_bits):
-            return DataFaultModel(data_fault_model["name"], fault.faulted_obs)
+            return DataFaultModel(data_fault_model["name"]+suffix, fault.faulted_obs)
     for instr_fault_model in instr_fault_models:
         origin = instr_fault_model["test"](fault, default_values, nb_bits)
         if origin != None:
-            return InstructionFaultModel(instr_fault_model["name"], fault.faulted_obs, origin)
+            return InstructionFaultModel(instr_fault_model["name"]+suffix, fault.faulted_obs, origin)

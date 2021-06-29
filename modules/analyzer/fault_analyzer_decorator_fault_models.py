@@ -29,19 +29,23 @@ class FaultAnalyzerFaultModels(FaultAnalyzerDecorator):
         self.suffix = "" # This suffix can be used in child class to identify
                          # it. Used in the fault model after execution module.
 
-    def get_fault_model(self, fault, ope):
-        """The interest of this function is to be able to overload it. This is used in
-        the fault model after execution module to call the get_fault_model()
-        function with different default_values.
+    def get_values_after_execution_from_log(self, ope):
+        """Get the values of the registers from the log.
 
         """
-        return get_fault_model(fault, self.default_values, self.nb_bits)
+        log = ope[self.log_name]
+        log = log.split(self.log_sep)[1:-1]
+        values = [int(v,b) for v,b in zip(log,self.result_base)]
+        return values
 
     def analyze(self, ope):
         super().analyze(ope)
         faults = self.get_faults(ope)
         for fault in faults:
-            fault_model = self.get_fault_model(fault, ope)
+            fault_model = get_fault_model(fault, self.default_values, self.nb_bits)
+            if fault_model == None: # If we don't get a suitable fault model, we try with values after execution
+                values_after_exec = self.get_values_after_execution_from_log(ope)
+                fault_model = get_fault_model(fault, values_after_exec, self.nb_bits, suffix=" after execution")
             if type(fault_model) == DataFaultModel:
                 self.update_data_fault_model(fault, fault_model)
             elif type(fault_model) == InstructionFaultModel:

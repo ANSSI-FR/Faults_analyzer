@@ -12,7 +12,6 @@ from .fault_analyzer_decorator_base import FaultAnalyzerBase
 from .fault_analyzer_decorator_delay import FaultAnalyzerDelay
 from .fault_analyzer_decorator_carto import FaultAnalyzerCarto
 from .fault_analyzer_decorator_fault_models import FaultAnalyzerFaultModels
-from .fault_analyzer_decorator_fault_models_after_execution import FaultAnalyzerFaultModelsAfterExecution
 from .fault_analyzer_decorator_fault_models_carto import FaultAnalyzerFaultModelsCarto
 
 from .reboot_analyzer import RebootAnalyzer
@@ -36,8 +35,6 @@ class Analyzer(AnalyzerComponent):
         if ("delay_name" in kwargs):
             if kwargs["delay_name"] in fa.df:
                 fa = FaultAnalyzerDelay(fa, **kwargs)
-        if False in kwargs["to_test"]:
-            fa = FaultAnalyzerFaultModelsAfterExecution(fa, **kwargs)
         return fa
 
     def get_results(self):
