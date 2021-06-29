@@ -81,7 +81,7 @@ class PlotManager():
     """A class that able to manage the way to plot a Result.
 
     """
-    def __init__(self, styles, tmp_style, results=None):
+    def __init__(self, styles, tmp_style, results=None, latex=False):
         """Constructor of the class.
 
         :param Result result: the result containing the data to plot.
@@ -92,6 +92,8 @@ class PlotManager():
         self.tmp_style = tmp_style
         """The temporary plotting style to apply to the plot."""
         self.styles = styles
+        """A flag storing if we use the latex formatting or not."""
+        self.latex = latex
 
     def plot(self, style_name, data_to_plot_index_list=None, data_labels_index=None):
         """Check if the given plot style name is in the available styles. If so, plot the result data according to the given parameters.
@@ -104,7 +106,7 @@ class PlotManager():
         if style_name in self.styles:
             self.style_name = style_name
             self.plot_result(self.styles[style_name], data_to_plot_index_list,
-                             data_labels_index, latex=False)
+                             data_labels_index, latex=self.latex)
         else:
             print("Error: unknown plot style")
 

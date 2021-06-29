@@ -53,6 +53,17 @@ CONFIG = {
 - `parameters_dir` is the directory where the specific to manips parameters
   (such as initial values for instance) are stored.
 
+### Optional parameters
+There are some optional parameters available:
+
+- `latex`: a boolean to use for setting the Latex mode for
+  plotting figures.
+  ```python
+  CONFIG = {
+      "latex": True
+  }
+  ```
+
 ## The `manips`
 The `manips` files are `.csv` files storing the results of each experiments, but
 not analyzed.

@@ -43,7 +43,8 @@ class Core():
                  manips_dir="manips/",
                  parameters_dir="parameters/",
                  tikz_dir="tikz/",
-                 plot_style_file="plot_styles.py"):
+                 plot_style_file="plot_styles.py",
+                 latex=False):
         sys.path += [main_dir, getcwd()]
         self.results_dir = main_dir + results_dir
         self.manips_dir = main_dir + manips_dir
@@ -53,7 +54,7 @@ class Core():
         self.mm = ManipsManager()
         self.rm = ResultsManager()
         self.styles, self.tmp_style = self.get_plot_styles(plot_style_file)
-        self.pm = PlotManager(self.styles, self.tmp_style)
+        self.pm = PlotManager(self.styles, self.tmp_style, latex=latex)
         self.init()
 
     def get_plot_styles(self, plot_style_file):
