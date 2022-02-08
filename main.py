@@ -3,7 +3,6 @@ import argparse
 
 from modules.core import Core
 from interfaces.cmdline import Cmdline
-from interfaces.gtk3.gtk3_fault_analyzer import Gtk3FaultAnalyzer
 
 from config import CONFIG
 
@@ -15,6 +14,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.gui:
+        from interfaces.gtk3.gtk3_fault_analyzer import Gtk3FaultAnalyzer
         interface = Gtk3FaultAnalyzer(c)
         interface.start_interface()
     else:
