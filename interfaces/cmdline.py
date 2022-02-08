@@ -239,10 +239,11 @@ class Cmdline(Cmd):
     def help_save(self):
         print("Save the manip results into a JSON file.")
 
-        print("\nUsage: save [manip_index] [filename]")
+        print("\nUsage: save [manip_index] [filename] <result_index>")
         print("\t- manip_index: the index of the manip to save the results from.")
         print("\t- filename: the name of the file to save the results in.")
-
+        print("\t- result_index: (optional) the index of the result to save. If not given, all results will be saved.")
+        
         print("\nExamples:")
         print("\t- \"save 3 new_results\" save the results of the manip with index 3 in the file \"new_results.json\".")
 
