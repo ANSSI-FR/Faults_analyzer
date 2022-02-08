@@ -263,7 +263,6 @@ class Results():
         }
         with open(filename, "w+") as fp:
             json.dump(to_save, fp)
-        print("write of {} done in {}".format(to_save, fp))
 
     def __str__(self):
         """:return: A printable string of all the results.
