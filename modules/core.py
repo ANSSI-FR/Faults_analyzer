@@ -87,7 +87,12 @@ class Core():
             Path(directory).mkdir(parents=True, exist_ok=True)
 
     def get_results_files(self):
-        return get_files(self.results_dir)
+        files = get_files(self.results_dir)
+        r_files = []
+        for f in files:
+            if f.lower().endswith(".json"):
+                r_files.append(f)
+        return r_files
 
     def get_manips_files(self):
         return get_files(self.manips_dir)
@@ -218,8 +223,7 @@ class Core():
         if not filename.lower().endswith(".json"):
             filename += ".json"
         results = self.get_results_from_manip(results_index)
-        results.save(filename, results_indexes)
-        #self.rm.save(results_index, self.results_dir + filename)
+        results.save(self.results_dir + filename, results_indexes)
         print("Results of {} saved in {}".format(results.id_name, self.results_dir + filename))
 
     def get_results_to_plot(self, results):
