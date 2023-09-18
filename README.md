@@ -1,5 +1,9 @@
 # Fault Analyzer
 
+## Archiving
+
+This project is not maintained anymore and has been archived on September 18th, 2023. No further work is expected to happen here.
+
 ## Introduction
 This software is a development started by Thomas Trouchkine during its PhD.
 thesis at the French Cybersecurity Agency (ANSSI). It aims at providing all the
